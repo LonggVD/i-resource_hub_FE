@@ -1,0 +1,76 @@
+<header class="header">
+  <!-- Left section -->
+  <div class="header__left">
+    <button class="header__toggle" (click)="toggleSidebar()">
+      <tui-icon icon="@tui.menu" />
+    </button>
+
+    <a routerLink="/" class="header__logo">
+      <div class="header__logo-icon">
+        <tui-icon icon="@tui.box" />
+      </div>
+      <span class="header__logo-text">iResource Hub</span>
+    </a>
+  </div>
+
+  <!-- Right section -->
+  <div class="header__right">
+    <!-- Notifications -->
+    <button class="header__action-btn" title="Thông báo">
+      <tui-badged-content>
+        @if (notificationCount() > 0) {
+          <tui-badge
+            tuiBadge
+            appearance="error"
+            size="s"
+          >{{ notificationCount() }}</tui-badge>
+        }
+        <tui-icon icon="@tui.bell" />
+      </tui-badged-content>
+    </button>
+
+    <!-- User Menu -->
+    <div class="header__user" (click)="toggleUserMenu()">
+      <div class="header__avatar">
+        {{ userInitial() }}
+      </div>
+      <div class="header__user-info">
+        <span class="header__user-name">{{ displayName() }}</span>
+        <span class="header__user-role">{{ userRoleLabel() }}</span>
+      </div>
+      <tui-icon
+        class="header__chevron"
+        [class.header__chevron--open]="showUserMenu()"
+        icon="@tui.chevron-down"
+      />
+    </div>
+
+    <!-- Dropdown Menu -->
+    @if (showUserMenu()) {
+      <div class="header__dropdown-backdrop" (click)="closeUserMenu()"></div>
+      <div class="header__dropdown">
+        <div class="header__dropdown-header">
+          <div class="header__dropdown-avatar">{{ userInitial() }}</div>
+          <div>
+            <div class="header__dropdown-name">{{ displayName() }}</div>
+            <div class="header__dropdown-role">{{ userRoleLabel() }}</div>
+          </div>
+        </div>
+        <div class="header__dropdown-divider"></div>
+        <a class="header__dropdown-item" routerLink="/profile">
+          <tui-icon icon="@tui.user" />
+          <span>Hồ sơ cá nhân</span>
+        </a>
+        <a class="header__dropdown-item" routerLink="/settings">
+          <tui-icon icon="@tui.settings" />
+          <span>Cài đặt</span>
+        </a>
+        <div class="header__dropdown-divider"></div>
+        <button class="header__dropdown-item header__dropdown-item--danger" (click)="logout()">
+          <tui-icon icon="@tui.log-out" />
+          <span>Đăng xuất</span>
+        </button>
+      </div>
+    }
+  </div>
+</header>

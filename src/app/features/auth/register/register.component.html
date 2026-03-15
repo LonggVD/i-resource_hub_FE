@@ -1,0 +1,165 @@
+
+<div class="register-page">
+    <app-login-form-left></app-login-form-left>
+  <div class="register-form-wrapper">
+    <div class="register-form-container">
+      <div class="form-header">
+        <h2 class="form-title">Dang ky tai khoan</h2>
+        <p class="form-description">Tao tai khoan moi de su dung he thong</p>
+      </div>
+
+      @if (errorMessage()) {
+        <div class="error-banner">
+          <tui-icon icon="@tui.circle-alert" class="error-icon" />
+          <span>{{ errorMessage() }}</span>
+        </div>
+      }
+
+      @if (successMessage()) {
+        <div class="success-banner">
+          <tui-icon icon="@tui.circle-check" class="success-icon" />
+          <span>{{ successMessage() }}</span>
+        </div>
+      }
+
+      <form [formGroup]="registerForm" (ngSubmit)="onSubmit()" class="register-form">
+        <div class="form-field">
+          <label class="field-label" for="accountType">
+            <tui-icon icon="@tui.users" class="label-icon" />
+            Loai tai khoan
+          </label>
+          <select id="accountType" class="native-select" formControlName="accountType">
+            <option value="STUDENT">Sinh vien</option>
+            <option value="MANAGER">Quan ly</option>
+          </select>
+        </div>
+
+        <div class="form-field">
+          <label tuiLabel class="field-label">
+            <tui-icon icon="@tui.user-round" class="label-icon" />
+            Ho va ten
+          </label>
+          <tui-textfield iconStart="@tui.user-round" class="input-field">
+            <input tuiTextfield formControlName="fullName" placeholder="Nhap ho va ten" />
+          </tui-textfield>
+        </div>
+
+        <div class="form-field">
+          <label tuiLabel class="field-label">
+            <tui-icon icon="@tui.at-sign" class="label-icon" />
+            Ten dang nhap
+          </label>
+          <tui-textfield iconStart="@tui.at-sign" class="input-field">
+            <input tuiTextfield formControlName="username" placeholder="Nhap ten dang nhap" />
+          </tui-textfield>
+        </div>
+
+        <div class="form-field">
+          <label tuiLabel class="field-label">
+            <tui-icon icon="@tui.mail" class="label-icon" />
+            Email
+          </label>
+          <tui-textfield iconStart="@tui.mail" class="input-field">
+            <input tuiTextfield formControlName="email" placeholder="example@email.com" />
+          </tui-textfield>
+        </div>
+
+        <div class="form-field">
+          <label tuiLabel class="field-label">
+            <tui-icon icon="@tui.phone" class="label-icon" />
+            So dien thoai
+          </label>
+          <tui-textfield iconStart="@tui.phone" class="input-field">
+            <input tuiTextfield formControlName="phone" placeholder="Nhap so dien thoai (khong bat buoc)" />
+          </tui-textfield>
+        </div>
+
+        @if (isStudentAccount()) {
+          <div class="form-field">
+            <label tuiLabel class="field-label">
+              <tui-icon icon="@tui.badge" class="label-icon" />
+              Ma sinh vien
+            </label>
+            <tui-textfield iconStart="@tui.badge" class="input-field">
+              <input tuiTextfield formControlName="studentCode" placeholder="Nhap ma sinh vien" />
+            </tui-textfield>
+          </div>
+        } @else {
+          <div class="form-field">
+            <label tuiLabel class="field-label">
+              <tui-icon icon="@tui.building" class="label-icon" />
+              Khoa/Phong ban (unitId)
+            </label>
+            <tui-textfield iconStart="@tui.building" class="input-field">
+              <input tuiTextfield formControlName="unitId" placeholder="Nhap unitId" />
+            </tui-textfield>
+          </div>
+        }
+
+        <div class="form-field">
+          <label tuiLabel class="field-label">
+            <tui-icon icon="@tui.lock" class="label-icon" />
+            Mat khau
+          </label>
+          <tui-textfield iconStart="@tui.lock" class="input-field">
+            <input tuiTextfield type="password" formControlName="password" placeholder="Nhap mat khau" />
+            <tui-icon tuiPassword />
+          </tui-textfield>
+        </div>
+
+        <div class="form-field">
+          <label tuiLabel class="field-label">
+            <tui-icon icon="@tui.shield-check" class="label-icon" />
+            Xac nhan mat khau
+          </label>
+          <tui-textfield iconStart="@tui.shield-check" class="input-field">
+            <input
+              tuiTextfield
+              type="password"
+              formControlName="confirmPassword"
+              placeholder="Nhap lai mat khau"
+            />
+            <tui-icon tuiPassword />
+          </tui-textfield>
+
+          @if (passwordMismatch()) {
+            <div class="field-hint error">Mat khau xac nhan khong khop.</div>
+          }
+        </div>
+
+        <div class="form-actions">
+          <tui-loader [showLoader]="isLoading()" class="register-loader">
+            <button
+              tuiButton
+              type="submit"
+              appearance="primary"
+              class="register-button"
+              [disabled]="isLoading()"
+            >
+              <tui-icon icon="@tui.user-plus" />
+              Dang ky
+            </button>
+          </tui-loader>
+        </div>
+      </form>
+
+      <div class="divider-container">
+        <span class="divider-text">Hoac</span>
+      </div>
+
+      <div class="signin-section">
+        <p class="signin-text">
+          Da co tai khoan?
+          <a routerLink="/login" class="signin-link">
+            <tui-icon icon="@tui.log-in" />
+            Dang nhap
+          </a>
+        </p>
+      </div>
+
+      <div class="form-footer">
+        <p>© 2026 iResource Hub. All rights reserved.</p>
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,308 @@
+:host {
+  display: block;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 64px;
+  padding: 0 20px;
+  background: rgba(15, 23, 42, 0.95);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid rgba(99, 102, 241, 0.15);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+}
+
+/* ===== LEFT SECTION ===== */
+.header__left {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.header__toggle {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border: none;
+  border-radius: 10px;
+  background: rgba(99, 102, 241, 0.1);
+  color: #a5b4fc;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.header__toggle:hover {
+  background: rgba(99, 102, 241, 0.2);
+  color: #c7d2fe;
+  transform: scale(1.05);
+}
+
+.header__logo {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  text-decoration: none;
+}
+
+.header__logo-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  background: linear-gradient(135deg, #6366f1, #8b5cf6);
+  color: white;
+  box-shadow: 0 2px 8px rgba(99, 102, 241, 0.4);
+}
+
+.header__logo-icon tui-icon {
+  font-size: 18px;
+}
+
+.header__logo-text {
+  font-size: 18px;
+  font-weight: 700;
+  background: linear-gradient(135deg, #c7d2fe, #a5b4fc);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  letter-spacing: -0.3px;
+}
+
+/* ===== RIGHT SECTION ===== */
+.header__right {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  position: relative;
+}
+
+.header__action-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border: none;
+  border-radius: 10px;
+  background: rgba(99, 102, 241, 0.08);
+  color: #94a3b8;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.header__action-btn:hover {
+  background: rgba(99, 102, 241, 0.15);
+  color: #c7d2fe;
+  transform: scale(1.05);
+}
+
+/* ===== USER AREA ===== */
+.header__user {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 6px 12px 6px 6px;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  margin-left: 8px;
+}
+
+.header__user:hover {
+  background: rgba(99, 102, 241, 0.1);
+}
+
+.header__avatar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  background: linear-gradient(135deg, #6366f1, #a855f7);
+  color: white;
+  font-weight: 700;
+  font-size: 14px;
+  letter-spacing: 0.5px;
+  box-shadow: 0 2px 6px rgba(99, 102, 241, 0.35);
+}
+
+.header__user-info {
+  display: flex;
+  flex-direction: column;
+}
+
+.header__user-name {
+  font-size: 13px;
+  font-weight: 600;
+  color: #e2e8f0;
+  line-height: 1.3;
+}
+
+.header__user-role {
+  font-size: 11px;
+  color: #64748b;
+  line-height: 1.3;
+}
+
+.header__chevron {
+  color: #64748b;
+  font-size: 16px;
+  transition: transform 0.25s ease;
+}
+
+.header__chevron--open {
+  transform: rotate(180deg);
+}
+
+/* ===== DROPDOWN ===== */
+.header__dropdown-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 199;
+}
+
+.header__dropdown {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  width: 260px;
+  background: rgba(20, 27, 45, 0.98);
+  backdrop-filter: blur(16px);
+  border: 1px solid rgba(99, 102, 241, 0.15);
+  border-radius: 14px;
+  box-shadow:
+    0 20px 60px rgba(0, 0, 0, 0.5),
+    0 0 0 1px rgba(99, 102, 241, 0.08);
+  z-index: 200;
+  padding: 6px;
+  animation: dropdownSlide 0.2s ease;
+}
+
+@keyframes dropdownSlide {
+  from {
+    opacity: 0;
+    transform: translateY(-8px) scale(0.96);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.header__dropdown-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px;
+}
+
+.header__dropdown-avatar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 42px;
+  height: 42px;
+  border-radius: 12px;
+  background: linear-gradient(135deg, #6366f1, #a855f7);
+  color: white;
+  font-weight: 700;
+  font-size: 16px;
+  flex-shrink: 0;
+}
+
+.header__dropdown-name {
+  font-size: 14px;
+  font-weight: 600;
+  color: #e2e8f0;
+}
+
+.header__dropdown-role {
+  font-size: 12px;
+  color: #64748b;
+  margin-top: 2px;
+}
+
+.header__dropdown-divider {
+  height: 1px;
+  background: rgba(99, 102, 241, 0.1);
+  margin: 4px 8px;
+}
+
+.header__dropdown-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 12px;
+  border-radius: 10px;
+  color: #cbd5e1;
+  font-size: 13px;
+  font-weight: 500;
+  text-decoration: none;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  border: none;
+  background: none;
+  width: 100%;
+  text-align: left;
+}
+
+.header__dropdown-item tui-icon {
+  font-size: 18px;
+  color: #64748b;
+  transition: color 0.15s ease;
+}
+
+.header__dropdown-item:hover {
+  background: rgba(99, 102, 241, 0.1);
+  color: #e2e8f0;
+}
+
+.header__dropdown-item:hover tui-icon {
+  color: #a5b4fc;
+}
+
+.header__dropdown-item--danger {
+  color: #f87171;
+}
+
+.header__dropdown-item--danger tui-icon {
+  color: #f87171;
+}
+
+.header__dropdown-item--danger:hover {
+  background: rgba(248, 113, 113, 0.1);
+  color: #fca5a5;
+}
+
+.header__dropdown-item--danger:hover tui-icon {
+  color: #fca5a5;
+}
+
+/* ===== RESPONSIVE ===== */
+@media (max-width: 768px) {
+  .header {
+    padding: 0 12px;
+  }
+
+  .header__logo-text {
+    display: none;
+  }
+
+  .header__user-info {
+    display: none;
+  }
+
+  .header__user {
+    padding: 6px;
+  }
+}

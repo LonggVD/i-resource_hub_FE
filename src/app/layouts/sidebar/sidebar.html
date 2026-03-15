@@ -1,0 +1,54 @@
+<!-- Mobile backdrop -->
+@if (mobileOpen()) {
+  <div class="sidebar__backdrop" (click)="closeMobile()"></div>
+}
+
+<aside
+  class="sidebar"
+  [class.sidebar--collapsed]="collapsed()"
+  [class.sidebar--mobile-open]="mobileOpen()"
+>
+  <!-- Navigation -->
+  <nav class="sidebar__nav">
+    <!-- Student section label -->
+    @if (!collapsed()) {
+      <div class="sidebar__section-label">
+        <span>MENU CHÍNH</span>
+      </div>
+    }
+
+    @for (item of menuItems(); track item.route) {
+      <a
+        class="sidebar__item"
+        [routerLink]="item.route"
+        routerLinkActive="sidebar__item--active"
+        [routerLinkActiveOptions]="{ exact: item.route === '/dashboard' }"
+        (click)="onNavClick()"
+        [title]="item.label"
+      >
+        <div class="sidebar__item-icon">
+          <tui-icon [icon]="item.icon" />
+        </div>
+        @if (!collapsed()) {
+          <span class="sidebar__item-label">{{ item.label }}</span>
+        }
+        @if (!collapsed() && item.badge) {
+          <span class="sidebar__item-badge">{{ item.badge }}</span>
+        }
+      </a>
+    }
+  </nav>
+
+  <!-- Bottom section -->
+  <div class="sidebar__footer">
+    @if (!collapsed()) {
+      <div class="sidebar__footer-info">
+        <div class="sidebar__footer-role">
+          <tui-icon icon="@tui.shield" />
+          <span>{{ userRoleLabel() }}</span>
+        </div>
+        <div class="sidebar__footer-version">v1.0.0</div>
+      </div>
+    }
+  </div>
+</aside>

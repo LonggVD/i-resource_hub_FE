@@ -1,0 +1,12 @@
+<div class="layout">
+  <app-header />
+  <app-sidebar />
+  <main
+    class="layout__content"
+    [class.layout__content--collapsed]="collapsed()"
+  >
+    <div class="layout__page">
+      <router-outlet />
+    </div>
+  </main>
+</div>

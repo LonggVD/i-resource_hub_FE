@@ -1,0 +1,217 @@
+/* ===== BACKDROP (mobile) ===== */
+.sidebar__backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(4px);
+  z-index: 89;
+  animation: fadeIn 0.2s ease;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+/* ===== SIDEBAR CONTAINER ===== */
+.sidebar {
+  position: fixed;
+  top: 64px;
+  left: 0;
+  bottom: 0;
+  width: 260px;
+  background: rgba(10, 15, 30, 0.97);
+  backdrop-filter: blur(12px);
+  border-right: 1px solid rgba(99, 102, 241, 0.1);
+  display: flex;
+  flex-direction: column;
+  z-index: 90;
+  transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  overflow: hidden;
+}
+
+.sidebar--collapsed {
+  width: 72px;
+}
+
+/* ===== NAV ===== */
+.sidebar__nav {
+  flex: 1;
+  padding: 16px 10px;
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+
+.sidebar__nav::-webkit-scrollbar {
+  width: 4px;
+}
+
+.sidebar__nav::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.sidebar__nav::-webkit-scrollbar-thumb {
+  background: rgba(99, 102, 241, 0.2);
+  border-radius: 4px;
+}
+
+/* ===== SECTION LABEL ===== */
+.sidebar__section-label {
+  padding: 8px 14px 10px;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 1.2px;
+  text-transform: uppercase;
+  color: #475569;
+  white-space: nowrap;
+}
+
+/* ===== NAV ITEM ===== */
+.sidebar__item {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 0 14px;
+  height: 44px;
+  border-radius: 12px;
+  color: #94a3b8;
+  text-decoration: none;
+  font-size: 13.5px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  margin-bottom: 4px;
+  position: relative;
+  white-space: nowrap;
+  overflow: hidden;
+}
+
+.sidebar__item:hover {
+  background: rgba(99, 102, 241, 0.08);
+  color: #c7d2fe;
+}
+
+.sidebar__item--active {
+  background: linear-gradient(135deg, rgba(99, 102, 241, 0.15), rgba(139, 92, 246, 0.1));
+  color: #a5b4fc;
+  box-shadow: inset 3px 0 0 0 #6366f1;
+}
+
+.sidebar__item--active .sidebar__item-icon {
+  color: #818cf8;
+}
+
+.sidebar__item-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  flex-shrink: 0;
+  transition: color 0.2s ease;
+}
+
+.sidebar__item-icon tui-icon {
+  font-size: 20px;
+}
+
+.sidebar__item-label {
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.sidebar__item-badge {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 20px;
+  height: 20px;
+  padding: 0 6px;
+  border-radius: 10px;
+  background: linear-gradient(135deg, #6366f1, #8b5cf6);
+  color: white;
+  font-size: 11px;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+
+/* ===== FOOTER ===== */
+.sidebar__footer {
+  padding: 12px 14px;
+  border-top: 1px solid rgba(99, 102, 241, 0.08);
+}
+
+.sidebar__footer-info {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.sidebar__footer-role {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 11px;
+  font-weight: 600;
+  color: #64748b;
+  white-space: nowrap;
+}
+
+.sidebar__footer-role tui-icon {
+  font-size: 14px;
+  color: #6366f1;
+}
+
+.sidebar__footer-version {
+  font-size: 10px;
+  color: #334155;
+  font-weight: 500;
+}
+
+/* ===== COLLAPSED STATE ADJUSTMENTS ===== */
+.sidebar--collapsed .sidebar__item {
+  justify-content: center;
+  padding: 0;
+}
+
+.sidebar--collapsed .sidebar__item-icon {
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+}
+
+.sidebar--collapsed .sidebar__item--active {
+  box-shadow: none;
+  background: rgba(99, 102, 241, 0.15);
+}
+
+.sidebar--collapsed .sidebar__footer {
+  display: flex;
+  justify-content: center;
+  padding: 12px 0;
+}
+
+/* ===== MOBILE ===== */
+@media (max-width: 1023px) {
+  .sidebar {
+    transform: translateX(-100%);
+    width: 280px;
+    top: 0;
+    box-shadow: 4px 0 30px rgba(0, 0, 0, 0.5);
+  }
+
+  .sidebar--mobile-open {
+    transform: translateX(0);
+  }
+
+  .sidebar--collapsed {
+    width: 280px;
+  }
+}
+
+@media (min-width: 1024px) {
+  .sidebar__backdrop {
+    display: none;
+  }
+}
