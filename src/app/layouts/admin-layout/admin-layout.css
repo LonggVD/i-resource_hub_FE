@@ -1,7 +1,7 @@
 :host {
   display: block;
   min-height: 100vh;
-  background: #060a18;
+  background: #f1f5f9;
 }
 
 .layout {
@@ -15,10 +15,7 @@
   margin-top: 0;
   min-height: calc(100vh - 64px);
   transition: margin-left 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  background:
-    radial-gradient(ellipse at 10% 20%, rgba(99, 102, 241, 0.04) 0%, transparent 50%),
-    radial-gradient(ellipse at 90% 80%, rgba(139, 92, 246, 0.03) 0%, transparent 50%),
-    #0a0f1e;
+  background: #f1f5f9;
 }
 
 .layout__content--collapsed {
@@ -27,7 +24,6 @@
 
 .layout__page {
   padding: 24px;
-  max-width: 1400px;
   width: 100%;
   animation: pageIn 0.3s ease;
 }

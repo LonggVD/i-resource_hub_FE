@@ -1,0 +1,167 @@
+:host {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+/* ── Panel wrapper ─────────────────────────────────────────── */
+.units-panel {
+  display: flex;
+  flex-direction: column;
+  border: 1px solid #e2e8f0;
+  border-radius: 24px;
+  background: #ffffff;
+  box-shadow: 0 4px 24px rgba(99, 102, 241, 0.08), 0 1px 4px rgba(15, 23, 42, 0.06);
+  overflow: hidden;
+}
+
+.units-panel__header {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 24px 24px 20px;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+/* ── Filter Section ── */
+.units-panel__filters {
+  display: flex;
+  gap: 16px;
+  padding: 16px 24px;
+  background: #fdfdfd;
+  border-bottom: 1px solid #f1f5f9;
+}
+
+.filter-item {
+  flex: 1;
+  max-width: 300px;
+}
+
+.units-panel__eyebrow {
+  margin: 0 0 6px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: #6366f1;
+}
+
+.units-panel__title {
+  margin: 0;
+  font-size: 26px;
+  line-height: 1.1;
+  font-weight: 700;
+  letter-spacing: -0.03em;
+  color: #1e293b;
+}
+
+.units-loader {
+  display: block;
+  width: 100%;
+}
+
+/* ── TreeTable Styling ────────────────────────────────────── */
+:host ::ng-deep .p-treetable {
+  width: 100%;
+  font-size: 14px;
+}
+
+:host ::ng-deep .p-treetable .p-treetable-thead > tr > th {
+  background: #f8fafc;
+  color: #475569;
+  font-weight: 600;
+  border-bottom: 1px solid #e2e8f0;
+  padding: 12px 16px;
+}
+
+:host ::ng-deep .p-treetable .p-treetable-tbody > tr {
+  height: 48px;
+  transition: background-color 0.18s ease;
+}
+
+:host ::ng-deep .p-treetable .p-treetable-tbody > tr:nth-child(odd) {
+  background: #f8fafc;
+}
+
+:host ::ng-deep .p-treetable .p-treetable-tbody > tr:hover {
+  background: #eef2ff !important;
+}
+
+:host ::ng-deep .p-treetable .p-treetable-tbody > tr > td {
+  padding: 8px 16px;
+  border-bottom: 1px solid #f1f5f9;
+}
+
+/* ── Toggler ── */
+:host ::ng-deep .p-treetable .p-treetable-toggler {
+  width: 22px;
+  height: 22px;
+  background: #eef2ff;
+  color: #6366f1;
+  border-radius: 6px;
+  margin-right: 8px;
+}
+
+.action-buttons {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+}
+
+/* Base reset cho tất cả action button */
+.action-buttons button[tuiIconButton] {
+  width: 30px !important;
+  height: 30px !important;
+  border-radius: 8px !important;
+  transition:
+    background 0.18s ease,
+    transform 0.12s ease,
+    box-shadow 0.18s ease;
+}
+
+.action-buttons button[tuiIconButton]:active {
+  transform: scale(0.9);
+}
+
+/* Nút action */
+.action-buttons .btn-action {
+  background: #f5f7ff !important;
+  color: #6366f1 !important;
+  border: 1px solid #e0e7ff;
+  box-shadow:
+    inset 2px 2px 5px rgba(0, 0, 0, 0.08),
+    inset -2px -2px 5px rgba(255, 255, 255, 0.9);
+  transition: all 0.2s ease;
+}
+
+/* hover: Chìm nhưng đậm hơn chút */
+.action-buttons .btn-action:hover {
+  background: #eef2ff !important;
+  box-shadow:
+    inset 3px 3px 6px rgba(0, 0, 0, 0.1),
+    inset -3px -3px 6px rgba(255, 255, 255, 1);
+}
+
+/* khi click: Chìm sâu hơn */
+.action-buttons .btn-action:active {
+  box-shadow:
+    inset 4px 4px 8px rgba(0, 0, 0, 0.15),
+    inset -4px -4px 8px rgba(255, 255, 255, 1);
+}
+
+.text-center {
+  text-align: center;
+}
+
+/* ── Scrollbar ── */
+:host ::ng-deep .p-treetable ::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+:host ::ng-deep .p-treetable ::-webkit-scrollbar-thumb {
+  background: #c7d2fe;
+  border-radius: 3px;
+}

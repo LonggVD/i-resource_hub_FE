@@ -1,0 +1,12 @@
+<div class="notification-container" [ngClass]="data.type">
+  <span class="message">
+    @if (data.type === 'success') {
+      <tui-icon icon="circle-check-big"></tui-icon>
+    } @else if (data.type === 'error') {
+      <tui-icon icon="circle-x"></tui-icon>
+    } @else if (data.type === 'info') {
+      <tui-icon icon="circle-alert"></tui-icon>
+    }
+    &nbsp; {{ data.message }}
+    </span>
+</div>

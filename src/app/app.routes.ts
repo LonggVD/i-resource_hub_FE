@@ -36,6 +36,18 @@ export const routes: Routes = [
         loadComponent: () =>
           import('./features/resources/resources.component').then((m) => m.ResourcesComponent),
       },
+      {
+        path: 'admin/categories',
+        loadComponent: () =>
+          import('./features/categories/categories.component').then((m) => m.CategoriesComponent),
+      },
+      {
+        path: 'admin/organization-units',
+        loadComponent: () =>
+          import('./features/organization-units/organization-units.component').then(
+            (m) => m.OrganizationUnitsComponent,
+          ),
+      },
     ],
   },
   {

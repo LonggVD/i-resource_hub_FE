@@ -1,10 +1,10 @@
-import { Component, computed, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { TuiIcon } from '@taiga-ui/core';
 import { TuiBadgedContent, TuiBadge } from '@taiga-ui/kit';
-import { AuthService } from '../../core/services/auth.service';
-import { SidebarService } from '../../core/services/sidebar.service';
+import { AuthService } from '../../core/api/auth.service';
+import { SidebarService } from '../../core/api/sidebar.service';
 
 @Component({
   selector: 'app-header',
@@ -12,6 +12,7 @@ import { SidebarService } from '../../core/services/sidebar.service';
   imports: [CommonModule, RouterLink, TuiIcon, TuiBadgedContent, TuiBadge],
   templateUrl: './header.html',
   styleUrl: './header.css',
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class Header {
   protected readonly notificationCount = signal(3);

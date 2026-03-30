@@ -1,0 +1,19 @@
+<div class="irh-aggrid-wrapper">
+  <ag-grid-angular
+    [theme]="theme"
+    style="width: 100%;"
+    [style.height]="gridHeight"
+    [rowData]="rowData"
+    [columnDefs]="columnDefs"
+    [defaultColDef]="defaultColDef"
+    [rowHeight]="rowHeight"
+    [headerHeight]="headerHeight"
+    [pagination]="pagination"
+    [paginationPageSize]="paginationPageSize"
+    [paginationPageSizeSelector]="[5, 10, 20, 50]"
+    [domLayout]="domLayout"
+    [animateRows]="true"
+    (gridReady)="onGridReady($event)"
+  />
+</div>
+

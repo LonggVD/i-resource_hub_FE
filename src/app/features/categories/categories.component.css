@@ -1,0 +1,274 @@
+﻿:host {
+	display: block;
+	width: 100%;
+	height: 100%;
+}
+
+/* â”€â”€ Panel wrapper â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+.categories-panel {
+	display: flex;
+	flex-direction: column;
+	gap: 0;
+	border: 1px solid #e2e8f0;
+	border-radius: 24px;
+	background: #ffffff;
+	box-shadow:
+		0 4px 24px rgba(99, 102, 241, 0.08),
+		0 1px 4px rgba(15, 23, 42, 0.06);
+	overflow: hidden;
+}
+
+.categories-panel__header {
+	display: flex;
+	align-items: end;
+	justify-content: space-between;
+	gap: 16px;
+	padding: 24px 24px 20px;
+	border-bottom: 1px solid #e2e8f0;
+}
+
+.categories-panel__eyebrow {
+	margin: 0 0 6px;
+	font-size: 11px;
+	font-weight: 700;
+	letter-spacing: 0.16em;
+	text-transform: uppercase;
+	color: #6366f1;
+}
+
+.categories-panel__title {
+	margin: 0;
+	font-size: 26px;
+	line-height: 1.1;
+	font-weight: 700;
+	letter-spacing: -0.03em;
+	color: #1e293b;
+}
+
+.categories-panel__add-button{
+	border-radius: 5px;
+	margin-right: 10px;
+}
+.categories-panel__delete-list-button{
+	border-radius: 5px;
+}
+
+/* â”€â”€ TuiLoader wrapper â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+.categories-loader {
+	display: block;
+	width: 100%;
+}
+
+/* â”€â”€ PrimeNG TreeTable container â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+:host ::ng-deep .p-treetable {
+	width: 100%;
+	border: none;
+	border-radius: 0;
+	overflow: hidden;
+	background: #ffffff;
+	font-size: 14px;
+	font-family: 'Segoe UI', sans-serif;
+}
+
+/* â”€â”€ Scrollable wrapper â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+:host ::ng-deep .p-treetable .p-treetable-scrollable-view {
+	border-radius: 0;
+}
+
+:host ::ng-deep .p-treetable .p-scroller-viewport {
+	border-radius: 0;
+}
+
+/* â”€â”€ Header row â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+:host ::ng-deep .p-treetable .p-treetable-thead > tr > th {
+	height: 52px;
+	padding: 0 16px;
+	background: #f8fafc;
+	color: #475569;
+	font-size: 13px;
+	font-weight: 600;
+	border: none;
+	border-bottom: 1px solid #e2e8f0;
+	white-space: nowrap;
+}
+
+:host ::ng-deep .p-treetable .p-treetable-thead > tr > th:first-child {
+	border-radius: 0;
+}
+
+:host ::ng-deep .p-treetable .p-treetable-thead > tr > th:last-child {
+	border-radius: 0;
+}
+
+/* â”€â”€ Body rows â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+:host ::ng-deep .p-treetable .p-treetable-tbody > tr {
+	height: 48px;
+	background: #ffffff;
+	transition: background-color 0.18s ease;
+}
+
+:host ::ng-deep .p-treetable .p-treetable-tbody > tr:nth-child(odd) {
+	background: #f8fafc;
+}
+
+:host ::ng-deep .p-treetable .p-treetable-tbody > tr:hover {
+	background: #eef2ff !important;
+}
+
+:host ::ng-deep .p-treetable .p-treetable-tbody > tr > td {
+	padding: 0 16px;
+	color: #334155;
+	border: none;
+	border-bottom: 1px solid #f1f5f9;
+	vertical-align: middle;
+}
+
+/* â”€â”€ Toggler (expand/collapse icon) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+:host ::ng-deep .p-treetable .p-treetable-toggler {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	width: 22px;
+	height: 22px;
+	margin-right: 6px;
+	border: none;
+	border-radius: 6px;
+	background: #eef2ff;
+	color: #6366f1;
+	cursor: pointer;
+	transition:
+		background 0.18s ease,
+		color 0.18s ease;
+	vertical-align: middle;
+}
+
+:host ::ng-deep .p-treetable .p-treetable-toggler:hover {
+	background: #e0e7ff;
+	color: #4338ca;
+}
+
+/* Leaf rows (no toggler) - indent placeholder */
+:host ::ng-deep .p-treetable .p-treetable-tbody > tr.p-treetable-row-leaf > td:first-child {
+	padding-left: 44px;
+}
+
+/* Actions cell */
+:host ::ng-deep .actions-cell {
+	width: 136px;
+	min-width: 136px;
+}
+
+.action-buttons {
+	display: flex;
+	align-items: center;
+	gap: 6px;
+}
+
+/* Base reset cho tất cả action button */
+.action-buttons button[tuiIconButton] {
+	width: 30px !important;
+	height: 30px !important;
+	border-radius: 8px !important;
+	transition:
+		background 0.18s ease,
+		transform 0.12s ease,
+		box-shadow 0.18s ease;
+}
+
+.action-buttons button[tuiIconButton]:active {
+	transform: scale(0.9);
+}
+
+/* Nút action */
+.action-buttons .btn-action {
+    background: #f5f7ff !important; 
+    color: #6366f1 !important;
+    border: 1px solid #e0e7ff;
+    box-shadow: 
+        inset 2px 2px 5px rgba(0, 0, 0, 0.08),
+        inset -2px -2px 5px rgba(255, 255, 255, 0.9);
+    transition: all 0.2s ease;
+}
+
+/* hover: Chìm nhưng đậm hơn chút */
+.action-buttons .btn-action:hover {
+    background: #eef2ff !important;
+    box-shadow: 
+        inset 3px 3px 6px rgba(0, 0, 0, 0.1),
+        inset -3px -3px 6px rgba(255, 255, 255, 1);
+}
+
+/* khi click: Chìm sâu hơn */
+.action-buttons .btn-action:active {
+    box-shadow: 
+        inset 4px 4px 8px rgba(0, 0, 0, 0.15),
+        inset -4px -4px 8px rgba(255, 255, 255, 1);
+}
+
+/*  Empty message  */
+:host ::ng-deep .p-treetable .p-treetable-emptymessage > td {
+	text-align: center;
+	color: #94a3b8;
+	padding: 40px 16px;
+	font-size: 14px;
+}
+
+/* â”€â”€ Scrollbar styling â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+:host ::ng-deep .p-treetable ::-webkit-scrollbar {
+	width: 6px;
+	height: 6px;
+}
+
+:host ::ng-deep .p-treetable ::-webkit-scrollbar-track {
+	background: #f1f5f9;
+}
+
+:host ::ng-deep .p-treetable ::-webkit-scrollbar-thumb {
+	background: #c7d2fe;
+	border-radius: 3px;
+}
+
+:host ::ng-deep .p-treetable ::-webkit-scrollbar-thumb:hover {
+	background: #a5b4fc;
+}
+
+/* â”€â”€ Responsive â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+@media (max-width: 768px) {
+	.categories-panel {
+		border-radius: 18px;
+	}
+
+	.categories-panel__header {
+		padding: 16px 16px 14px;
+	}
+
+	.categories-panel__title {
+		font-size: 22px;
+	}
+
+	:host ::ng-deep .p-treetable {
+		font-size: 13px;
+	}
+
+	:host ::ng-deep .p-treetable .p-treetable-thead > tr > th,
+	:host ::ng-deep .p-treetable .p-treetable-tbody > tr > td {
+		padding: 0 12px;
+	}
+}
+
+/* bá» padding right cá»§a header  */
+::ng-deep .p-treetable-scrollable-header-box{
+	padding-right: 0 !important;
+}
+
+/* -- Fullscreen dialog grid -- */
+.fullscreen-grid-wrapper {
+	margin-top: 24px;
+	width: 100%;
+}
+
+/* điều chỉnh lại size tuidialog — chỉ cho categories */
+::ng-deep tui-dialog[data-appearance~="categories-fullscreen"] {
+	--tui-width: 100rem !important;
+	padding: 50px;
+}

@@ -75,6 +75,18 @@ export class SidebarService {
         roles: ['ROLE_ADMIN'],
       },
       {
+        label: 'Quản lý danh mục',
+        icon: '@tui.chart-bar-stacked',
+        route: '/admin/categories',
+        roles: ['ROLE_ADMIN'],
+      },
+      {
+        label: 'Quản lý đơn vị tổ chức',
+        icon: '@tui.users',
+        route: '/admin/organization-units',
+        roles: ['ROLE_ADMIN'],
+      },
+      {
         label: 'Quản lý kho',
         icon: '@tui.warehouse',
         route: '/admin/inventory',

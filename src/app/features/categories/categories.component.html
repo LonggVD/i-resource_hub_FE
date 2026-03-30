@@ -1,0 +1,223 @@
+<section class="categories-panel">
+  <header class="categories-panel__header">
+    <div>
+      <p class="categories-panel__eyebrow">Danh mục</p>
+      <h1 class="categories-panel__title">Quản lý danh mục</h1>
+    </div>
+    <div class="categories-panel__actions">
+      <button tuiButton class="categories-panel__add-button" appearance="primary" size="s" (click)="onAddChild(null)">
+        <tui-icon icon="@tui.plus"></tui-icon>&nbsp;Thêm danh mục gốc
+      </button>
+      <button tuiButton class="categories-panel__delete-list-button" appearance="primary" size="s" (click)="openListDeleteDialog()">
+        <tui-icon icon="list-x"></tui-icon>&nbsp;Danh sách xoá
+      </button>
+    </div>
+  </header>
+  <tui-loader [showLoader]="isLoading()" [overlay]="true" class="categories-loader">
+    <p-treeTable [value]="treeNodes" [columns]="cols" [scrollable]="true" scrollHeight="500px">
+        <ng-template pTemplate="header" let-columns>
+            <tr>
+                <th *ngFor="let col of columns" 
+                    [style.width]="col.width" 
+                    [class.text-center]="col.field === 'actions'">
+                    {{ col.header }}
+                </th>
+            </tr>
+        </ng-template>
+
+        <ng-template pTemplate="body" let-rowNode let-rowData="rowData" let-columns="columns">
+            <tr>
+                <td *ngFor="let col of columns; let i = index" 
+                    [style.width]="col.width" 
+                    [class.text-center]="col.field === 'actions'">
+                    
+                    <p-treeTableToggler [rowNode]="rowNode" *ngIf="i === 0"></p-treeTableToggler>
+
+                    @if (col.field === 'actions') {
+                        <div class="action-buttons">
+                            <button tuiIconButton appearance="ghost" size="s" class="btn-action" title="Thêm danh mục con" (click)="onAddChild(rowData)">
+                                <tui-icon icon="@tui.plus" />
+                            </button>
+                            <button tuiIconButton appearance="ghost" size="s" class="btn-action" title="Chỉnh sửa" (click)="onEdit(rowData)">
+                                <tui-icon icon="@tui.pencil" />
+                            </button>
+                            <button tuiIconButton appearance="ghost" size="s" class="btn-action" title="Xoá" (click)="onDelete(rowData)">
+                                <tui-icon icon="@tui.trash" />
+                            </button>
+                        </div>
+                    } @else if (col.field === 'createdAt' || col.field === 'updatedAt') {
+                        {{ rowData[col.field] | date:'dd/MM/yyyy HH:mm' }}
+                    } @else {
+                        {{ rowData[col.field] }}
+                    }
+                </td>
+            </tr>
+        </ng-template>
+        <ng-template pTemplate="emptymessage">
+            <tr>
+                <td [attr.colspan]="cols.length" style="text-align: center; padding: 20px;">
+                    Chưa có danh mục nào.
+                </td>
+            </tr>
+        </ng-template>
+    </p-treeTable>
+  </tui-loader>
+</section>
+
+<!-- dialog add -->
+<ng-template
+    [tuiDialogOptions]="{label: 'Thêm danh mục'}"
+    [(tuiDialog)]="openAddDialog"
+>
+    <form tuiForm [formGroup]="addChildForm" (submit.prevent)="onSubmitAddChild()">
+        
+        @if(selectedParentLabel()){
+            <p><strong>Danh mục cha:</strong> {{ selectedParentLabel() }}</p>
+        }@else(){
+            <p><strong>Danh mục cha:</strong> <em>Không có (danh mục gốc)</em></p>
+        }
+
+        <tui-textfield>
+            <label tuiLabel>Tên danh mục mới</label>
+            <input tuiAutoFocus tuiTextfield formControlName="categoryName" />
+        </tui-textfield>
+        <tui-textfield>
+            <label tuiLabel>Mô tả</label>
+            <input tuiTextfield formControlName="description" />
+        </tui-textfield>
+        @if (addCategoryError()) {
+            <small style="color: #d32f2f;">{{ addCategoryError() }}</small>
+        }
+
+        <footer style="margin-top: 24px; display: flex; justify-content: flex-end; gap: 8px;">
+            <button
+                appearance="secondary"
+                tuiButton
+                type="button"
+                [disabled]="isSubmittingAddDialog()"
+                (click)="onCancelAddDialog()"
+            >
+                Hủy
+            </button>
+            <button
+                tuiButton
+                type="submit"
+                [disabled]="addChildForm.invalid || isSubmittingAddDialog()"
+                (click)="onSubmitAddChild()"
+            >
+                {{ isSubmittingAddDialog() ? 'Đang lưu...' : 'Thêm mới' }}
+            </button>
+        </footer>
+    </form>
+</ng-template>
+
+<!-- dialog edit -->
+<ng-template
+    [tuiDialogOptions]="{label: 'Chỉnh sửa danh mục'}"
+    [(tuiDialog)]="openEditDialog"
+>
+    <form tuiForm [formGroup]="editForm" (submit.prevent)="onSubmitEditCategory()">
+        <p><strong>Danh mục đang sửa:</strong> {{ currentEditCategory?.categoryName }}</p>
+
+        <tui-textfield>
+            <label tuiLabel>Tên danh mục</label>
+            <input tuiAutoFocus tuiTextfield formControlName="categoryName" />
+        </tui-textfield>
+        @if (editForm.controls.categoryName.touched && editForm.controls.categoryName.invalid) {
+            <small style="color: #d32f2f;">Tên danh mục là bắt buộc và tối đa 100 ký tự.</small>
+        }
+
+        <tui-textfield>
+            <label tuiLabel>Mô tả</label>
+            <input tuiTextfield formControlName="description" />
+        </tui-textfield>
+        @if (editForm.controls.description.touched && editForm.controls.description.invalid) {
+            <small style="color: #d32f2f;">Mô tả tối đa 500 ký tự.</small>
+        }
+
+        @if (editCategoryError()) {
+            <small style="color: #d32f2f;">{{ editCategoryError() }}</small>
+        }
+
+        <footer style="margin-top: 24px; display: flex; justify-content: flex-end; gap: 8px;">
+            <button
+                appearance="secondary"
+                tuiButton
+                type="button"
+                [disabled]="isSubmittingEditDialog()"
+                (click)="onCancelEditDialog()"
+            >
+                Hủy
+            </button>
+            <button
+                tuiButton
+                type="submit"
+                [disabled]="editForm.invalid || isSubmittingEditDialog()"
+                (click)="onSubmitEditCategory()"
+                >
+                {{ isSubmittingEditDialog() ? 'Đang lưu...' : 'Lưu thay đổi' }}
+            </button>
+        </footer>
+    </form>
+</ng-template>
+
+<!-- dialog delete -->
+<ng-template
+    [tuiDialogOptions]="{label: 'Xác nhận xoá'}"
+    [(tuiDialog)]="openDialogConfirmDelete"
+>
+    <p>Bạn có chắc chắn muốn xoá danh mục <strong>{{ selectedDeleteCategory()?.categoryName }}</strong> không?</p>
+    <footer style="margin-top: 24px; display: flex; justify-content: flex-end; gap: 8px;">
+        <button
+            appearance="secondary"
+            tuiButton
+            type="button"
+            (click)="onCancelDeleteDialog()"
+        >
+            Hủy
+        </button>
+        <button
+            tuiButton
+            appearance="destructive" type="button"
+            [disabled]="isSubmittingDelete()"
+            (click)="onConfirmDeleteCategory()"
+        >
+            {{ isSubmittingDelete() ? 'Đang xoá...' : 'Xoá' }}
+        </button>
+    </footer>
+</ng-template>
+
+<!-- dialog danh sách xoá (fullscreen) -->
+<ng-template
+    let-id="id"
+    [tuiDialogOptions]="{appearance: 'fullscreen categories-fullscreen'}"
+    [(tuiDialog)]="openDeletedListDialog"
+>
+    <header tuiHeader>
+        <hgroup tuiTitle>
+            <h2 [id]="id">Thùng rác (Danh mục đã xoá)</h2>
+            <p>Các danh mục đã bị xoá sẽ được lưu trữ tại đây trong 60 ngày trước khi bị xoá vĩnh viễn.</p>
+        </hgroup>
+    </header>
+
+    <div class="fullscreen-grid-wrapper">
+        <irh-aggrid
+            [rowData]="listDelete()"
+            [columnDefs]="colDefs"
+            [defaultColDef]="defaultColDef"
+            [pagination]="true"
+            [paginationPageSize]="10"
+            [autoHeight]="true"
+        />
+    </div>
+
+    <footer tuiFloatingContainer [style.margin-top]="'auto'">
+        <button
+            tuiButton
+            type="button"
+            (click)="openDeletedListDialog = false"
+        >
+            Đóng
+        </button>
+    </footer>
+</ng-template>

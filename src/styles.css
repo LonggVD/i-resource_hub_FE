@@ -1,1 +1,16 @@
 /* You can add global styles to this file, and also import other style files */
+.success {
+  --mdc-snackbar-container-color: #4caf50;
+  --mdc-snackbar-supporting-text-color: rgb(17, 49, 32);
+  color : #4caf50;
+}
+.error {
+  --mdc-snackbar-container-color: #af4c4c;
+  --mdc-snackbar-supporting-text-color: rgb(48, 17, 17);
+  color : #af4c4c;
+}
+.info {
+  --mdc-snackbar-container-color: #2196f3;
+  --mdc-snackbar-supporting-text-color: rgb(17, 49, 32);
+  color : #2196f3;
+}

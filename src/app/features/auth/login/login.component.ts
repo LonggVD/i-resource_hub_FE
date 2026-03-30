@@ -3,7 +3,7 @@ import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angula
 import { Router, RouterLink } from '@angular/router';
 import { TuiButton, TuiIcon, TuiLabel, TuiLoader, TuiTextfield } from '@taiga-ui/core';
 import { TuiPassword } from '@taiga-ui/kit';
-import { AuthService } from '../../../core/services/auth.service';
+import { AuthService } from '../../../core/api/auth.service';
 import { LoginFormLeft } from '../../../shared/components/login-form-left/login-form-left.component';
 
 @Component({

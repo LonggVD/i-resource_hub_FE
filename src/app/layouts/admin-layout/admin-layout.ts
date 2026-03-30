@@ -1,8 +1,8 @@
-import { Component } from '@angular/core';
+import { ChangeDetectionStrategy, Component } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
 import { Header } from '../header/header';
 import { Sidebar } from '../sidebar/sidebar';
-import { SidebarService } from '../../core/services/sidebar.service';
+import { SidebarService } from '../../core/api/sidebar.service';
 
 @Component({
   selector: 'app-admin-layout',
@@ -10,6 +10,7 @@ import { SidebarService } from '../../core/services/sidebar.service';
   imports: [RouterOutlet, Header, Sidebar],
   templateUrl: './admin-layout.html',
   styleUrl: './admin-layout.css',
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class AdminLayout {
   protected readonly collapsed;

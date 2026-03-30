@@ -1,9 +1,9 @@
-import { Component, computed, Inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, Inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink, RouterLinkActive } from '@angular/router';
 import { TuiIcon } from '@taiga-ui/core';
-import { SidebarService } from '../../core/services/sidebar.service';
-import { AuthService } from '../../core/services/auth.service';
+import { SidebarService } from '../../core/api/sidebar.service';
+import { AuthService } from '../../core/api/auth.service';
 
 @Component({
   selector: 'app-sidebar',
@@ -11,6 +11,7 @@ import { AuthService } from '../../core/services/auth.service';
   imports: [CommonModule, RouterLink, RouterLinkActive, TuiIcon],
   templateUrl: './sidebar.html',
   styleUrl: './sidebar.css',
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class Sidebar {
   protected readonly collapsed;
