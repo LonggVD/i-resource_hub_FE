@@ -24,7 +24,6 @@
 
 .layout__page {
   padding: 24px;
-  width: 100%;
   animation: pageIn 0.3s ease;
 }
 

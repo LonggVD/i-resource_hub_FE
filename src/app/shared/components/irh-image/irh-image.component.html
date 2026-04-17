@@ -1,0 +1,81 @@
+<!-- Base Image that triggers preview (only shown when showPreviewOnClick is true) -->
+@if (showPreviewOnClick()) {
+<div 
+  class="irh-image-wrapper" 
+  [class]="className()" 
+  [style.width]="width()" 
+  [style.height]="height()"
+  (click)="togglePreview(true)"
+>
+  <img [src]="src()" [alt]="alt()" class="irh-image-content" />
+  <div class="hover-overlay">
+    <tui-icon icon="@tui.search"></tui-icon>
+    <span>Xem ảnh</span>
+  </div>
+</div>
+}
+
+<!-- Lightbox / Preview Dialog -->
+<ng-template
+  [tuiDialogOptions]="{
+    size: 'auto',
+    appearance: 'irh-lightbox-dialog',
+    closeable: true,
+    dismissible: true
+  }"
+  [tuiDialog]="openPreview()"
+  (tuiDialogChange)="togglePreview($event)"
+>
+  <div class="lightbox-container">
+    <header class="lightbox-header">
+       <h3>Xem trước hình ảnh</h3>
+       <!-- Let TuiDialog handle close button automatically if possible, or use a custom one inside -->
+    </header>
+
+    <div 
+      class="image-viewport"
+      (mousedown)="onMouseDown($event)"
+      (mousemove)="onMouseMove($event)"
+      (mouseup)="onMouseUp()"
+      (mouseleave)="onMouseLeave()"
+      [style.cursor]="zoomLevel() > 1 ? (isDragging() ? 'grabbing' : 'grab') : 'default'"
+    >
+       <div 
+         class="zoom-container"
+         [style.transform]="'translate(' + translateX() + 'px, ' + translateY() + 'px) scale(' + zoomLevel() + ')'"
+         [style.transition]="isDragging() ? 'none' : 'transform 0.2s cubic-bezier(0.25, 0.46, 0.45, 0.94)'"
+       >
+         <img 
+           [src]="src()" 
+           [alt]="alt()" 
+           class="lightbox-image" 
+           draggable="false"
+         />
+       </div>
+    </div>
+
+    <!-- Toolbar controls -->
+    <div class="lightbox-toolbar">
+       <div class="toolbar-group">
+         <button tuiButton appearance="secondary" size="s" (click)="zoomOut()" [disabled]="zoomLevel() <= 0.5" title="Thu nhỏ">
+           <tui-icon icon="@tui.minus"></tui-icon>
+         </button>
+         <span class="zoom-value">{{ (zoomLevel() * 100) | number:'1.0-0' }}%</span>
+         <button tuiButton appearance="secondary" size="s" (click)="zoomIn()" [disabled]="zoomLevel() >= 4" title="Phóng to">
+           <tui-icon icon="@tui.plus"></tui-icon>
+         </button>
+       </div>
+
+       <div class="divider"></div>
+
+       <div class="toolbar-group">
+         <button tuiButton appearance="flat" size="s" (click)="resetView()" title="Kích thước gốc">
+           <tui-icon icon="@tui.maximize"></tui-icon>
+         </button>
+         <button tuiButton appearance="flat" size="s" (click)="downloadImage()" title="Tải xuống">
+           <tui-icon icon="@tui.download"></tui-icon>
+         </button>
+       </div>
+    </div>
+  </div>
+</ng-template>

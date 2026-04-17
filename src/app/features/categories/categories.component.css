@@ -213,7 +213,7 @@
 	font-size: 14px;
 }
 
-/* â”€â”€ Scrollbar styling â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+/* Scrollbar styling */
 :host ::ng-deep .p-treetable ::-webkit-scrollbar {
 	width: 6px;
 	height: 6px;
@@ -232,7 +232,7 @@
 	background: #a5b4fc;
 }
 
-/* â”€â”€ Responsive â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+/*  Responsive  */
 @media (max-width: 768px) {
 	.categories-panel {
 		border-radius: 18px;
@@ -256,7 +256,7 @@
 	}
 }
 
-/* bá» padding right cá»§a header  */
+/*  padding right header  */
 ::ng-deep .p-treetable-scrollable-header-box{
 	padding-right: 0 !important;
 }

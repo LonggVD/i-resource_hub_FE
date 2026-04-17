@@ -1,0 +1,338 @@
+:host {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+/* ── Panel wrapper ─────────────────────────────────────────── */
+.resources-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  border: 1px solid #e2e8f0;
+  border-radius: 24px;
+  background: #ffffff;
+  box-shadow:
+    0 4px 24px rgba(99, 102, 241, 0.08),
+    0 1px 4px rgba(15, 23, 42, 0.06);
+  overflow: hidden;
+}
+
+.resources-panel__header {
+  display: flex;
+  align-items: end;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 24px 24px 20px;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.resources-panel__eyebrow {
+  margin: 0 0 6px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: #6366f1;
+}
+
+.resources-panel__title {
+  margin: 0;
+  font-size: 26px;
+  line-height: 1.1;
+  font-weight: 700;
+  letter-spacing: -0.03em;
+  color: #1e293b;
+}
+
+.resources-panel__actions {
+  display: flex;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.resources-panel__btn {
+  border-radius: 5px;
+}
+
+/* ── Loader ────────────────────────────────────────────────── */
+.resources-loader {
+  display: block;
+  width: 100%;
+}
+
+.resources-grid-wrapper {
+  padding: 0;
+  width: 100%;
+}
+
+/* ── Form fields (select / checkbox) ───────────────────────── */
+.form-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-bottom: 4px;
+}
+
+.form-field__label {
+  font-size: 13px;
+  font-weight: 500;
+  color: #475569;
+}
+
+.form-field__select {
+  width: 100%;
+  height: 44px;
+  padding: 0 12px;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  background: #f8fafc;
+  font-size: 14px;
+  color: #334155;
+  outline: none;
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.2s ease;
+  appearance: none;
+  /* Custom dropdown arrow */
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%2394a3b8' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 14px center;
+  padding-right: 36px;
+}
+
+.form-field__select:focus {
+  border-color: #6366f1;
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.15);
+}
+
+.form-field__select:hover {
+  border-color: #a5b4fc;
+}
+
+/* ── Toggle (checkbox) ─────────────────────────────────────── */
+.toggle-field {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  cursor: pointer;
+  user-select: none;
+  margin: 8px 0;
+}
+
+.toggle-field__checkbox {
+  width: 18px;
+  height: 18px;
+  border-radius: 5px;
+  accent-color: #6366f1;
+  cursor: pointer;
+}
+
+.toggle-field__label {
+  font-size: 14px;
+  font-weight: 500;
+  color: #334155;
+}
+
+/* ── Error text ────────────────────────────────────────────── */
+.field-error {
+  display: block;
+  color: #d32f2f;
+  font-size: 12px;
+  margin-top: -4px;
+  margin-bottom: 4px;
+}
+
+/* ── Dialog footer ─────────────────────────────────────────── */
+/* ── Dialog Split Layout ──────────────────────────────────── */
+.dialog-split-layout {
+  display: grid;
+  grid-template-columns: 280px 1fr;
+  gap: 40px;
+  padding: 16px 0;
+  align-items: start;
+}
+
+.image-upload-section {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+}
+
+.image-preview-card {
+  position: relative;
+  width: 280px;
+  height: 280px;
+  border-radius: 20px;
+  background: #f8fafc;
+  border: 2px dashed #e2e8f0;
+  overflow: hidden;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.image-preview-card:hover {
+  border-color: #6366f1;
+  background: #f1f5f9;
+}
+
+.image-preview-card img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.5s ease;
+}
+
+.image-preview-card:hover img {
+  transform: scale(1.05);
+}
+
+.image-overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.4);
+  backdrop-filter: blur(2px);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  color: white;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  text-align: center;
+}
+
+.image-overlay tui-icon {
+  font-size: 32px;
+}
+
+.image-overlay span {
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.image-preview-card:hover .image-overlay {
+  opacity: 1;
+}
+
+.image-hint {
+  font-size: 12px;
+  color: #94a3b8;
+  margin: 0;
+}
+
+.edit-info {
+  margin-top: 12px;
+  font-size: 14px;
+  color: #475569;
+  text-align: center;
+}
+
+.form-fields-section {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+/* ────────────────────────────────────────────────────────── */
+.dialog-footer {
+  margin-top: 24px;
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+/* ── Fullscreen dialog grid ────────────────────────────────── */
+.fullscreen-grid-wrapper {
+  margin-top: 24px;
+  width: 100%;
+}
+
+::ng-deep tui-dialog[data-appearance~="resources-fullscreen"] {
+  --tui-width: 100rem !important;
+  padding: 50px;
+}
+
+/* ── Responsive ────────────────────────────────────────────── */
+@media (max-width: 768px) {
+  .resources-panel {
+    border-radius: 18px;
+  }
+
+  .resources-panel__header {
+    flex-direction: column;
+    align-items: flex-start;
+    padding: 16px 16px 14px;
+  }
+
+  .resources-panel__title {
+    font-size: 22px;
+  }
+
+  .resources-panel__actions {
+    width: 100%;
+  }
+
+  .resources-panel__actions button {
+    flex: 1;
+  }
+}
+
+/* ── Image Preview (Lightbox) ──────────────────────────────── */
+.image-preview-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
+  max-width: 90vw;
+  max-height: 85vh;
+  padding: 10px;
+}
+
+.image-preview-wrapper {
+  position: relative;
+  border-radius: 16px;
+  overflow: hidden;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.15);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.image-preview-wrapper:hover {
+  transform: scale(1.02);
+}
+
+.image-preview-content {
+  display: block;
+  max-width: 100%;
+  max-height: 70vh;
+  object-fit: contain;
+  min-width: 300px;
+  min-height: 300px;
+}
+
+.image-preview-actions {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  border-top: 1px solid #f1f5f9;
+  padding-top: 16px;
+}
+
+.shadow-lg {
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+}
+
+::ng-deep tui-dialog[data-appearance~="preview-dialog"] {
+  background: white;
+  border-radius: 24px;
+}

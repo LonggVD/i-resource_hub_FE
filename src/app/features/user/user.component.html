@@ -1,0 +1,193 @@
+<section class="users-panel">
+  <header class="users-header">
+    <div>
+      <p class="users-eyebrow">Người dùng & Phân quyền</p>
+      <h1 class="users-title">Quản lý người dùng</h1>
+    </div>
+
+    <!-- Tabs và Actions -->
+    <div class="header-right-area">
+      <!-- Tabs -->
+      <div class="custom-tabs">
+        <button 
+          class="tab-btn" 
+          [class.active]="activeTab() === 'users'" 
+          (click)="activeTab.set('users')"
+        >
+          <tui-icon icon="@tui.users"></tui-icon>&nbsp;Danh sách người dùng
+        </button>
+        <button 
+          class="tab-btn" 
+          [class.active]="activeTab() === 'roles'" 
+          (click)="activeTab.set('roles')"
+        >
+          <tui-icon icon="@tui.shield"></tui-icon>&nbsp;Phân quyền vai trò
+        </button>
+      </div>
+
+      <!-- Actions (Chỉ hiện ở tab người dùng) -->
+      <div class="users-actions" *ngIf="activeTab() === 'users'">
+        <button tuiButton appearance="secondary" size="m" type="button" (click)="loadUsers()">
+          <tui-icon icon="@tui.rotate-cw"></tui-icon>&nbsp;Làm mới
+        </button>
+        <button tuiButton appearance="primary" size="m" type="button" (click)="openCreateDialog()">
+          <tui-icon icon="@tui.user-plus"></tui-icon>&nbsp;Thêm người dùng
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- CONTENT VIEW -->
+  <div class="tab-content">
+    @if (activeTab() === 'users') {
+      <div class="users-view-container">
+
+  <div class="filters-grid">
+    <div class="filter-item keyword-item">
+      <label class="filter-label">Tìm kiếm</label>
+      <tui-textfield>
+        <input
+          tuiTextfield
+          class="input-field"
+          type="text"
+          [value]="keyword()"
+          (input)="keyword.set(($any($event.target)).value)"
+          placeholder="Username, họ tên, email..."
+        />
+      </tui-textfield>
+    </div>
+
+    <div class="filter-item">
+      <label class="filter-label">Trạng thái</label>
+      <app-irh-multi-select [options]="statusOptions" [ngModel]="statusFilter()" (ngModelChange)="statusFilter.set($any($event))" placeholder="Tất cả trạng thái"></app-irh-multi-select>
+    </div>
+
+    <div class="filter-item">
+      <label class="filter-label">Đơn vị</label>
+      <app-irh-multi-select [options]="unitFilterOptions()" [ngModel]="unitFilter()" (ngModelChange)="unitFilter.set($any($event))" placeholder="Tất cả đơn vị"></app-irh-multi-select>
+    </div>
+
+    <div class="filter-item">
+      <label class="filter-label">Vai trò</label>
+      <app-irh-multi-select [options]="roleFilterOptions()" [ngModel]="roleFilter()" (ngModelChange)="roleFilter.set($any($event))" placeholder="Tất cả vai trò"></app-irh-multi-select>
+    </div>
+
+    <div class="filter-item filter-button-item">
+      <button tuiButton appearance="primary" size="m" type="button" (click)="onApplyFilters()">Áp dụng lọc</button>
+    </div>
+  </div>
+
+  <div class="grid-wrapper">
+    <irh-aggrid [rowData]="filteredUsers()" [columnDefs]="colDefs" [pagination]="true" [paginationPageSize]="10" [rowHeight]="56"></irh-aggrid>
+    <tui-loader *ngIf="isLoading()" [overlay]="true" class="absolute inset-0 z-10"></tui-loader>
+      </div> <!-- End Grid Wrapper -->
+      </div> <!-- End Users-view-container -->
+    } @else {
+      <app-user-authorization></app-user-authorization>
+    }
+  </div> <!-- End Tab Content -->
+
+</section>
+
+<ng-template [tuiDialogOptions]="{ label: isEditMode() ? 'Cập nhật người dùng' : 'Thêm người dùng', size: 'l' }" [(tuiDialog)]="openFormDialog">
+  <form [formGroup]="userForm" (ngSubmit)="onSubmitUser()" tuiForm>
+    <div class="dialog-grid">
+      <div class="form-item">
+        <span class="filter-label">Username *</span>
+        <tui-textfield>
+          <input tuiTextfield class="input-field" formControlName="username" type="text" placeholder="VD: nguyen.van.a" />
+        </tui-textfield>
+      </div>
+
+      <div class="form-item">
+        <span class="filter-label">
+          Mật khẩu {{ isEditMode() ? '(không dùng khi cập nhật)' : '*' }}
+        </span>
+        <tui-textfield>
+          <input tuiTextfield class="input-field" formControlName="password" type="password" placeholder="Tối thiểu 6 ký tự" />
+        </tui-textfield>
+      </div>
+
+      <div class="form-item">
+        <span class="filter-label">Họ tên *</span>
+        <tui-textfield>
+          <input tuiTextfield class="input-field" formControlName="fullName" type="text" placeholder="Nguyễn Văn A" />
+        </tui-textfield>
+      </div>
+
+      <div class="form-item">
+        <span class="filter-label">Email *</span>
+        <tui-textfield>
+          <input tuiTextfield class="input-field" formControlName="email" type="email" placeholder="example@hui.edu.vn" />
+        </tui-textfield>
+      </div>
+
+      <div class="form-item">
+        <span class="filter-label">Số điện thoại</span>
+        <tui-textfield>
+          <input tuiTextfield class="input-field" formControlName="phone" type="text" placeholder="09xxxxxxxx" />
+        </tui-textfield>
+      </div>
+
+      <div class="form-item">
+        <span class="filter-label">Mã sinh viên</span>
+        <tui-textfield>
+          <input tuiTextfield class="input-field" formControlName="studentCode" type="text" placeholder="2114xxxx" />
+        </tui-textfield>
+      </div>
+
+      <div class="form-item">
+        <span class="filter-label">Đơn vị</span>
+        <app-irh-select [options]="unitFormOptions()" formControlName="unitId"></app-irh-select>
+      </div>
+
+      <div class="form-item">
+        <span class="filter-label">Vai trò *</span>
+        <app-irh-multi-select [options]="roleOptions()" formControlName="roleIds" placeholder="Chọn vai trò"></app-irh-multi-select>
+      </div>
+    </div>
+
+    <footer class="dialog-footer">
+      <button tuiButton appearance="secondary" type="button" (click)="openFormDialog = false">Hủy</button>
+      <button tuiButton appearance="primary" type="submit">
+        {{ isEditMode() ? 'Lưu thay đổi' : 'Tạo người dùng' }}
+      </button>
+    </footer>
+  </form>
+</ng-template>
+
+<ng-template [tuiDialogOptions]="{ label: 'Xác nhận xoá', size: 's' }" [(tuiDialog)]="openDeleteDialog">
+  <p>Bạn có chắc chắn muốn xoá người dùng <strong>{{ selectedDeleteUser()?.username }}</strong> không?</p>
+
+  <footer class="dialog-footer">
+    <button tuiButton appearance="secondary" type="button" (click)="openDeleteDialog = false">Hủy</button>
+    <button tuiButton appearance="destructive" type="button" (click)="onConfirmDelete()">Xoá</button>
+  </footer>
+</ng-template>
+
+<ng-template [tuiDialogOptions]="{ label: 'Điều chỉnh điểm tín nhiệm', size: 's' }" [(tuiDialog)]="openCreditDialog">
+  <form [formGroup]="creditForm" (ngSubmit)="onSubmitCreditScore()" tuiForm>
+    <p>
+      Người dùng: <strong>{{ selectedCreditUser()?.username }}</strong>
+    </p>
+
+    <div class="form-item full-width">
+      <span class="filter-label">Số điểm cộng / trừ *</span>
+      <tui-textfield>
+        <input tuiTextfield class="input-field" formControlName="amount" type="number" placeholder="VD: 10 hoặc -5" />
+      </tui-textfield>
+    </div>
+
+    <div class="form-item full-width">
+      <span class="filter-label">Lý do</span>
+      <tui-textfield>
+        <input tuiTextfield class="input-field" formControlName="reason" type="text" placeholder="Ví dụ: Trả thiết bị đúng hạn" />
+      </tui-textfield>
+    </div>
+
+    <footer class="dialog-footer">
+      <button tuiButton appearance="secondary" type="button" (click)="openCreditDialog = false">Hủy</button>
+      <button tuiButton appearance="primary" type="submit">Cập nhật điểm</button>
+    </footer>
+  </form>
+</ng-template>

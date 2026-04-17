@@ -13,7 +13,10 @@
     [paginationPageSizeSelector]="[5, 10, 20, 50]"
     [domLayout]="domLayout"
     [animateRows]="true"
+    [rowSelection]="rowSelection"
+    [selectionColumnDef]="selectionColumnDef"
     (gridReady)="onGridReady($event)"
+    (selectionChanged)="onSelectionChanged($event)"
   />
 </div>
 

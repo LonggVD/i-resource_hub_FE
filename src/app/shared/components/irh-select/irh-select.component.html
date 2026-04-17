@@ -1,0 +1,59 @@
+<div class="irh-select-container">
+  @if (label()) {
+    <label class="irh-select-label">{{ label() }}</label>
+  }
+
+  <div class="irh-select-wrapper" [class.is-open]="isOpen()" (click)="toggleDropdown()">
+    <div class="irh-select-trigger">
+      <span class="irh-select-value" [class.placeholder]="!selectedValue()">
+        {{ displayLabel() }}
+      </span>
+      <tui-icon
+        icon="@tui.chevron-down"
+        class="irh-select-arrow"
+        [class.is-rotated]="isOpen()"
+      ></tui-icon>
+    </div>
+
+    @if (isOpen()) {
+      <div class="irh-select-dropdown shadow-xl" (click)="$event.stopPropagation()">
+        <!-- Search area -->
+        <div class="irh-select-search-box">
+          <tui-icon icon="@tui.search" class="irh-select-search-icon"></tui-icon>
+          <input
+            #searchInput
+            type="text"
+            class="irh-select-search-input"
+            [placeholder]="searchPlaceholder()"
+            [value]="searchTerm()"
+            (input)="updateSearch($event)"
+            autofocus
+          />
+        </div>
+
+        <!-- Options list -->
+        <ul class="irh-select-options">
+          @if (filteredOptions().length > 0) {
+            @for (opt of filteredOptions(); track opt.value) {
+              <li
+                class="irh-select-option"
+                [class.is-selected]="opt.value === selectedValue()"
+                (click)="selectOption(opt)"
+              >
+                <span>{{ opt.label }}</span>
+                @if (opt.value === selectedValue()) {
+                  <tui-icon icon="@tui.check" class="irh-select-check-icon"></tui-icon>
+                }
+              </li>
+            }
+          } @else {
+            <li class="irh-select-no-results">
+              <tui-icon icon="@tui.search-x" class="no-results-icon"></tui-icon>
+              <span>Không tìm thấy kết quả nào</span>
+            </li>
+          }
+        </ul>
+      </div>
+    }
+  </div>
+</div>

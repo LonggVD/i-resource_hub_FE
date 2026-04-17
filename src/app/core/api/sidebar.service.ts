@@ -60,54 +60,36 @@ export class SidebarService {
         route: '/my-bookings',
         roles: ['ROLE_STUDENT'],
       },
-      {
-        label: 'Mã QR của tôi',
-        icon: '@tui.qr-code',
-        route: '/my-qr',
-        roles: ['ROLE_STUDENT'],
-      },
 
-      // --- Admin Menu ---
+      // --- Admin/Manager Menu ---
       {
         label: 'Quản lý yêu cầu',
         icon: '@tui.clipboard-list',
         route: '/admin/bookings',
-        roles: ['ROLE_ADMIN'],
+        roles: ['ROLE_ADMIN', 'ROLE_MANAGER'],
       },
       {
         label: 'Quản lý danh mục',
         icon: '@tui.chart-bar-stacked',
         route: '/admin/categories',
-        roles: ['ROLE_ADMIN'],
+        roles: ['ROLE_ADMIN', 'ROLE_MANAGER'],
       },
       {
-        label: 'Quản lý đơn vị tổ chức',
-        icon: '@tui.users',
+        label: 'Quản lý đơn vị',
+        icon: '@tui.building',
         route: '/admin/organization-units',
         roles: ['ROLE_ADMIN'],
       },
       {
-        label: 'Quản lý kho',
-        icon: '@tui.warehouse',
-        route: '/admin/inventory',
-        roles: ['ROLE_ADMIN'],
+        label: 'Quản lý thiết bị',
+        icon: '@tui.monitor',
+        route: '/admin/resource-items',
+        roles: ['ROLE_ADMIN', 'ROLE_MANAGER'],
       },
       {
-        label: 'Nhận / Trả thiết bị',
-        icon: '@tui.scan-line',
-        route: '/admin/check-in-out',
-        roles: ['ROLE_ADMIN'],
-      },
-      {
-        label: 'Vi phạm & Minh chứng',
-        icon: '@tui.shield-alert',
-        route: '/admin/violations',
-        roles: ['ROLE_ADMIN'],
-      },
-      {
-        label: 'Báo cáo thống kê',
-        icon: '@tui.chart-bar',
-        route: '/admin/reports',
+        label: 'Quản lý người dùng',
+        icon: '@tui.user-cog',
+        route: '/admin/users',
         roles: ['ROLE_ADMIN'],
       },
     ];

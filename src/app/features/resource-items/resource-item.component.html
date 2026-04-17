@@ -1,0 +1,364 @@
+<div class="resource-items-panel">
+  <!-- Header Section -->
+  <header class="panel-header">
+    <div>
+      <p class="resources-panel__eyebrow">Tài nguyên thực tế</p>
+      <h1 class="resources-panel__title">Quản lý tài nguyên thực tế</h1>
+    </div>  
+    
+    <div class="header-actions">
+      <button tuiButton appearance="secondary" size="s" (click)="openQRScanModal()" type="button">
+        <tui-icon icon="@tui.scan-line"></tui-icon>&nbsp;Quét QR
+      </button>
+
+      <button 
+        tuiButton 
+        appearance="secondary" 
+        size="s" 
+        (click)="openBatchPrintQR()" 
+        type="button"
+        [disabled]="selectedRows().length === 0"
+        [title]="selectedRows().length > 0 ? 'In tem QR cho ' + selectedRows().length + ' thiết bị đã chọn' : 'Chọn thiết bị trong bảng để in tem QR'"
+      >
+        <tui-icon icon="@tui.printer"></tui-icon>&nbsp;In tem QR ({{ selectedRows().length }})
+      </button>
+
+      <button tuiButton appearance="secondary" size="s" (click)="openAddModal()" type="button">
+        <tui-icon icon="@tui.plus"></tui-icon>&nbsp;Thêm lẻ
+      </button>
+
+      <button tuiButton appearance="primary" size="s" (click)="showBatchModal.set(true)" type="button">
+        <tui-icon icon="@tui.package-plus"></tui-icon>&nbsp;Nhập hàng loạt
+      </button>
+      
+      <button tuiButton appearance="flat" size="s" (click)="refreshData()" type="button" title="Làm mới">
+        <tui-icon icon="@tui.rotate-cw"></tui-icon>
+      </button>
+    </div>
+  </header>
+
+  <!-- Filter Bar: Multi-Select restored above the grid -->
+  <div class="filter-bar">
+    <div class="search-box">
+      <label class="filter-label">Tìm kiếm nhanh</label>
+      <tui-textfield>
+        <input tuiTextfield type="text" (input)="onSearchChange($event)" placeholder="Mã Serial hoặc tên thiết bị..." class="input-field" />
+      </tui-textfield>
+    </div>
+
+    <div class="filter-item">
+      <label class="filter-label">Lọc tình trạng</label>
+      <app-irh-multi-select 
+        [options]="conditionOptions" 
+        [ngModel]="selectedConditionStatuses()" 
+        (ngModelChange)="selectedConditionStatuses.set($event)"
+        placeholder="Tất cả tình trạng">
+      </app-irh-multi-select>
+    </div>
+
+    <div class="filter-item">
+      <label class="filter-label">Lọc trạng thái</label>
+      <app-irh-multi-select 
+        [options]="statusOptions" 
+        [ngModel]="selectedStatuses()" 
+        (ngModelChange)="selectedStatuses.set($event)"
+        placeholder="Tất cả trạng thái">
+      </app-irh-multi-select>
+    </div>
+  </div>
+
+  <!-- Grid Section (Floating Filters disabled for Condition/Status) -->
+  <div class="grid-container">
+    <irh-aggrid [rowData]="data()" [columnDefs]="colDefs" [rowHeight]="56" class="w-full h-full"
+      [rowSelection]="{ mode: 'multiRow', checkboxes: true, headerCheckbox: true }" 
+      [selectionColumnDef]="{ sortable: false, filter: false, floatingFilter: false, width: 50, maxWidth: 50, minWidth: 50, resizable: false }"
+      (selectionChanged)="onSelectionChanged($event)"></irh-aggrid>
+    <tui-loader *ngIf="isLoading()" [overlay]="true" class="absolute inset-0 z-10"></tui-loader>
+  </div>
+
+  <!-- DIALOG: Xem trước ảnh (Sử dụng IrhImage mới) -->
+  <irh-image
+    [src]="previewImageUrl()"
+    [(openPreview)]="openPreviewDialog"
+    [showPreviewOnClick]="false"
+  ></irh-image>
+
+  <!-- DIALOG: Thêm/Sửa thiết bị lẻ -->
+  <ng-template
+    [tuiDialogOptions]="{ label: isEditMode() ? 'Chỉnh sửa thiết bị' : 'Thêm thiết bị mới', size: 'l' }"
+    [tuiDialog]="showFormModal()"
+    (tuiDialogChange)="showFormModal.set($event)"
+  >
+    <form [formGroup]="itemForm" (ngSubmit)="submitItemForm()" tuiForm>
+      <div class="dialog-split-layout">
+        <!-- Cột trái: Ảnh thiết bị (Read-only từ Mẫu) -->
+        <div class="image-preview-section">
+          <irh-image 
+            [src]="selectedTemplateImageUrl()" 
+            className="image-preview-card"
+            [showPreviewOnClick]="true"
+          ></irh-image>
+          <p class="image-hint">Chọn mẫu thiết bị để xem ảnh phóng lớn</p>
+        </div>
+
+        <!-- Cột phải: Form thông tin chi tiết -->
+        <div class="form-fields-section">
+          <!-- Mẫu thiết bị -->
+          <div class="form-item-full">
+            <span class="filter-label">Mẫu thiết bị *</span>
+            <app-irh-select 
+              [options]="getTemplateOptions()" 
+              formControlName="templateId" 
+              placeholder="-- Chọn mẫu thiết bị --">
+            </app-irh-select>
+          </div>
+
+          <div class="form-grid">
+            <!-- Mã Serial -->
+            <div class="form-item">
+              <span class="filter-label">Mã Serial *</span>
+              <tui-textfield>
+                <input tuiTextfield type="text" formControlName="serialNumber" placeholder="VD: HUI-LAP-001" class="input-field" />
+              </tui-textfield>
+            </div>
+
+            <!-- Tình trạng -->
+            <div class="form-item">
+              <span class="filter-label">Tình trạng</span>
+              <app-irh-select [options]="conditionOptions" formControlName="conditionStatus"></app-irh-select>
+            </div>
+
+            <!-- Trạng thái -->
+            <div class="form-item">
+              <span class="filter-label">Trạng thái</span>
+              <app-irh-select [options]="statusOptions" formControlName="status"></app-irh-select>
+            </div>
+
+            <!-- Ngày nhập kho -->
+            <div class="form-item">
+              <span class="filter-label">Ngày nhập kho</span>
+              <tui-textfield>
+                <input tuiTextfield type="date" formControlName="purchaseDate" class="input-field" />
+              </tui-textfield>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <footer class="dialog-footer">
+        <button tuiButton appearance="secondary" size="m" (click)="showFormModal.set(false)" type="button">Hủy</button>
+        <button tuiButton appearance="primary" size="m" [disabled]="itemForm.invalid" type="submit">
+          {{ isEditMode() ? 'Lưu lại' : 'Thêm mới' }}
+        </button>
+      </footer>
+    </form>
+  </ng-template>
+
+  <!-- ═══════════════════════════════════════════════════════════════ -->
+  <!-- DIALOG: Quét mã QR thiết bị (ngx-scanner-qrcode)              -->
+  <!-- ═══════════════════════════════════════════════════════════════ -->
+  <ng-template
+    [tuiDialogOptions]="{ label: 'Quét mã QR thiết bị', size: 'm' }"
+    [tuiDialog]="showQRModal()"
+    (tuiDialogChange)="onQRModalClose($event)"
+  >
+    <div class="qr-dialog-body">
+      <!-- Camera Scanner Area -->
+      <div class="qr-scanner-visual">
+        <!-- Live Camera Feed -->
+        <ngx-scanner-qrcode 
+          #scannerRef="scanner"
+          (event)="onScannerEvent($event)"
+          [config]="{ isBeep: true, vibrate: 300 }"
+        ></ngx-scanner-qrcode>
+
+        <!-- Overlay decorations (visible even on top of camera) -->
+        <div class="scanner-overlay">
+          <div class="scanner-gradient-line"></div>
+          <div class="scanner-corner corner-tl"></div>
+          <div class="scanner-corner corner-tr"></div>
+          <div class="scanner-corner corner-bl"></div>
+          <div class="scanner-corner corner-br"></div>
+        </div>
+
+        <!-- Placeholder when scanner is not started -->
+        <div *ngIf="!isScannerStarted()" class="scanner-placeholder">
+          <tui-icon icon="@tui.camera" class="scanner-placeholder-icon"></tui-icon>
+          <p class="scanner-placeholder-text">Nhấn nút bên dưới để mở camera</p>
+        </div>
+      </div>
+
+      <!-- Scanner control buttons -->
+      <div class="scanner-controls">
+        <button 
+          tuiButton 
+          [appearance]="isScannerStarted() ? 'destructive' : 'primary'" 
+          size="m" 
+          (click)="toggleScanner()" 
+          type="button"
+          [disabled]="!scannerReady()"
+        >
+          <tui-icon [icon]="isScannerStarted() ? '@tui.camera-off' : '@tui.camera'"></tui-icon>
+          &nbsp;{{ isScannerStarted() ? 'Tắt Camera' : 'Mở Camera' }}
+        </button>
+
+        <span *ngIf="!scannerReady()" class="scanner-loading-hint">
+          <tui-loader size="s"></tui-loader>&nbsp;Đang tải trình quét...
+        </span>
+      </div>
+
+      <!-- Phân cách -->
+      <div class="divider-line">
+        <span class="divider-text">HOẶC NHẬP THỦ CÔNG</span>
+      </div>
+
+      <!-- Nhập thủ công -->
+      <div class="manual-input-area">
+        <label class="filter-label">Mã Serial thiết bị</label>
+        <div class="input-with-button">
+          <tui-textfield>
+            <input tuiTextfield type="text" [formControl]="qrSerialNumber" placeholder="VD: HUI-MC-PANA-001" class="input-field" />
+          </tui-textfield>
+          <button tuiButton appearance="primary" size="m" (click)="handleScan()">Kiểm tra</button>
+        </div>
+      </div>
+    </div>
+  </ng-template>
+
+  <!-- ═══════════════════════════════════════════════════════════════ -->
+  <!-- DIALOG: In mã QR thiết bị (angularx-qrcode)                   -->
+  <!-- ═══════════════════════════════════════════════════════════════ -->
+  <ng-template
+    [tuiDialogOptions]="{ label: 'Mã QR thiết bị', size: 's' }"
+    [tuiDialog]="showPrintQRModal()"
+    (tuiDialogChange)="showPrintQRModal.set($event)"
+  >
+    <div class="qr-print-dialog" id="qr-print-dialog" *ngIf="printQRData() as qrData">
+      <!-- QR Code Display -->
+      <div class="qr-display-card">
+        <div id="qr-print-area" class="qr-label">
+          <qrcode 
+            [qrdata]="qrData.serialNumber" 
+            [width]="220" 
+            [errorCorrectionLevel]="'M'"
+            [elementType]="'canvas'"
+            [margin]="2"
+          ></qrcode>
+          <p class="device-name">{{ qrData.templateName }}</p>
+          <p class="serial-number clickable" (click)="copySerial(qrData.serialNumber)" title="Nhấn để sao chép">
+            {{ qrData.serialNumber }}
+            <tui-icon icon="@tui.copy" class="copy-icon"></tui-icon>
+          </p>
+          <p class="org-name">i-Resource Hub</p>
+        </div>
+      </div>
+
+      <!-- Actions -->
+      <div class="qr-print-actions">
+        <button tuiButton appearance="secondary" size="m" (click)="downloadQRCode()" type="button">
+          <tui-icon icon="@tui.download"></tui-icon>&nbsp;Tải ảnh QR
+        </button>
+        <button tuiButton appearance="primary" size="m" (click)="printQRCode()" type="button">
+          <tui-icon icon="@tui.printer"></tui-icon>&nbsp;In mã QR
+        </button>
+      </div>
+    </div>
+  </ng-template>
+
+  <!-- ═══════════════════════════════════════════════════════════════ -->
+  <!-- DIALOG: In hàng loạt tem QR (batch)                           -->
+  <!-- ═══════════════════════════════════════════════════════════════ -->
+  <ng-template
+    [tuiDialogOptions]="{ label: 'In tem QR hàng loạt (' + batchPrintQRItems().length + ' thiết bị)', size: 'l' }"
+    [tuiDialog]="showBatchPrintQRModal()"
+    (tuiDialogChange)="showBatchPrintQRModal.set($event)"
+  >
+    <div class="batch-qr-dialog">
+      <!-- QR Labels Grid -->
+      <div class="batch-qr-grid">
+        <div 
+          *ngFor="let item of batchPrintQRItems(); let i = index" 
+          class="batch-qr-card"
+          [id]="'batch-qr-item-' + i"
+        >
+          <qrcode 
+            [qrdata]="item.serialNumber" 
+            [width]="140" 
+            [errorCorrectionLevel]="'M'"
+            [elementType]="'canvas'"
+            [margin]="1"
+          ></qrcode>
+          <p class="device-name">{{ item.templateName }}</p>
+          <p class="serial-number">{{ item.serialNumber }}</p>
+        </div>
+      </div>
+
+      <!-- Actions -->
+      <footer class="dialog-footer">
+        <span class="batch-count-label">
+          <tui-icon icon="@tui.info"></tui-icon>
+          {{ batchPrintQRItems().length }} tem QR sẵn sàng in
+        </span>
+        <button tuiButton appearance="secondary" size="m" (click)="showBatchPrintQRModal.set(false)" type="button">Đóng</button>
+        <button tuiButton appearance="primary" size="m" (click)="printBatchQRCodes()" type="button">
+          <tui-icon icon="@tui.printer"></tui-icon>&nbsp;In tất cả
+        </button>
+      </footer>
+    </div>
+  </ng-template>
+
+  <!-- DIALOG: Nhập kho hàng loạt -->
+  <ng-template
+    [tuiDialogOptions]="{ label: 'Nhập kho thiết bị hàng loạt', size: 'l' }"
+    [tuiDialog]="showBatchModal()"
+    (tuiDialogChange)="showBatchModal.set($event)"
+  >
+    <form [formGroup]="batchForm" (ngSubmit)="submitBatchForm()" tuiForm>
+      <div class="dialog-split-layout">
+        <!-- Cột trái: Left card with instructions or image placeholder -->
+        <div class="batch-info-card">
+          <div class="info-item">
+            <tui-icon icon="@tui.info"></tui-icon>
+            <div>
+              <h3>Nhập hàng loạt</h3>
+              <p>Mỗi mã serial trên một dòng. Hệ thống sẽ tự động ghép với mẫu thiết bị đã chọn.</p>
+            </div>
+          </div>
+          <div class="batch-preview-placeholder">
+             <tui-icon icon="@tui.package-plus"></tui-icon>
+          </div>
+        </div>
+
+        <!-- Cột phải: Thông tin nhập/Sử dụng lại item detail style -->
+        <div class="form-fields-section">
+          <div class="form-item-full">
+            <span class="filter-label">Mẫu thiết bị *</span>
+            <app-irh-select [options]="getTemplateOptions()" formControlName="templateId" placeholder="-- Chọn mẫu thiết bị --"></app-irh-select>
+          </div>
+
+          <div class="form-grid">
+            <div class="form-item">
+              <span class="filter-label">Tình trạng chung</span>
+              <app-irh-select [options]="conditionOptions" formControlName="conditionStatus"></app-irh-select>
+            </div>
+            <div class="form-item">
+              <span class="filter-label">Trạng thái ban đầu</span>
+              <app-irh-select [options]="statusOptions" formControlName="status"></app-irh-select>
+            </div>
+          </div>
+
+          <div class="form-item-full">
+            <span class="filter-label">Danh sách mã Serial (Mỗi mã 1 dòng)</span>
+            <textarea formControlName="serialNumbersText" rows="8" placeholder="PC-001&#10;PC-002&#10;PC-003..." 
+                      class="input-field py-4 font-mono"></textarea>
+          </div>
+        </div>
+      </div>
+
+      <footer class="dialog-footer">
+        <button tuiButton appearance="secondary" size="m" (click)="showBatchModal.set(false)" type="button">Hủy</button>
+        <button tuiButton appearance="primary" size="m" [disabled]="batchForm.invalid" type="submit">Xác nhận nhập kho</button>
+      </footer>
+    </form>
+  </ng-template>
+</div>

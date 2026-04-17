@@ -1,6 +1,6 @@
-import { Component, Input, OnChanges, SimpleChanges } from '@angular/core';
+import { Component, EventEmitter, Input, OnChanges, Output, SimpleChanges } from '@angular/core';
 import { AgGridAngular } from 'ag-grid-angular';
-import { ColDef, GridReadyEvent, GridApi } from 'ag-grid-community';
+import { ColDef, GridReadyEvent, GridApi, SelectionChangedEvent, RowSelectionOptions } from 'ag-grid-community';
 
 /**
  * IrhAggridComponent - Reusable AG Grid wrapper with premium Quartz theme.
@@ -67,6 +67,15 @@ export class IrhAggridComponent implements OnChanges {
    */
   @Input() height = '400px';
 
+  /** Chế độ chọn dòng: 'single', 'multiple', hoặc undefined */
+  @Input() rowSelection: RowSelectionOptions | 'single' | 'multiple' | undefined;
+
+  /** Tùy chỉnh cột checkbox selection (AG Grid v35+) */
+  @Input() selectionColumnDef: any;
+
+  /** Sự kiện khi thay đổi dòng được chọn */
+  @Output() selectionChanged = new EventEmitter<SelectionChangedEvent>();
+
   // ── Internal ─────────────────────────────────────────────
   private gridApi!: GridApi;
 
@@ -88,5 +97,9 @@ export class IrhAggridComponent implements OnChanges {
     if (changes['rowData'] && this.gridApi) {
       this.gridApi.sizeColumnsToFit();
     }
+  }
+
+  onSelectionChanged(event: SelectionChangedEvent) {
+    this.selectionChanged.emit(event);
   }
 }

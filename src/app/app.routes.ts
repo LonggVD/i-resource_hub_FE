@@ -48,6 +48,18 @@ export const routes: Routes = [
             (m) => m.OrganizationUnitsComponent,
           ),
       },
+      {
+        path: 'admin/resource-items',
+        loadComponent: () =>
+          import('./features/resource-items/resource-item.component').then(
+            (m) => m.ResourceItemComponent,
+          ),
+      },
+      {
+        path: 'admin/users',
+        loadComponent: () =>
+          import('./features/user/user.component').then((m) => m.UserComponent),
+      },
     ],
   },
   {

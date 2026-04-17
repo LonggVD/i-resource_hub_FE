@@ -1,0 +1,112 @@
+<div class="auth-panel">
+  <!-- Loader Overlay -->
+  <tui-loader *ngIf="isLoading()" [overlay]="true" class="absolute inset-0 z-50"></tui-loader>
+
+  <div class="auth-layout" [class.opacity-50]="isLoading()">
+    <!-- Cột bên trái: Danh sách Vai trò -->
+    <div class="roles-sidebar">
+      <div class="sidebar-header">
+        <h3 class="sidebar-title">Vai trò hệ thống</h3>
+      </div>
+      
+      <div class="roles-list">
+        @for (role of roles(); track role.id) {
+          <div 
+            class="role-item" 
+            [class.active]="selectedRole()?.id === role.id"
+            (click)="selectRole(role)"
+          >
+            <div class="role-icon-box">
+              <tui-icon [icon]="role.isSystem ? '@tui.shield' : '@tui.users'"></tui-icon>
+            </div>
+            <div class="role-info">
+              <span class="role-name">{{ role.roleName }}</span>
+              <span class="role-code">{{ role.roleCode }}</span>
+            </div>
+            <div *ngIf="role.isSystem && role.roleCode === 'ADMIN'" class="role-badge badge-admin">Admin</div>
+            <div *ngIf="role.isSystem && role.roleCode !== 'ADMIN'" class="role-badge badge-sys">System</div>
+          </div>
+        }
+      </div>
+    </div>
+
+    <!-- Cột bên phải: Danh sách Quyền hạn (Permissions) -->
+    <div class="permissions-content" *ngIf="selectedRole(); else noRoleTpl">
+      <div class="content-header">
+        <div class="header-info">
+          <h2 class="content-title">Phân quyền: {{ selectedRole()?.roleName }}</h2>
+          <p class="content-subtitle">{{ selectedRole()?.description || 'Không có mô tả cho vai trò này.' }}</p>
+          
+          <div *ngIf="selectedRole()?.isSystem && selectedRole()?.roleCode === 'ADMIN'" class="warning-banner">
+            <tui-icon icon="@tui.alert-triangle"></tui-icon>
+            <span>Đây là tài khoản Quản trị viên cao nhất. Không thể chỉnh sửa quyền.</span>
+          </div>
+        </div>
+
+        <button 
+          tuiButton 
+          appearance="primary" 
+          size="m" 
+          [disabled]="isSaving() || !!(selectedRole()?.isSystem && selectedRole()?.roleCode === 'ADMIN')"
+          (click)="savePermissions()"
+          class="save-btn"
+        >
+          <tui-icon *ngIf="!isSaving()" icon="@tui.save"></tui-icon>
+          <tui-loader *ngIf="isSaving()" size="s" [inheritColor]="true"></tui-loader>
+          &nbsp; {{ isSaving() ? 'Đang lưu...' : 'Cập nhật quyền' }}
+        </button>
+      </div>
+
+      <div class="permissions-list">
+        @for (group of groupedPermissions(); track group.resource) {
+          <div class="permission-group">
+            <div class="group-header" (click)="toggleResourceGroup(group.permissions)">
+              <div class="checkbox-wrapper" (click)="$event.stopPropagation()">
+                <input tuiCheckbox type="checkbox"
+                  [ngModel]="isResourceGroupSelected(group.permissions)"
+                  (ngModelChange)="toggleResourceGroup(group.permissions)"
+                  [disabled]="!!(selectedRole()?.isSystem && selectedRole()?.roleCode === 'ADMIN')"
+                />
+                <!-- Thêm dấu trừ nếu chọn một phần (indeterminate state via CSS fake) -->
+                <div *ngIf="isResourceGroupIndeterminate(group.permissions) && !isResourceGroupSelected(group.permissions)" class="indeterminate-mark"></div>
+              </div>
+              <div class="group-title">
+                <span class="resource-label">Module: </span>
+                <span class="resource-name">{{ group.resource }}</span>
+              </div>
+            </div>
+
+            <div class="group-items">
+              @for (perm of group.permissions; track perm.id) {
+                <label 
+                  class="permission-item" 
+                  [class.disabled]="!!(selectedRole()?.isSystem && selectedRole()?.roleCode === 'ADMIN')"
+                  [class.selected]="hasPermission(perm.id)"
+                >
+                  <input tuiCheckbox type="checkbox"
+                    [ngModel]="hasPermission(perm.id)"
+                    (ngModelChange)="togglePermission(perm.id)"
+                    [disabled]="!!(selectedRole()?.isSystem && selectedRole()?.roleCode === 'ADMIN')"
+                  />
+                  <div class="perm-details">
+                    <span class="perm-action">{{ perm.actionCode }}</span>
+                    <span class="perm-desc">{{ perm.description || perm.permissionCode }}</span>
+                  </div>
+                </label>
+              }
+            </div>
+          </div>
+        }
+      </div>
+    </div>
+
+    <ng-template #noRoleTpl>
+      <div class="empty-state">
+        <tui-icon icon="@tui.shield-alert" class="empty-icon"></tui-icon>
+        <h3>Vui lòng chọn vai trò</h3>
+        <p>Chọn một vai trò từ danh sách bên trái để cấu hình quyền hạn.</p>
+      </div>
+    </ng-template>
+
+  </div>
+</div>

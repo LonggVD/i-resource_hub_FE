@@ -1,0 +1,315 @@
+<!-- <div class="test-area" style="padding: 24px; background: #fff; border: 3px dashed #6366f1; border-radius: 20px; margin: 24px; position: relative; z-index: 10000; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1);">
+  <h2 style="margin-bottom: 24px; color: #6366f1; font-weight: 800; letter-spacing: -0.025em;">🚀 KHU VỰC TEST MULTI SELECT</h2>
+  
+  <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 32px; align-items: start;">
+    <div style="background: #f8fafc; padding: 24px; border-radius: 16px; border: 1px solid #e2e8f0;">
+      <app-irh-multi-select
+        label="Chọn các Topic thử nghiệm"
+        [options]="testTagsOptions"
+        [formControl]="testControl"
+      ></app-irh-multi-select>
+    </div>
+
+    <div style="background: #1e293b; padding: 24px; border-radius: 16px; color: #f1f5f9; font-family: monospace;">
+      <p style="color: #94a3b8; margin-bottom: 12px; font-size: 12px; text-transform: uppercase; font-weight: 600;">Live Data (JSON)</p>
+      <pre style="margin: 0; font-size: 14px; line-height: 1.6; color: #38bdf8;">{{ testControl.value | json }}</pre>
+    </div>
+  </div>
+</div> -->
+
+<section class="resources-panel">
+  <header class="resources-panel__header">
+    <div>
+      <p class="resources-panel__eyebrow">Tài nguyên</p>
+      <h1 class="resources-panel__title">Quản lý mẫu tài nguyên</h1>
+    </div>
+    <div class="resources-panel__actions">
+      <button tuiButton class="resources-panel__btn" appearance="primary" size="s" (click)="onOpenAddDialog()">
+        <tui-icon icon="@tui.plus"></tui-icon>&nbsp;Thêm tài nguyên
+      </button>
+      <button tuiButton class="resources-panel__btn" appearance="primary" size="s" (click)="openDeletedDialog()">
+        <tui-icon icon="@tui.trash"></tui-icon>&nbsp;Danh sách xoá
+      </button>
+    </div>
+  </header>
+
+  <tui-loader [showLoader]="isLoading()" [overlay]="true" class="resources-loader">
+    <div class="resources-grid-wrapper">
+      <irh-aggrid
+        [rowData]="resourceList()"
+        [columnDefs]="colDefs"
+        [defaultColDef]="defaultColDef"
+        [rowHeight]="56"
+        [pagination]="true"
+        [paginationPageSize]="10"
+        [autoHeight]="true"
+      />
+    </div>
+  </tui-loader>
+</section>
+
+<!-- ────────────────────────────────────────────────────────── -->
+<!-- DIALOG: Thêm tài nguyên                                   -->
+<!-- ────────────────────────────────────────────────────────── -->
+<ng-template
+  [tuiDialogOptions]="{label: 'Thêm mẫu tài nguyên', size: 'l'}"
+  [(tuiDialog)]="openAddDialog"
+>
+  <form tuiForm [formGroup]="addForm" (submit.prevent)="onSubmitAdd()">
+    <div class="dialog-split-layout">
+      <!-- Cột trái: Ảnh -->
+      <div class="image-upload-section">
+        <irh-image 
+          [src]="addImageUrl()" 
+          className="image-preview-card"
+          (click)="addFileInput.click()"
+          [showPreviewOnClick]="false"
+        ></irh-image>
+        <input
+          #addFileInput
+          type="file"
+          accept="image/*"
+          (change)="onFileSelected($event, 'add')"
+          hidden
+        />
+        <p class="image-hint">Click vào ảnh để thay đổi</p>
+      </div>
+
+      <!-- Cột phải: Thông tin -->
+      <div class="form-fields-section">
+        <!-- Tên -->
+        <tui-textfield>
+          <label tuiLabel>Tên tài nguyên *</label>
+          <input tuiAutoFocus tuiTextfield formControlName="name" />
+        </tui-textfield>
+        @if (addForm.controls.name.touched && addForm.controls.name.invalid) {
+          <small class="field-error">Tên tài nguyên là bắt buộc (tối đa 100 ký tự).</small>
+        }
+
+        <!-- Mô tả -->
+        <tui-textfield>
+          <label tuiLabel>Mô tả</label>
+          <input tuiTextfield formControlName="description" />
+        </tui-textfield>
+
+        <!-- Image URL -->
+        <tui-textfield>
+          <label tuiLabel>Đường dẫn ảnh (URL)</label>
+          <input tuiTextfield formControlName="imageUrl" />
+        </tui-textfield>
+
+        <!-- Danh mục -->
+        <app-irh-select
+          label="Danh mục"
+          [options]="categoryOptions()"
+          formControlName="categoryId"
+          placeholder="-- Chọn danh mục --"
+        ></app-irh-select>
+
+        <!-- Đơn vị -->
+        <app-irh-select
+          label="Đơn vị tổ chức"
+          [options]="unitOptions()"
+          formControlName="unitId"
+          placeholder="-- Chọn đơn vị --"
+        ></app-irh-select>
+
+        <!-- Tự duyệt -->
+        <label class="toggle-field">
+          <input type="checkbox" formControlName="isAutoApprove" class="toggle-field__checkbox" />
+          <span class="toggle-field__label">Tự động duyệt</span>
+        </label>
+      </div>
+    </div>
+
+    @if (addError()) {
+      <small class="field-error">{{ addError() }}</small>
+    }
+
+    <footer class="dialog-footer">
+      <button
+        appearance="secondary"
+        tuiButton
+        type="button"
+        [disabled]="isSubmittingAdd()"
+        (click)="onCancelAddDialog()"
+      >
+        Hủy
+      </button>
+      <button
+        tuiButton
+        type="submit"
+        [disabled]="addForm.invalid || isSubmittingAdd()"
+        (click)="onSubmitAdd()"
+      >
+        {{ isSubmittingAdd() ? 'Đang lưu...' : 'Thêm mới' }}
+      </button>
+    </footer>
+  </form>
+</ng-template>
+
+<!-- ────────────────────────────────────────────────────────── -->
+<!-- DIALOG: Chỉnh sửa tài nguyên                              -->
+<!-- ────────────────────────────────────────────────────────── -->
+<ng-template
+  [tuiDialogOptions]="{label: 'Chỉnh sửa mẫu tài nguyên', size: 'l'}"
+  [tuiDialog]="openEditDialog()"
+  (tuiDialogChange)="openEditDialog.set($event)"
+>
+  <form tuiForm [formGroup]="editForm" (submit.prevent)="onSubmitEdit()">
+    <div class="dialog-split-layout">
+      <!-- Cột trái: Ảnh -->
+      <div class="image-upload-section">
+        <irh-image 
+          [src]="editImageUrl()" 
+          className="image-preview-card"
+          (click)="editFileInput.click()"
+          [showPreviewOnClick]="false"
+        ></irh-image>
+        <input
+          #editFileInput
+          type="file"
+          accept="image/*"
+          (change)="onFileSelected($event, 'edit')"
+          hidden
+        />
+        <p class="image-hint">Click vào ảnh để thay đổi</p>
+        <p class="edit-info"><strong>Đang sửa:</strong> {{ currentEditResource()?.name }}</p>
+      </div>
+
+      <!-- Cột phải: Thông tin -->
+      <div class="form-fields-section">
+        <!-- Tên -->
+        <tui-textfield>
+          <label tuiLabel>Tên tài nguyên *</label>
+          <input tuiAutoFocus tuiTextfield formControlName="name" />
+        </tui-textfield>
+        @if (editForm.controls.name.touched && editForm.controls.name.invalid) {
+          <small class="field-error">Tên tài nguyên là bắt buộc (tối đa 100 ký tự).</small>
+        }
+
+        <!-- Mô tả -->
+        <tui-textfield>
+          <label tuiLabel>Mô tả</label>
+          <input tuiTextfield formControlName="description" />
+        </tui-textfield>
+
+        <!-- Image URL -->
+        <tui-textfield>
+          <label tuiLabel>Đường dẫn ảnh (URL)</label>
+          <input tuiTextfield formControlName="imageUrl" />
+        </tui-textfield>
+
+        <!-- Danh mục -->
+        <app-irh-select
+          label="Danh mục"
+          [options]="categoryOptions()"
+          formControlName="categoryId"
+          placeholder="-- Chọn danh mục --"
+        ></app-irh-select>
+
+        <!-- Đơn vị -->
+        <app-irh-select
+          label="Đơn vị tổ chức"
+          [options]="unitOptions()"
+          formControlName="unitId"
+          placeholder="-- Chọn đơn vị --"
+        ></app-irh-select>
+
+        <!-- Tự duyệt -->
+        <label class="toggle-field">
+          <input type="checkbox" formControlName="isAutoApprove" class="toggle-field__checkbox" />
+          <span class="toggle-field__label">Tự động duyệt</span>
+        </label>
+      </div>
+    </div>
+
+    @if (editError()) {
+      <small class="field-error">{{ editError() }}</small>
+    }
+
+    <footer class="dialog-footer">
+      <button
+        appearance="secondary"
+        tuiButton
+        type="button"
+        [disabled]="isSubmittingEdit()"
+        (click)="onCancelEditDialog()"
+      >
+        Hủy
+      </button>
+      <button
+        tuiButton
+        type="submit"
+        [disabled]="editForm.invalid || isSubmittingEdit()"
+        (click)="onSubmitEdit()"
+      >
+        {{ isSubmittingEdit() ? 'Đang lưu...' : 'Lưu thay đổi' }}
+      </button>
+    </footer>
+  </form>
+</ng-template>
+
+<!-- ────────────────────────────────────────────────────────── -->
+<!-- DIALOG: Xác nhận xoá                                      -->
+<!-- ────────────────────────────────────────────────────────── -->
+<ng-template
+  [tuiDialogOptions]="{label: 'Xác nhận xoá'}"
+  [tuiDialog]="openDialogConfirmDelete()"
+  (tuiDialogChange)="openDialogConfirmDelete.set($event)"
+>
+  <p>Bạn có chắc chắn muốn xoá tài nguyên <strong>{{ selectedDeleteResource()?.name }}</strong> không?</p>
+  <footer class="dialog-footer">
+    <button appearance="secondary" tuiButton type="button" (click)="onCancelDeleteDialog()">Hủy</button>
+    <button
+      tuiButton
+      appearance="destructive"
+      type="button"
+      [disabled]="isSubmittingDelete()"
+      (click)="onConfirmDelete()"
+    >
+      {{ isSubmittingDelete() ? 'Đang xoá...' : 'Xoá' }}
+    </button>
+  </footer>
+</ng-template>
+
+<!-- ────────────────────────────────────────────────────────── -->
+<!-- DIALOG: Danh sách đã xoá (fullscreen)                     -->
+<!-- ────────────────────────────────────────────────────────── -->
+<ng-template
+  let-id="id"
+  [tuiDialogOptions]="{appearance: 'fullscreen resources-fullscreen'}"
+  [tuiDialog]="openDeletedListDialog()"
+  (tuiDialogChange)="openDeletedListDialog.set($event)"
+>
+  <header tuiHeader>
+    <hgroup tuiTitle>
+      <h2 [id]="id">Thùng rác (Tài nguyên đã xoá)</h2>
+      <p>Các tài nguyên đã bị xoá sẽ được lưu trữ tại đây. Bạn có thể khôi phục chúng bất kỳ lúc nào.</p>
+    </hgroup>
+  </header>
+
+  <div class="fullscreen-grid-wrapper">
+    <irh-aggrid
+      [rowData]="deletedList()"
+      [columnDefs]="deletedColDefs"
+      [defaultColDef]="defaultColDef"
+      [pagination]="true"
+      [paginationPageSize]="10"
+      [autoHeight]="true"
+    />
+  </div>
+
+  <footer tuiFloatingContainer [style.margin-top]="'auto'">
+    <button tuiButton type="button" (click)="openDeletedListDialog.set(false)">Đóng</button>
+  </footer>
+</ng-template>
+
+<!-- ────────────────────────────────────────────────────────── -->
+<!-- DIALOG: Xem trước ảnh (Sử dụng IrhImage mới)              -->
+<!-- ────────────────────────────────────────────────────────── -->
+<irh-image
+  [src]="previewImageUrl()"
+  [(openPreview)]="openPreviewDialog"
+  [showPreviewOnClick]="false"
+></irh-image>
