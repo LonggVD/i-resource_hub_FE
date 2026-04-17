@@ -108,7 +108,6 @@ export class ResourcesComponent implements OnInit {
     isAutoApprove: new FormControl(false, { nonNullable: true }),
     imageUrl: new FormControl('', {
       nonNullable: true,
-      validators: [Validators.maxLength(255)],
     }),
     categoryId: new FormControl('', { nonNullable: true }),
     unitId: new FormControl('', { nonNullable: true }),
@@ -123,20 +122,19 @@ export class ResourcesComponent implements OnInit {
     isAutoApprove: new FormControl(false, { nonNullable: true }),
     imageUrl: new FormControl('', {
       nonNullable: true,
-      validators: [Validators.maxLength(255)],
     }),
     categoryId: new FormControl('', { nonNullable: true }),
     unitId: new FormControl('', { nonNullable: true }),
   });
 
   // ── Computed Image Preview ────────────────────────────────
-  public readonly addImageUrl = computed(() => {
+  public addImageUrl(): string {
     return this.addForm.get('imageUrl')?.value || this.PLACEHOLDER_SVG;
-  });
+  }
 
-  public readonly editImageUrl = computed(() => {
+  public editImageUrl(): string {
     return this.editForm.get('imageUrl')?.value || this.PLACEHOLDER_SVG;
-  });
+  }
 
   // ── Dialog state ─────────────────────────────────────────
   public readonly openAddDialog = signal(false);

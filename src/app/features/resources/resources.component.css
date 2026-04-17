@@ -226,6 +226,11 @@
   margin: 0;
 }
 
+.image-upload-trigger {
+  border-radius: 10px;
+  min-width: 110px;
+}
+
 .edit-info {
   margin-top: 12px;
   font-size: 14px;
@@ -253,7 +258,7 @@
   width: 100%;
 }
 
-::ng-deep tui-dialog[data-appearance~="resources-fullscreen"] {
+::ng-deep tui-dialog[data-appearance~='resources-fullscreen'] {
   --tui-width: 100rem !important;
   padding: 50px;
 }
@@ -329,10 +334,12 @@
 }
 
 .shadow-lg {
-  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+  box-shadow:
+    0 10px 15px -3px rgba(0, 0, 0, 0.1),
+    0 4px 6px -2px rgba(0, 0, 0, 0.05);
 }
 
-::ng-deep tui-dialog[data-appearance~="preview-dialog"] {
+::ng-deep tui-dialog[data-appearance~='preview-dialog'] {
   background: white;
   border-radius: 24px;
 }

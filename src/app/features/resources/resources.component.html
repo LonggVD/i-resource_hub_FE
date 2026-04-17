@@ -24,10 +24,22 @@
       <h1 class="resources-panel__title">Quản lý mẫu tài nguyên</h1>
     </div>
     <div class="resources-panel__actions">
-      <button tuiButton class="resources-panel__btn" appearance="primary" size="s" (click)="onOpenAddDialog()">
+      <button
+        tuiButton
+        class="resources-panel__btn"
+        appearance="primary"
+        size="s"
+        (click)="onOpenAddDialog()"
+      >
         <tui-icon icon="@tui.plus"></tui-icon>&nbsp;Thêm tài nguyên
       </button>
-      <button tuiButton class="resources-panel__btn" appearance="primary" size="s" (click)="openDeletedDialog()">
+      <button
+        tuiButton
+        class="resources-panel__btn"
+        appearance="primary"
+        size="s"
+        (click)="openDeletedDialog()"
+      >
         <tui-icon icon="@tui.trash"></tui-icon>&nbsp;Danh sách xoá
       </button>
     </div>
@@ -52,18 +64,17 @@
 <!-- DIALOG: Thêm tài nguyên                                   -->
 <!-- ────────────────────────────────────────────────────────── -->
 <ng-template
-  [tuiDialogOptions]="{label: 'Thêm mẫu tài nguyên', size: 'l'}"
+  [tuiDialogOptions]="{ label: 'Thêm mẫu tài nguyên', size: 'l' }"
   [(tuiDialog)]="openAddDialog"
 >
   <form tuiForm [formGroup]="addForm" (submit.prevent)="onSubmitAdd()">
     <div class="dialog-split-layout">
       <!-- Cột trái: Ảnh -->
       <div class="image-upload-section">
-        <irh-image 
-          [src]="addImageUrl()" 
+        <irh-image
+          [src]="addImageUrl()"
           className="image-preview-card"
-          (click)="addFileInput.click()"
-          [showPreviewOnClick]="false"
+          [showPreviewOnClick]="true"
         ></irh-image>
         <input
           #addFileInput
@@ -72,7 +83,17 @@
           (change)="onFileSelected($event, 'add')"
           hidden
         />
-        <p class="image-hint">Click vào ảnh để thay đổi</p>
+        <button
+          tuiButton
+          appearance="secondary"
+          size="s"
+          type="button"
+          class="image-upload-trigger"
+          (click)="addFileInput.click()"
+        >
+          Chọn ảnh
+        </button>
+        <p class="image-hint">Bấm vào ảnh để xem phóng lớn</p>
       </div>
 
       <!-- Cột phải: Thông tin -->
@@ -152,7 +173,7 @@
 <!-- DIALOG: Chỉnh sửa tài nguyên                              -->
 <!-- ────────────────────────────────────────────────────────── -->
 <ng-template
-  [tuiDialogOptions]="{label: 'Chỉnh sửa mẫu tài nguyên', size: 'l'}"
+  [tuiDialogOptions]="{ label: 'Chỉnh sửa mẫu tài nguyên', size: 'l' }"
   [tuiDialog]="openEditDialog()"
   (tuiDialogChange)="openEditDialog.set($event)"
 >
@@ -160,11 +181,10 @@
     <div class="dialog-split-layout">
       <!-- Cột trái: Ảnh -->
       <div class="image-upload-section">
-        <irh-image 
-          [src]="editImageUrl()" 
+        <irh-image
+          [src]="editImageUrl()"
           className="image-preview-card"
-          (click)="editFileInput.click()"
-          [showPreviewOnClick]="false"
+          [showPreviewOnClick]="true"
         ></irh-image>
         <input
           #editFileInput
@@ -173,7 +193,17 @@
           (change)="onFileSelected($event, 'edit')"
           hidden
         />
-        <p class="image-hint">Click vào ảnh để thay đổi</p>
+        <button
+          tuiButton
+          appearance="secondary"
+          size="s"
+          type="button"
+          class="image-upload-trigger"
+          (click)="editFileInput.click()"
+        >
+          Chọn ảnh
+        </button>
+        <p class="image-hint">Bấm vào ảnh để xem phóng lớn</p>
         <p class="edit-info"><strong>Đang sửa:</strong> {{ currentEditResource()?.name }}</p>
       </div>
 
@@ -254,13 +284,18 @@
 <!-- DIALOG: Xác nhận xoá                                      -->
 <!-- ────────────────────────────────────────────────────────── -->
 <ng-template
-  [tuiDialogOptions]="{label: 'Xác nhận xoá'}"
+  [tuiDialogOptions]="{ label: 'Xác nhận xoá' }"
   [tuiDialog]="openDialogConfirmDelete()"
   (tuiDialogChange)="openDialogConfirmDelete.set($event)"
 >
-  <p>Bạn có chắc chắn muốn xoá tài nguyên <strong>{{ selectedDeleteResource()?.name }}</strong> không?</p>
+  <p>
+    Bạn có chắc chắn muốn xoá tài nguyên
+    <strong>{{ selectedDeleteResource()?.name }}</strong> không?
+  </p>
   <footer class="dialog-footer">
-    <button appearance="secondary" tuiButton type="button" (click)="onCancelDeleteDialog()">Hủy</button>
+    <button appearance="secondary" tuiButton type="button" (click)="onCancelDeleteDialog()">
+      Hủy
+    </button>
     <button
       tuiButton
       appearance="destructive"
@@ -278,14 +313,16 @@
 <!-- ────────────────────────────────────────────────────────── -->
 <ng-template
   let-id="id"
-  [tuiDialogOptions]="{appearance: 'fullscreen resources-fullscreen'}"
+  [tuiDialogOptions]="{ appearance: 'fullscreen resources-fullscreen' }"
   [tuiDialog]="openDeletedListDialog()"
   (tuiDialogChange)="openDeletedListDialog.set($event)"
 >
   <header tuiHeader>
     <hgroup tuiTitle>
       <h2 [id]="id">Thùng rác (Tài nguyên đã xoá)</h2>
-      <p>Các tài nguyên đã bị xoá sẽ được lưu trữ tại đây. Bạn có thể khôi phục chúng bất kỳ lúc nào.</p>
+      <p>
+        Các tài nguyên đã bị xoá sẽ được lưu trữ tại đây. Bạn có thể khôi phục chúng bất kỳ lúc nào.
+      </p>
     </hgroup>
   </header>
 
