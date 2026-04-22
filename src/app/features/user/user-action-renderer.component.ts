@@ -9,6 +9,26 @@ import { TuiButton, TuiIcon } from '@taiga-ui/core';
   imports: [TuiButton, TuiIcon],
   template: `
     <div class="action-buttons">
+      @if (params.data?.status === 'PENDING') {
+        <button
+          tuiIconButton
+          class="btn-action btn-action--success"
+          size="s"
+          title="Phê duyệt"
+          (click)="onApprove()"
+        >
+          <tui-icon icon="@tui.circle-check" />
+        </button>
+        <button
+          tuiIconButton
+          class="btn-action btn-action--warning"
+          size="s"
+          title="Từ chối"
+          (click)="onReject()"
+        >
+          <tui-icon icon="@tui.circle-off" />
+        </button>
+      }
       <button tuiIconButton class="btn-action" size="s" title="Sửa" (click)="onEdit()">
         <tui-icon icon="@tui.pencil" />
       </button>
@@ -76,6 +96,26 @@ import { TuiButton, TuiIcon } from '@taiga-ui/core';
         background: #eef2ff !important;
       }
 
+      .action-buttons .btn-action--success {
+        background: #ecfdf5 !important;
+        color: #10b981 !important;
+        border: 1px solid #a7f3d0 !important;
+      }
+      
+      .action-buttons .btn-action--success:hover {
+        background: #d1fae5 !important;
+      }
+
+      .action-buttons .btn-action--warning {
+        background: #fffbeb !important;
+        color: #f59e0b !important;
+        border: 1px solid #fde68a !important;
+      }
+
+      .action-buttons .btn-action--warning:hover {
+        background: #fef3c7 !important;
+      }
+
       .action-buttons .btn-action--danger {
         background: #fff5f5 !important;
         color: #ef4444 !important;
@@ -97,6 +137,14 @@ export class UserActionRendererComponent implements ICellRendererAngularComp {
 
   refresh(): boolean {
     return false;
+  }
+
+  onApprove(): void {
+    if (this.params.onApprove) this.params.onApprove(this.params.data);
+  }
+
+  onReject(): void {
+    if (this.params.onReject) this.params.onReject(this.params.data);
   }
 
   onEdit(): void {

@@ -1,0 +1,91 @@
+<tui-loader [showLoader]="isSubmitting() || isLoadingSlots()" [overlay]="true">
+  <div class="cart-dialog">
+    <div class="cart-items">
+      <h4 class="section-title">Danh sách thiết bị đăng ký mượn</h4>
+      
+      <div *ngFor="let item of items()" class="cart-item-row">
+        <!-- Thông tin cơ bản & Ảnh -->
+        <div class="item-main">
+          <div class="item-img">
+            <img [src]="item.resource.imageUrl || 'assets/images/placeholder.svg'" alt="">
+          </div>
+          <div class="item-info">
+            <p class="item-name">{{ item.resource.name }}</p>
+            <div class="qty-control mt-2">
+              <button type="button" tuiButton appearance="flat" size="xs" (click)="updateQty(item.id, item.quantity - 1)">
+                <tui-icon icon="@tui.minus"></tui-icon>
+              </button>
+              <span class="qty-value">{{ item.quantity }}</span>
+              <button type="button" tuiButton appearance="flat" size="xs" (click)="updateQty(item.id, item.quantity + 1)">
+                <tui-icon icon="@tui.plus"></tui-icon>
+              </button>
+            </div>
+          </div>
+          <button type="button" tuiButton appearance="flat" size="s" class="remove-btn" (click)="removeItem(item.id)">
+            <tui-icon icon="@tui.trash"></tui-icon>
+          </button>
+        </div>
+
+        <!-- Cấu hình thời gian RIÊNG cho món này -->
+        <div class="item-config">
+          <div class="config-field">
+            <label class="config-label">Ngày mượn</label>
+            <tui-textfield size="s">
+              <input
+                tuiTextfield
+                type="date"
+                [value]="item.bookingDate.year + '-' + (item.bookingDate.month + 1 | number:'2.0') + '-' + (item.bookingDate.day | number:'2.0')"
+                (change)="onDateChange(item.id, $event)"
+                class="config-input"
+              />
+            </tui-textfield>
+          </div>
+          <div class="config-field">
+            <label class="config-label">Khung giờ</label>
+            <app-irh-select
+              [options]="getSlotOptionsForItem(item)"
+              [selectedValue]="item.slot"
+              (selectionChange)="onSlotChange(item.id, $event)"
+              placeholder="-- Chọn ca --"
+              class="config-select"
+            ></app-irh-select>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Booking details -->
+    <form [formGroup]="bookingForm" (ngSubmit)="submit()" class="booking-form">
+      <div class="form-row">
+        <label class="filter-label">Mục đích sử dụng chung</label>
+        <textarea
+          formControlName="purpose"
+          rows="2"
+          class="input-field py-3"
+          placeholder="Lý do mượn các thiết bị này..."
+        ></textarea>
+      </div>
+
+      <footer class="dialog-footer">
+        <button
+          tuiButton
+          type="button"
+          appearance="secondary"
+          size="m"
+          (click)="cancel()"
+          [disabled]="isSubmitting()"
+        >
+          Hủy bỏ
+        </button>
+        <button
+          tuiButton
+          type="submit"
+          size="m"
+          [disabled]="items().length === 0 || isSubmitting()"
+        >
+          Xác nhận mượn tất cả
+        </button>
+      </footer>
+    </form>
+  </div>
+</tui-loader>

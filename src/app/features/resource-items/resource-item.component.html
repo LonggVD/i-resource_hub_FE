@@ -104,13 +104,26 @@
         <!-- Cột phải: Form thông tin chi tiết -->
         <div class="form-fields-section">
           <!-- Mẫu thiết bị -->
-          <div class="form-item-full">
-            <span class="filter-label">Mẫu thiết bị *</span>
-            <app-irh-select 
-              [options]="getTemplateOptions()" 
-              formControlName="templateId" 
-              placeholder="-- Chọn mẫu thiết bị --">
-            </app-irh-select>
+          <div class="form-grid">
+            <div class="form-item">
+              <span class="filter-label">Mẫu thiết bị *</span>
+              <app-irh-select 
+                [options]="getTemplateOptions()" 
+                formControlName="templateId" 
+                placeholder="-- Chọn mẫu --">
+              </app-irh-select>
+            </div>
+
+            <!-- Đơn vị quản lý -->
+            <div class="form-item">
+              <span class="filter-label">Đơn vị quản lý *</span>
+              <app-irh-select 
+                [options]="getUnitOptions()" 
+                formControlName="unitId" 
+                placeholder="-- Chọn đơn vị --"
+                [disabled]="isManager()">
+              </app-irh-select>
+            </div>
           </div>
 
           <div class="form-grid">
@@ -331,9 +344,15 @@
 
         <!-- Cột phải: Thông tin nhập/Sử dụng lại item detail style -->
         <div class="form-fields-section">
-          <div class="form-item-full">
-            <span class="filter-label">Mẫu thiết bị *</span>
-            <app-irh-select [options]="getTemplateOptions()" formControlName="templateId" placeholder="-- Chọn mẫu thiết bị --"></app-irh-select>
+          <div class="form-grid">
+            <div class="form-item">
+              <span class="filter-label">Mẫu thiết bị *</span>
+              <app-irh-select [options]="getTemplateOptions()" formControlName="templateId" placeholder="-- Chọn mẫu thiết bị --"></app-irh-select>
+            </div>
+            <div class="form-item">
+              <span class="filter-label">Đơn vị quản lý *</span>
+              <app-irh-select [options]="getUnitOptions()" formControlName="unitId" placeholder="-- Chọn đơn vị --" [disabled]="isManager()"></app-irh-select>
+            </div>
           </div>
 
           <div class="form-grid">

@@ -38,6 +38,7 @@
               <li
                 class="irh-select-option"
                 [class.is-selected]="opt.value === selectedValue()"
+                [class.is-disabled]="opt.disabled"
                 (click)="selectOption(opt)"
               >
                 <span>{{ opt.label }}</span>

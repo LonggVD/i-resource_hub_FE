@@ -38,6 +38,8 @@ import { IrhImage } from '../../shared/components/irh-image/irh-image.component'
 // Services
 import { ResourceItemService } from '../../core/api/resource-item-service';
 import { ResourceTemplateService } from '../../core/api/resource-template-service';
+import { OrganizationUnitService } from '../../core/api/organization-unit-service';
+import { AuthService } from '../../core/api/auth.service';
 import { NotificationService } from '../../core/api/notification';
 
 // Models
@@ -48,6 +50,7 @@ import {
   ResourceItemUpdateRequest,
 } from '../../core/models/resource-item.model';
 import { ResourceTemplate } from '../../core/models/resource-template.model';
+import { OrganizationUnitResponse } from '../../core/models/organization-unit.model';
 
 // Renderers
 import { ResourceItemActionRendererComponent } from './resource-item-action-renderer.component';
@@ -58,7 +61,7 @@ import { TuiButton, TuiIcon, TuiLoader, TuiTextfield } from '@taiga-ui/core';
 import { TuiDialog } from '@taiga-ui/experimental';
 
 // QR Code Libraries
-import { QRCodeComponent } from 'angularx-qrcode';
+import { QRCodeModule } from 'angularx-qrcode';
 import { NgxScannerQrcodeComponent, ScannerQRCodeResult, LOAD_WASM } from 'ngx-scanner-qrcode';
 
 @Component({
@@ -77,7 +80,7 @@ import { NgxScannerQrcodeComponent, ScannerQRCodeResult, LOAD_WASM } from 'ngx-s
     TuiTextfield,
     TuiDialog,
     IrhImage,
-    QRCodeComponent,
+    QRCodeModule,
     NgxScannerQrcodeComponent,
   ],
   templateUrl: './resource-item.component.html',
@@ -88,6 +91,8 @@ export class ResourceItemComponent implements OnInit, OnDestroy {
   // --- Services ---
   private readonly resourceItemService = inject(ResourceItemService);
   private readonly templateService = inject(ResourceTemplateService);
+  private readonly unitService = inject(OrganizationUnitService);
+  private readonly authService = inject(AuthService);
   private readonly notification = inject(NotificationService);
   private readonly cdr = inject(ChangeDetectorRef);
 
@@ -98,11 +103,21 @@ export class ResourceItemComponent implements OnInit, OnDestroy {
   public readonly isLoading = signal(false);
   private readonly _rawData = signal<ResourceItemResponse[]>([]);
   public readonly templates = signal<ResourceTemplate[]>([]);
+  public readonly units = signal<OrganizationUnitResponse[]>([]);
 
   // --- Filter State ---
   public readonly searchQuery = signal('');
   public readonly selectedConditionStatuses = signal<string[]>([]);
   public readonly selectedStatuses = signal<string[]>([]);
+
+  // --- Auth State ---
+  public readonly isAdmin = computed(
+    () => this.authService.user()?.roles.includes('ADMIN') ?? false,
+  );
+  public readonly isManager = computed(
+    () => this.authService.user()?.roles.includes('MANAGER') ?? false,
+  );
+  public readonly userUnitId = computed(() => this.authService.user()?.unitId);
 
   // --- Computed Filtered Data ---
   public readonly data = computed(() => {
@@ -133,6 +148,7 @@ export class ResourceItemComponent implements OnInit, OnDestroy {
   // --- Forms ---
   public itemForm = new FormGroup({
     templateId: new FormControl('', Validators.required),
+    unitId: new FormControl('', Validators.required),
     serialNumber: new FormControl('', Validators.required),
     conditionStatus: new FormControl('GOOD', Validators.required),
     status: new FormControl('AVAILABLE', Validators.required),
@@ -142,6 +158,7 @@ export class ResourceItemComponent implements OnInit, OnDestroy {
 
   public batchForm = new FormGroup({
     templateId: new FormControl('', Validators.required),
+    unitId: new FormControl('', Validators.required),
     serialNumbersText: new FormControl('', Validators.required),
     conditionStatus: new FormControl('GOOD', Validators.required),
     status: new FormControl('AVAILABLE', Validators.required),
@@ -259,6 +276,14 @@ export class ResourceItemComponent implements OnInit, OnDestroy {
       cellClass: 'font-mono text-blue-600',
     },
     {
+      headerName: 'Đơn vị quản lý',
+      field: 'unit.unitName',
+      flex: 1.5,
+      minWidth: 160,
+      valueFormatter: (params: any) => params.value || 'N/A',
+      cellClass: 'text-gray-600 italic',
+    },
+    {
       headerName: 'Tình trạng',
       field: 'conditionStatus',
       width: 140,
@@ -304,6 +329,7 @@ export class ResourceItemComponent implements OnInit, OnDestroy {
   ngOnInit() {
     this.refreshData();
     this.loadTemplates();
+    this.loadUnits();
   }
 
   ngOnDestroy() {
@@ -334,6 +360,13 @@ export class ResourceItemComponent implements OnInit, OnDestroy {
     });
   }
 
+  loadUnits() {
+    this.unitService.getAllUnits().subscribe((res) => {
+      this.units.set(res);
+      this.cdr.detectChanges();
+    });
+  }
+
   // --- Modal Logic ---
   openAddModal() {
     this.isEditMode.set(false);
@@ -341,8 +374,18 @@ export class ResourceItemComponent implements OnInit, OnDestroy {
     this.itemForm.reset({
       conditionStatus: 'GOOD',
       status: 'AVAILABLE',
+      unitId: this.isManager() ? this.userUnitId() : '',
     });
     this.showFormModal.set(true);
+  }
+
+  openBatchModal() {
+    this.batchForm.reset({
+      conditionStatus: 'GOOD',
+      status: 'AVAILABLE',
+      unitId: this.isManager() ? this.userUnitId() : '',
+    });
+    this.showBatchModal.set(true);
   }
 
   onEdit(item: ResourceItemResponse) {
@@ -350,6 +393,7 @@ export class ResourceItemComponent implements OnInit, OnDestroy {
     this.currentEditingId.set(item.id);
     this.itemForm.patchValue({
       templateId: item.template.id,
+      unitId: item.unit?.id ?? '',
       serialNumber: item.serialNumber,
       conditionStatus: item.conditionStatus,
       status: item.status,
@@ -733,6 +777,7 @@ export class ResourceItemComponent implements OnInit, OnDestroy {
       conditionStatus: formVal.conditionStatus!,
       status: formVal.status!,
       serialNumbers: serialNumbers,
+      unitId: formVal.unitId!,
     };
 
     this.isLoading.set(true);
@@ -771,6 +816,10 @@ export class ResourceItemComponent implements OnInit, OnDestroy {
 
   getTemplateOptions(): IrhSelectOption[] {
     return this.templates().map((t) => ({ label: t.name, value: t.id }));
+  }
+
+  getUnitOptions(): IrhSelectOption[] {
+    return this.units().map((u) => ({ label: u.unitName, value: u.id }));
   }
 
   onSearchChange(event: Event) {

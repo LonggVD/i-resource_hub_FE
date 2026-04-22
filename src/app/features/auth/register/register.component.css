@@ -113,6 +113,10 @@ app-login-form-left {
   box-shadow: 0 2px 16px rgba(139, 92, 246, 0.15);
 }
 
+.register-select {
+  width: 100%;
+}
+
 .input-field:focus-within {
   box-shadow: 0 2px 16px rgba(139, 92, 246, 0.15);
   border-color: #8b5cf6 !important;

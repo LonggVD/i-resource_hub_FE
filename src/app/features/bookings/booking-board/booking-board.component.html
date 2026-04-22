@@ -1,0 +1,116 @@
+<tui-loader [showLoader]="isProcessing()" [overlay]="true" text="Đang xử lý...">
+<div class="kanban-wrapper">
+  <div class="kanban-header">
+    <div class="header-title">
+      <h1 class="kanban-title">Quản lý Đơn mượn thiết bị</h1>
+      <p class="kanban-subtitle">Kéo thả để cập nhật trạng thái đơn mượn nhanh chóng</p>
+    </div>
+    
+    <div class="kanban-toolbar">
+      <div class="search-box">
+        <tui-icon icon="@tui.search" class="search-icon" />
+        <input type="text" placeholder="Tìm SV hoặc Mã thiết bị..." class="search-input">
+      </div>
+      <input type="date" class="date-filter">
+    </div>
+  </div>
+
+  <div class="kanban-board" cdkDropListGroup>
+    <!-- Cột Template -->
+    <ng-container *ngFor="let col of [
+      {id: 'PENDING', title: 'Chờ duyệt', data: pendingBookings(), class: 'pending'},
+      {id: 'APPROVED', title: 'Đã duyệt', data: approvedBookings(), class: 'approved'},
+      {id: 'BORROWED', title: 'Đang mượn', data: borrowedBookings(), class: 'borrowed'},
+      {id: 'RETURNED', title: 'Đã trả', data: returnedBookings(), class: 'returned'}
+    ]">
+      <div class="kanban-column">
+        <div class="column-header" [ngClass]="col.class">
+          <span class="column-dot"></span>
+          <h2 class="column-title">{{ col.title }}</h2>
+          <span class="column-count">{{ col.data.length }}</span>
+        </div>
+
+        <div
+          [id]="col.id"
+          cdkDropList
+          [cdkDropListData]="col.data"
+          (cdkDropListDropped)="drop($event)"
+          class="kanban-list"
+        >
+          <div *ngFor="let booking of col.data" cdkDrag class="booking-card">
+            <!-- Giao diện chính của thẻ -->
+            <div class="card-content" (click)="openDetailModal(booking)">
+              <div class="card-device">
+                <tui-icon icon="@tui.monitor" class="device-icon" />
+                <span class="device-name">{{ booking.deviceName }}</span>
+              </div>
+              
+              <div class="card-borrower">
+                <tui-icon icon="@tui.user" class="borrower-icon" />
+                <span class="borrower-text">{{ booking.borrowerId }} - {{ booking.borrowerName }}</span>
+              </div>
+
+              <div class="card-footer">
+                <div class="time-tag" [ngClass]="col.class">
+                  <tui-icon icon="@tui.clock" class="time-icon" />
+                  <span>{{ booking.startTime }} - {{ booking.endTime }}</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Hành động nhanh cho cột PENDING -->
+            @if (col.id === 'PENDING') {
+              <div class="card-actions">
+                <button class="btn-approve" (click)="quickApprove(booking); $event.stopPropagation()">
+                  <tui-icon icon="@tui.check" /> Duyệt
+                </button>
+                <button class="btn-reject" (click)="openRejectModal(booking); $event.stopPropagation()">
+                  <tui-icon icon="@tui.x" /> Từ chối
+                </button>
+              </div>
+            }
+
+            <!-- Hành động cho cột APPROVED -->
+            @if (col.id === 'APPROVED') {
+              <div class="card-actions">
+                <button class="btn-handover" (click)="openHandoverModal(booking); $event.stopPropagation()">
+                  <tui-icon icon="@tui.hand-helping" /> Bàn giao (QR)
+                </button>
+              </div>
+            }
+
+            <!-- Hành động cho cột BORROWED -->
+            @if (col.id === 'BORROWED') {
+              <div class="card-actions stack">
+                <button class="btn-return" (click)="openReturnModal(booking); $event.stopPropagation()">
+                  <tui-icon icon="@tui.refresh-ccw" /> Nhận lại đồ
+                </button>
+                <button class="btn-damage" (click)="openReportDamageModal(booking); $event.stopPropagation()">
+                  <tui-icon icon="@tui.alert-triangle" /> Báo cáo sự cố
+                </button>
+              </div>
+            }
+
+            <!-- 1. Preview: Hình ảnh thẻ khi đang được kéo -->
+            <div class="booking-card dragging-preview" *cdkDragPreview>
+              <div class="card-device">
+                <tui-icon icon="@tui.monitor" class="device-icon" />
+                <span class="device-name">{{ booking.deviceName }}</span>
+              </div>
+            </div>
+
+            <!-- 2. Placeholder: Ô trống hiện ra tại vị trí sắp thả -->
+            <div class="card-placeholder" *cdkDragPlaceholder></div>
+          </div>
+          
+          <!-- Empty State -->
+          <div *ngIf="col.data.length === 0" class="empty-column">
+            <tui-icon icon="@tui.package-open" class="empty-icon"></tui-icon>
+            <p>Trống</p>
+          </div>
+        </div>
+      </div>
+    </ng-container>
+  </div>
+</div>
+</tui-loader>

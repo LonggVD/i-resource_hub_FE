@@ -1,0 +1,87 @@
+<tui-loader [showLoader]="isSubmitting() || isLoadingSlots()" [overlay]="true">
+  <div class="booking-dialog">
+    <div class="resource-info">
+      <div class="resource-img-wrapper">
+        <img [src]="resource.imageUrl || 'assets/images/placeholder.svg'" class="resource-img" alt="">
+      </div>
+      <div class="resource-text">
+        <h3>{{ resource.name }}</h3>
+        <p class="resource-desc tui-text_body-s">{{ resource.description }}</p>
+        <div class="resource-meta">
+          <tui-badge appearance="secondary" size="s">{{ resource.category?.categoryName }}</tui-badge>
+          <tui-badge appearance="outline" size="s">{{ resource.unit?.unitName }}</tui-badge>
+        </div>
+      </div>
+    </div>
+
+    <form [formGroup]="bookingForm" (ngSubmit)="submit()" class="booking-form">
+      <!-- Rule 3: Date selection -->
+      <div class="form-row">
+        <label class="filter-label">Ngày mượn *</label>
+        <tui-textfield>
+          <input
+            tuiTextfield
+            type="date"
+            formControlName="bookingDate"
+            class="input-field"
+          />
+        </tui-textfield>
+      </div>
+
+      <!-- Rule 3: Time Slot selection -->
+      <div class="form-row">
+        <label class="filter-label">Khung giờ *</label>
+        <app-irh-select
+          [options]="getSlotOptions()"
+          formControlName="slot"
+          placeholder="-- Chọn khung giờ --"
+        ></app-irh-select>
+      </div>
+
+      <div class="form-row">
+        <label class="filter-label">Số lượng mượn *</label>
+        <tui-textfield>
+          <input
+            tuiTextfield
+            type="number"
+            formControlName="quantity"
+            class="input-field"
+            min="1"
+            max="10"
+          />
+        </tui-textfield>
+      </div>
+
+      <div class="form-row">
+        <label class="filter-label">Mục đích sử dụng</label>
+        <textarea
+          formControlName="purpose"
+          rows="3"
+          class="input-field py-3"
+          placeholder="Nhập lý do mượn thiết bị..."
+        ></textarea>
+      </div>
+
+      <footer class="dialog-footer">
+        <button
+          tuiButton
+          type="button"
+          appearance="secondary"
+          size="m"
+          (click)="cancel()"
+          [disabled]="isSubmitting()"
+        >
+          Hủy bỏ
+        </button>
+        <button
+          tuiButton
+          type="submit"
+          size="m"
+          [disabled]="bookingForm.invalid || isSubmitting()"
+        >
+          Xác nhận mượn
+        </button>
+      </footer>
+    </form>
+  </div>
+</tui-loader>

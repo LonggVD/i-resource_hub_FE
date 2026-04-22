@@ -9,10 +9,11 @@ import {
 import { CommonModule } from '@angular/common';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { TuiAutoFocus } from '@taiga-ui/cdk';
-import { TuiButton, TuiIcon, TuiLabel, TuiLoader, TuiTextfield, TuiTitle } from '@taiga-ui/core';
+import { TuiButton, TuiIcon, TuiLabel, TuiLoader, TuiTextfield, TuiTitle, TuiDialogService } from '@taiga-ui/core';
 import { TuiDialog } from '@taiga-ui/experimental';
-import { TuiFloatingContainer } from '@taiga-ui/kit';
+import { TuiFloatingContainer, TuiBadge } from '@taiga-ui/kit';
 import { TuiForm, TuiHeader } from '@taiga-ui/layout';
+import { PolymorpheusComponent } from '@taiga-ui/polymorpheus';
 import { ColDef } from 'ag-grid-community';
 
 import { IrhAggridComponent } from '../../shared/components/irh-aggrid/irh-aggrid.component';
@@ -37,6 +38,11 @@ import {
 import { IrhMultiSelect } from '../../shared/components/irh-multi-select/irh-multi-select.component';
 import { IrhImage } from '../../shared/components/irh-image/irh-image.component';
 import { computed } from '@angular/core';
+import { AuthService } from '../../core/api/auth.service';
+import { BookingRequestDialogComponent } from '../bookings/booking-request-dialog/booking-request-dialog.component';
+import { CartDialogComponent } from '../bookings/cart-dialog/cart-dialog.component';
+
+import { CartService } from '../../core/service/cart.service';
 
 @Component({
   selector: 'app-resources',
@@ -58,6 +64,7 @@ import { computed } from '@angular/core';
     IrhAggridComponent,
     IrhSelect,
     IrhImage,
+    TuiBadge,
   ],
   templateUrl: './resources.component.html',
   styleUrl: './resources.component.css',
@@ -149,6 +156,57 @@ export class ResourcesComponent implements OnInit {
   private readonly unitService = inject(OrganizationUnitService);
   private readonly cdr = inject(ChangeDetectorRef);
   private readonly notificationService = inject(NotificationService);
+  private readonly authService = inject(AuthService);
+  private readonly dialogService = inject(TuiDialogService);
+  private readonly cartService = inject(CartService);
+
+  // Status flags
+  readonly isStudent = computed(() => this.authService.user()?.roles.includes('ROLE_STUDENT'));
+  readonly cartCount = this.cartService.count;
+
+  // ═══════════════════════════════════════════════════════════
+  //  GIỎ HÀNG & ĐẶT LỊCH
+  // ═══════════════════════════════════════════════════════════
+  onAddToCart(resource: ResourceTemplate): void {
+    this.cartService.addToCart(resource, 1);
+    this.notificationService.showSuccess(`Đã thêm ${resource.name} vào danh sách mượn đồ.`);
+  }
+
+  onOpenCart(): void {
+    this.dialogService.open<boolean>(
+      new PolymorpheusComponent(CartDialogComponent),
+      {
+        label: 'Danh sách thiết bị đăng ký mượn',
+        size: 'l',
+        dismissible: true,
+      }
+    ).subscribe({
+      next: (result) => {
+        if (result) {
+          this.loadData();
+        }
+      }
+    });
+  }
+
+  onBookResource(resource: ResourceTemplate): void {
+    this.dialogService.open<boolean>(
+      new PolymorpheusComponent(BookingRequestDialogComponent),
+      {
+        data: resource,
+        label: 'Đăng ký mượn thiết bị',
+        size: 'l',
+        dismissible: true,
+      }
+    ).subscribe({
+      next: (result) => {
+        if (result) {
+          // Refresh list if needed or just notify
+          this.loadData();
+        }
+      }
+    });
+  }
 
   // ═══════════════════════════════════════════════════════════
   //  AG GRID — Bảng chính (active resources)
@@ -164,7 +222,7 @@ export class ResourcesComponent implements OnInit {
   };
 
   // SVG placeholder lấp lánh và hiện đại hơn cho ảnh chưa có
-  private readonly PLACEHOLDER_SVG = `data:image/svg+xml,${encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="%2394a3b8" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-image"><rect width="18" height="18" x="3" y="3" rx="2" ry="2"/><circle cx="9" cy="9" r="2"/><path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21"/></svg>`)}`;
+  readonly PLACEHOLDER_SVG = `data:image/svg+xml,${encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="%2394a3b8" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-image"><rect width="18" height="18" x="3" y="3" rx="2" ry="2"/><circle cx="9" cy="9" r="2"/><path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21"/></svg>`)}`;
 
   colDefs: ColDef[] = [
     {

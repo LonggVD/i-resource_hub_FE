@@ -12,7 +12,7 @@
   "packageManager": "npm@10.9.2",
   "dependencies": {
     "@angular/animations": "^21.2.1",
-    "@angular/cdk": "^21.2.1",
+    "@angular/cdk": "^21.2.7",
     "@angular/common": "^21.2.0",
     "@angular/compiler": "^21.2.0",
     "@angular/core": "^21.2.0",
@@ -44,7 +44,7 @@
     "@taiga-ui/styles": "^4.73.0",
     "ag-grid-angular": "^35.1.0",
     "ag-grid-community": "^35.1.0",
-    "angularx-qrcode": "^21.0.5",
+    "angularx-qrcode": "^17.0.1",
     "libphonenumber-js": "^1.12.38",
     "ngx-scanner-qrcode": "^1.8.1",
     "primeicons": "^7.0.0",

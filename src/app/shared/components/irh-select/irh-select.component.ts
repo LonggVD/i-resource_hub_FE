@@ -18,6 +18,7 @@ import { TuiIcon } from '@taiga-ui/core';
 export interface IrhSelectOption {
   label: string;
   value: any;
+  disabled?: boolean;
 }
 
 @Component({
@@ -48,9 +49,12 @@ export class IrhSelect implements ControlValueAccessor {
   // ── Signals ──────────────────────────────────────────────
   public readonly isOpen = signal(false);
   public readonly searchTerm = signal('');
-  public readonly selectedValue = signal<any>(null);
+  public readonly selectedValueInput = input<any>(null, { alias: 'selectedValue' });
+  private readonly internalSelectedValue = signal<any>(null);
 
   // ── Computed ─────────────────────────────────────────────
+  public readonly selectedValue = computed(() => this.selectedValueInput() || this.internalSelectedValue());
+  
   public readonly filteredOptions = computed(() => {
     const term = this.searchTerm().toLowerCase().trim();
     const opts = this.options();
@@ -68,7 +72,7 @@ export class IrhSelect implements ControlValueAccessor {
   onTouched: () => void = () => {};
 
   writeValue(value: any): void {
-    this.selectedValue.set(value);
+    this.internalSelectedValue.set(value);
     this.cdr.markForCheck();
   }
 
@@ -102,7 +106,9 @@ export class IrhSelect implements ControlValueAccessor {
   }
 
   selectOption(option: IrhSelectOption): void {
-    this.selectedValue.set(option.value);
+    if (option.disabled) return;
+    
+    this.internalSelectedValue.set(option.value);
     this.onChange(option.value);
     this.selectionChange.emit(option.value);
     this.isOpen.set(false);

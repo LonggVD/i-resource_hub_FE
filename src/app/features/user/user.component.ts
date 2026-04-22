@@ -109,7 +109,9 @@ export class UserComponent implements OnInit {
 
   readonly statusOptions: IrhMultiSelectOption[] = [
     { label: 'Hoạt động', value: 'ACTIVE' },
+    { label: 'Chờ duyệt', value: 'PENDING' },
     { label: 'Đã khoá', value: 'LOCKED' },
+    { label: 'Bị từ chối', value: 'REJECTED' },
   ];
 
   readonly unitFilterOptions = computed<IrhMultiSelectOption[]>(() =>
@@ -206,6 +208,8 @@ export class UserComponent implements OnInit {
       suppressHeaderFilterButton: true,
       cellRenderer: UserActionRendererComponent,
       cellRendererParams: {
+        onApprove: (row: UserResponse) => this.onApprove(row),
+        onReject: (row: UserResponse) => this.onReject(row),
         onEdit: (row: UserResponse) => this.onEdit(row),
         onAdjustCredit: (row: UserResponse) => this.openCreditScoreDialog(row),
         onResetPassword: (row: UserResponse) => this.onResetPassword(row),
@@ -370,6 +374,32 @@ export class UserComponent implements OnInit {
       },
       error: (err) => {
         const msg = err?.error?.message || 'Không thể tạo người dùng.';
+        this.notification.showError(msg);
+      },
+    });
+  }
+
+  onApprove(user: UserResponse): void {
+    this.userService.approveUser(user.id).subscribe({
+      next: () => {
+        this.notification.showSuccess(`Đã phê duyệt tài khoản ${user.username}.`);
+        this.loadUsers();
+      },
+      error: (err) => {
+        const msg = err?.error?.message || 'Không thể phê duyệt người dùng.';
+        this.notification.showError(msg);
+      },
+    });
+  }
+
+  onReject(user: UserResponse): void {
+    this.userService.rejectUser(user.id).subscribe({
+      next: () => {
+        this.notification.showSuccess(`Đã từ chối tài khoản ${user.username}.`);
+        this.loadUsers();
+      },
+      error: (err) => {
+        const msg = err?.error?.message || 'Không thể từ chối người dùng.';
         this.notification.showError(msg);
       },
     });

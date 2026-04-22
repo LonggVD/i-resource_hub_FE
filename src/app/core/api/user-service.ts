@@ -46,6 +46,14 @@ export class UserService {
     return this.http.patch<UserResponse>(`${this.apiUrl}/${id}/toggle-status`, {});
   }
 
+  approveUser(id: string): Observable<UserResponse> {
+    return this.http.patch<UserResponse>(`${this.apiUrl}/${id}/approve`, {});
+  }
+
+  rejectUser(id: string): Observable<UserResponse> {
+    return this.http.patch<UserResponse>(`${this.apiUrl}/${id}/reject`, {});
+  }
+
   resetPassword(id: string): Observable<{ newPassword: string }> {
     return this.http.post<{ newPassword: string }>(`${this.apiUrl}/${id}/reset-password`, {});
   }

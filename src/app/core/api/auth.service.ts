@@ -3,7 +3,7 @@ import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router';
 import { Observable, tap } from 'rxjs';
 import { environment } from '../../../environments/environment';
-import { LoginRequest, LoginResponse, SignUpRequest } from '../models/auth.model';
+import { ForgotPasswordRequest, LoginRequest, LoginResponse, ResetPasswordRequest, SignUpRequest, VerifyResetCodeRequest } from '../models/auth.model';
 
 const TOKEN_KEY = 'auth_token';
 const USER_KEY = 'auth_user';
@@ -36,6 +36,24 @@ export class AuthService {
 
   register(payload: SignUpRequest): Observable<string> {
     return this.http.post(`${this.apiUrl}/signup`, payload, {
+      responseType: 'text',
+    });
+  }
+
+  forgotPassword(payload: ForgotPasswordRequest): Observable<string> {
+    return this.http.post(`${this.apiUrl}/forgot-password`, payload, {
+      responseType: 'text',
+    });
+  }
+
+  verifyResetCode(payload: VerifyResetCodeRequest): Observable<string> {
+    return this.http.post(`${this.apiUrl}/verify-reset-code`, payload, {
+      responseType: 'text',
+    });
+  }
+
+  resetPassword(payload: ResetPasswordRequest): Observable<string> {
+    return this.http.post(`${this.apiUrl}/reset-password`, payload, {
       responseType: 'text',
     });
   }

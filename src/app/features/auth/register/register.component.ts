@@ -1,4 +1,5 @@
-import { Component, computed, signal } from '@angular/core';
+import { Component, OnInit, computed, signal } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { TuiButton, TuiIcon, TuiLabel, TuiLoader, TuiTextfield } from '@taiga-ui/core';
@@ -6,6 +7,9 @@ import { TuiPassword } from '@taiga-ui/kit';
 import { AuthService } from '../../../core/api/auth.service';
 import { SignUpRequest } from '../../../core/models/auth.model';
 import { LoginFormLeft } from '../../../shared/components/login-form-left/login-form-left.component';
+import { OrganizationUnitService } from '../../../core/api/organization-unit-service';
+import { OrganizationUnitResponse } from '../../../core/models/organization-unit.model';
+import { IrhSelect, IrhSelectOption } from '../../../shared/components/irh-select/irh-select.component';
 
 @Component({
   selector: 'app-register',
@@ -20,16 +24,39 @@ import { LoginFormLeft } from '../../../shared/components/login-form-left/login-
     TuiIcon,
     TuiLoader,
     LoginFormLeft,
+    IrhSelect,
   ],
   templateUrl: './register.component.html',
   styleUrl: './register.component.css',
 })
-export class RegisterComponent {
-  constructor(private readonly authService: AuthService) {}
+export class RegisterComponent implements OnInit {
+  constructor(
+    private readonly authService: AuthService,
+    private readonly unitService: OrganizationUnitService,
+  ) {}
+
+  ngOnInit(): void {
+    this.loadUnits();
+  }
+
+  private loadUnits(): void {
+    this.unitService.getAllUnits().subscribe({
+      next: (units) => this.units.set(units),
+      error: () => this.errorMessage.set('Không thể tải danh sách đơn vị.'),
+    });
+  }
 
   protected readonly isLoading = signal(false);
   protected readonly errorMessage = signal('');
   protected readonly successMessage = signal('');
+  protected readonly units = signal<OrganizationUnitResponse[]>([]);
+
+  protected readonly unitOptions = computed<IrhSelectOption[]>(() =>
+    this.units().map((u) => ({
+      label: `${u.unitName} (${u.unitType})`,
+      value: u.id,
+    })),
+  );
 
   protected readonly registerForm = new FormGroup({
     accountType: new FormControl<'STUDENT' | 'MANAGER'>('STUDENT', {
@@ -73,9 +100,11 @@ export class RegisterComponent {
     return !!confirm && password !== confirm;
   });
 
-  protected readonly isStudentAccount = computed(
-    () => this.registerForm.controls.accountType.value === 'STUDENT',
-  );
+  private readonly accountTypeChanges = toSignal(this.registerForm.controls.accountType.valueChanges, {
+    initialValue: this.registerForm.controls.accountType.value,
+  });
+
+  protected readonly isStudentAccount = computed(() => this.accountTypeChanges() === 'STUDENT');
 
   protected onSubmit(): void {
     if (this.registerForm.invalid || this.passwordMismatch()) {

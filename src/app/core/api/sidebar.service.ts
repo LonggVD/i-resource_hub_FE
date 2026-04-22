@@ -46,13 +46,13 @@ export class SidebarService {
         label: 'Tra cứu tài nguyên',
         icon: '@tui.search',
         route: '/resources',
-        roles: ['ROLE_STUDENT', 'ROLE_ADMIN'],
+        roles: ['ROLE_STUDENT', 'ROLE_ADMIN', 'RESOURCE_VIEW'],
       },
       {
         label: 'Đặt lịch mượn',
         icon: '@tui.calendar-plus',
         route: '/bookings/create',
-        roles: ['ROLE_STUDENT'],
+        roles: ['ROLE_STUDENT', 'BOOKING_REQUEST'],
       },
       {
         label: 'Lịch của tôi',
@@ -63,34 +63,40 @@ export class SidebarService {
 
       // --- Admin/Manager Menu ---
       {
+        label: 'Bảng quản lý mượn',
+        icon: '@tui.layout-dashboard',
+        route: '/admin/bookings',
+        roles: ['ROLE_ADMIN', 'ROLE_MANAGER', 'BOOKING_MANAGE'],
+      },
+      {
         label: 'Quản lý yêu cầu',
         icon: '@tui.clipboard-list',
-        route: '/admin/bookings',
-        roles: ['ROLE_ADMIN', 'ROLE_MANAGER'],
+        route: '/admin/bookings-list',
+        roles: ['ROLE_ADMIN', 'ROLE_MANAGER', 'BOOKING_APPROVE'],
       },
       {
         label: 'Quản lý danh mục',
         icon: '@tui.chart-bar-stacked',
         route: '/admin/categories',
-        roles: ['ROLE_ADMIN', 'ROLE_MANAGER'],
+        roles: ['ROLE_ADMIN', 'ROLE_MANAGER', 'CATEGORY_MANAGE'],
       },
       {
         label: 'Quản lý đơn vị',
         icon: '@tui.building',
         route: '/admin/organization-units',
-        roles: ['ROLE_ADMIN'],
+        roles: ['ROLE_ADMIN', 'UNIT_MANAGE'],
       },
       {
         label: 'Quản lý thiết bị',
         icon: '@tui.monitor',
         route: '/admin/resource-items',
-        roles: ['ROLE_ADMIN', 'ROLE_MANAGER'],
+        roles: ['ROLE_ADMIN', 'ROLE_MANAGER', 'RESOURCE_MANAGE'],
       },
       {
         label: 'Quản lý người dùng',
         icon: '@tui.user-cog',
         route: '/admin/users',
-        roles: ['ROLE_ADMIN'],
+        roles: ['ROLE_ADMIN', 'USER_MANAGE'],
       },
     ];
 

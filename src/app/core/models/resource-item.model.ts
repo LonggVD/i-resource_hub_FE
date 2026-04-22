@@ -3,13 +3,17 @@ export interface ResourceItemResponse {
   serialNumber: string;
   purchaseDate?: string;
   warrantyExpiry?: string;
-  conditionStatus: string; // "GOOD", "DAMAGED", "LOST"
+  conditionStatus: string;
   conditionDetail?: string;
-  status: string; // "AVAILABLE", "IN_USE", "IN_MAINTENANCE"
+  status: string;
   template: {
     id: string;
     name: string;
     imageUrl: string;
+  };
+  unit?: {
+    id: string;
+    unitName: string;
   };
 }
 
@@ -21,6 +25,7 @@ export interface ResourceItemCreateRequest {
   conditionStatus: string;
   conditionDetail?: string;
   status: string;
+  unitId: string;
 }
 
 export interface ResourceItemBatchCreateRequest {
@@ -31,6 +36,7 @@ export interface ResourceItemBatchCreateRequest {
   conditionDetail?: string;
   status: string;
   serialNumbers: string[];
+  unitId: string;
 }
 
 export interface ResourceItemUpdateRequest {
@@ -41,4 +47,5 @@ export interface ResourceItemUpdateRequest {
   conditionStatus: string;
   conditionDetail?: string;
   status: string;
+  unitId: string;
 }

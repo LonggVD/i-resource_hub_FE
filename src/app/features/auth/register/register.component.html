@@ -88,11 +88,14 @@
           <div class="form-field">
             <label tuiLabel class="field-label">
               <tui-icon icon="@tui.building" class="label-icon" />
-              Khoa/Phong ban (unitId)
+              Khoa/Phong ban
             </label>
-            <tui-textfield iconStart="@tui.building" class="input-field">
-              <input tuiTextfield formControlName="unitId" placeholder="Nhap unitId" />
-            </tui-textfield>
+            <app-irh-select
+              formControlName="unitId"
+              [options]="unitOptions()"
+              placeholder="-- Chọn khoa/phòng ban --"
+              class="register-select"
+            ></app-irh-select>
           </div>
         }
 

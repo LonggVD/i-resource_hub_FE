@@ -13,8 +13,10 @@ import { TuiBadge } from '@taiga-ui/kit';
         tuiBadge
         size="m"
         class="user-status-badge"
-        [class.user-status-badge--active]="isActive"
-        [class.user-status-badge--locked]="!isActive"
+        [class.user-status-badge--active]="status === 'ACTIVE'"
+        [class.user-status-badge--locked]="status === 'LOCKED'"
+        [class.user-status-badge--pending]="status === 'PENDING'"
+        [class.user-status-badge--rejected]="status === 'REJECTED'"
       >
         {{ label }}
       </tui-badge>
@@ -44,17 +46,41 @@ import { TuiBadge } from '@taiga-ui/kit';
         background: #fef2f2;
         color: #b91c1c;
       }
+
+      .user-status-badge--pending {
+        background: #fffbeb;
+        color: #b45309;
+      }
+
+      .user-status-badge--rejected {
+        background: #f3f4f6;
+        color: #4b5563;
+      }
     `,
   ],
 })
 export class UserStatusBadgeRendererComponent implements ICellRendererAngularComp {
   label = '';
-  isActive = false;
+  status = '';
 
   agInit(params: ICellRendererParams): void {
-    const value = String(params.value || '');
-    this.isActive = value === 'ACTIVE';
-    this.label = this.isActive ? 'Hoạt động' : 'Đã khoá';
+    this.status = String(params.value || 'ACTIVE');
+    switch (this.status) {
+      case 'ACTIVE':
+        this.label = 'Hoạt động';
+        break;
+      case 'LOCKED':
+        this.label = 'Đã khoá';
+        break;
+      case 'PENDING':
+        this.label = 'Chờ duyệt';
+        break;
+      case 'REJECTED':
+        this.label = 'Bị từ chối';
+        break;
+      default:
+        this.label = this.status;
+    }
   }
 
   refresh(params: ICellRendererParams): boolean {

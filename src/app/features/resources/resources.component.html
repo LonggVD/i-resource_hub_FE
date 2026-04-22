@@ -21,9 +21,11 @@
   <header class="resources-panel__header">
     <div>
       <p class="resources-panel__eyebrow">Tài nguyên</p>
-      <h1 class="resources-panel__title">Quản lý mẫu tài nguyên</h1>
+      <h1 class="resources-panel__title">{{ isStudent() ? 'Tra cứu mẫu tài nguyên' : 'Quản lý mẫu tài nguyên' }}</h1>
     </div>
-    <div class="resources-panel__actions">
+    
+    <!-- Role-based actions -->
+    <div class="resources-panel__actions" *ngIf="!isStudent()">
       <button
         tuiButton
         class="resources-panel__btn"
@@ -43,10 +45,16 @@
         <tui-icon icon="@tui.trash"></tui-icon>&nbsp;Danh sách xoá
       </button>
     </div>
+
+    <!-- Student quick help -->
+    <div class="resources-panel__actions" *ngIf="isStudent()">
+      <p class="student-hint">Chọn mẫu tài nguyên bên dưới để đăng ký mượn thiết bị.</p>
+    </div>
   </header>
 
   <tui-loader [showLoader]="isLoading()" [overlay]="true" class="resources-loader">
-    <div class="resources-grid-wrapper">
+    <!-- View 1: Admin Management (AG Grid) -->
+    <div class="resources-grid-wrapper" *ngIf="!isStudent()">
       <irh-aggrid
         [rowData]="resourceList()"
         [columnDefs]="colDefs"
@@ -56,6 +64,49 @@
         [paginationPageSize]="10"
         [autoHeight]="true"
       />
+    </div>
+
+    <!-- View 2: Student Catalog (Card Grid) -->
+    <div class="student-catalog-grid" *ngIf="isStudent()">
+      <div *ngFor="let resource of resourceList()" class="resource-card">
+        <div class="card-image-section">
+          <img [src]="resource.imageUrl || PLACEHOLDER_SVG" alt="" class="card-image">
+          <div class="card-overlay">
+             <button
+               tuiButton
+               size="s"
+               appearance="whiteblock"
+               class="overlay-btn"
+               (click)="onAddToCart(resource)"
+             >
+               <tui-icon icon="@tui.shopping-cart"></tui-icon>&nbsp;Thêm vào danh sách
+             </button>
+          </div>
+        </div>
+        <div class="card-info-section">
+          <h3 class="resource-name">{{ resource.name }}</h3>
+          <p class="resource-description">{{ resource.description }}</p>
+          <div class="card-footer">
+            <tui-badge appearance="secondary" size="s">{{ resource.category?.categoryName }}</tui-badge>
+            <button
+              tuiButton
+              appearance="flat"
+              size="s"
+              iconStart="@tui.plus"
+              (click)="onAddToCart(resource)"
+            >
+              Thêm mượn
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Floating Cart Button for Students -->
+    <div class="floating-cart" *ngIf="isStudent() && cartCount() > 0" (click)="onOpenCart()">
+      <div class="cart-badge">{{ cartCount() }}</div>
+      <tui-icon icon="@tui.shopping-cart" class="cart-icon"></tui-icon>
+      <span class="cart-text">Danh sách mượn</span>
     </div>
   </tui-loader>
 </section>

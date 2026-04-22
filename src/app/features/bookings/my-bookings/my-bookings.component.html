@@ -1,0 +1,117 @@
+<section class="my-bookings-container">
+  <header class="section-header">
+    <div>
+      <p class="eyebrow">Sinh viên</p>
+      <h1 class="title">Lịch sử mượn trả của tôi</h1>
+    </div>
+  </header>
+
+  <tui-loader [showLoader]="isLoading()" [overlay]="true">
+    <div class="bookings-grid" *ngIf="bookings().length > 0; else emptyState">
+      <div *ngFor="let booking of bookings()" class="booking-card">
+        <div class="card-status">
+          <tui-badge [appearance]="getStatusAppearance(booking.status)" size="s">
+            {{ getStatusLabel(booking.status) }}
+          </tui-badge>
+        </div>
+
+        <div class="card-content">
+          <h2 class="device-name">{{ booking.deviceName }}</h2>
+          <div class="info-row">
+            <tui-icon icon="@tui.calendar" class="info-icon"></tui-icon>
+            <span>Ngày: {{ booking.bookingDate | date: 'dd/MM/yyyy' }}</span>
+          </div>
+          <div class="info-row">
+            <tui-icon icon="@tui.clock" class="info-icon"></tui-icon>
+            <span>Ca: {{ booking.slotName }} ({{ booking.startTime?.substring(0, 5) }} - {{ booking.endTime?.substring(0, 5) }})</span>
+          </div>
+          <div class="info-row" *ngIf="booking.purpose">
+            <tui-icon icon="@tui.info" class="info-icon"></tui-icon>
+            <span class="purpose-text">Ghi chú: {{ booking.purpose }}</span>
+          </div>
+        </div>
+
+        <div class="card-footer">
+          <!-- Rule 4: Show Ticket only if Approved/Borrowed/Returned -->
+          <button
+            *ngIf="booking.status === 'APPROVED' || booking.status === 'BORROWED'"
+            tuiButton
+            appearance="primary"
+            size="s"
+            class="action-btn"
+            (click)="showTicket(booking, ticketModal)"
+          >
+            <tui-icon icon="@tui.qr-code"></tui-icon>&nbsp;Xem mã vé
+          </button>
+
+          <!-- Rule 1: Cancel with reason -->
+          <button
+            *ngIf="booking.status === 'PENDING' || booking.status === 'APPROVED'"
+            tuiButton
+            appearance="secondary-destructive"
+            size="s"
+            class="action-btn"
+            (click)="showCancelDialog(booking)"
+          >
+            Hủy đơn
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <ng-template #emptyState>
+      <div class="empty-state">
+        <tui-icon icon="@tui.calendar-x" class="empty-icon"></tui-icon>
+        <p>Bạn chưa có đơn mượn nào.</p>
+        <button tuiButton appearance="primary" size="m" routerLink="/resources">Mượn đồ ngay</button>
+      </div>
+    </ng-template>
+  </tui-loader>
+</section>
+
+<!-- MODAL: Vé mượn đồ (Ticket) với QR Code - Rule 4 -->
+<ng-template #ticketModal let-observer let-data="data">
+  <div class="ticket-modal">
+    <div class="ticket-header">
+      <div class="ticket-logo">IRH</div>
+      <div class="ticket-title">VÉ MƯỢN THIẾT BỊ</div>
+    </div>
+
+    <div class="ticket-body">
+      <!-- Rule 4: Render QR Code -->
+      <div class="qr-wrapper">
+        <qrcode
+          [qrdata]="data.qrCodeToken"
+          [width]="200"
+          [errorCorrectionLevel]="'M'"
+          [margin]="2"
+        ></qrcode>
+        <p class="qr-token">{{ data.qrCodeToken }}</p>
+      </div>
+
+      <div class="ticket-info">
+        <div class="ticket-info-item">
+          <label>Thiết bị:</label>
+          <span>{{ data.deviceName }}</span>
+        </div>
+        <div class="ticket-info-item">
+          <label>Mã thiết bị:</label>
+          <span>{{ data.serialNumber || 'Đang chuẩn bị...' }}</span>
+        </div>
+        <div class="ticket-info-item">
+          <label>Thời gian:</label>
+          <span>Ca {{ data.slotName }} ({{ data.startTime?.substring(0, 5) }} - {{ data.endTime?.substring(0, 5) }})</span>
+        </div>
+        <div class="ticket-info-item">
+          <label>Ngày mượn:</label>
+          <span>{{ data.bookingDate | date: 'dd/MM/yyyy' }}</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="ticket-footer">
+      <p>Vui lòng đưa mã này cho thủ kho để nhận đồ.</p>
+      <button tuiButton size="m" (click)="observer.complete()">Đóng</button>
+    </div>
+  </div>
+</ng-template>
