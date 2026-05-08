@@ -1,0 +1,64 @@
+<div class="guide-container">
+  <!-- Header / hero -->
+  <header class="guide-header">
+    <div class="header-icon-wrap">
+      <tui-icon icon="@tui.book-open" class="header-icon"></tui-icon>
+    </div>
+    <div class="header-text">
+      <span class="header-eyebrow">Hướng dẫn nhanh</span>
+      <h2 class="header-title">Mượn thiết bị Lab trong 4 bước</h2>
+      <p class="header-desc">
+        Quy trình mượn của i-Resource Hub — đơn giản, không cần xếp hàng, không cần giấy tờ.
+      </p>
+    </div>
+  </header>
+
+  <!-- Steps -->
+  <section class="steps-section">
+    <div *ngFor="let step of steps; let last = last" class="step-card" [class.last]="last">
+      <div class="step-marker">
+        <span class="step-num">{{ step.num }}</span>
+        <div *ngIf="!last" class="step-connector"></div>
+      </div>
+
+      <div class="step-body">
+        <div class="step-head">
+          <tui-icon [icon]="step.icon" class="step-icon"></tui-icon>
+          <h3 class="step-title">{{ step.title }}</h3>
+        </div>
+
+        <ul class="step-bullets">
+          <li *ngFor="let bullet of step.bullets">{{ bullet }}</li>
+        </ul>
+
+        <div class="step-hint" *ngIf="step.hint">
+          <tui-icon icon="@tui.lightbulb" class="hint-icon"></tui-icon>
+          <span>{{ step.hint }}</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Tips -->
+  <section class="tips-section">
+    <h3 class="section-title">
+      <tui-icon icon="@tui.sparkles"></tui-icon>
+      Mẹo dùng nhanh
+    </h3>
+    <div class="tips-grid">
+      <div *ngFor="let tip of tips" class="tip-item">
+        <tui-icon [icon]="tip.icon" class="tip-icon"></tui-icon>
+        <span>{{ tip.text }}</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="guide-footer">
+    <span class="footer-text">Có thắc mắc? Liên hệ giáo vụ Khoa của bạn để được hỗ trợ.</span>
+    <button tuiButton appearance="primary" size="m" (click)="close()">
+      Đã hiểu, bắt đầu mượn
+      <tui-icon icon="@tui.arrow-right"></tui-icon>
+    </button>
+  </footer>
+</div>

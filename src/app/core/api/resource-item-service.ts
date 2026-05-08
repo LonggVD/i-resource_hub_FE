@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../../../environments/environment';
 import {
@@ -8,6 +8,14 @@ import {
   ResourceItemBatchCreateRequest,
   ResourceItemUpdateRequest,
 } from '../models/resource-item.model';
+
+export interface ResourceItemFilter {
+  templateId?: string;
+  unitId?: string;
+  status?: string;
+  conditionStatus?: string;
+  keyword?: string;
+}
 
 @Injectable({
   providedIn: 'root',
@@ -20,6 +28,17 @@ export class ResourceItemService {
   /** Lấy tất cả tài nguyên đang hoạt động */
   getAllActive(): Observable<ResourceItemResponse[]> {
     return this.http.get<ResourceItemResponse[]>(this.apiUrl);
+  }
+
+  /** Lọc tài nguyên theo tiêu chí (templateId, unitId, status, conditionStatus, keyword) */
+  filter(criteria: ResourceItemFilter): Observable<ResourceItemResponse[]> {
+    let params = new HttpParams();
+    if (criteria.templateId) params = params.set('templateId', criteria.templateId);
+    if (criteria.unitId) params = params.set('unitId', criteria.unitId);
+    if (criteria.status) params = params.set('status', criteria.status);
+    if (criteria.conditionStatus) params = params.set('conditionStatus', criteria.conditionStatus);
+    if (criteria.keyword) params = params.set('keyword', criteria.keyword);
+    return this.http.get<ResourceItemResponse[]>(`${this.apiUrl}/filter`, { params });
   }
 
   /** Lấy chi tiết tài nguyên theo id */

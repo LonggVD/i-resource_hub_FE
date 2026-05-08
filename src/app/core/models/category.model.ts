@@ -1,18 +1,18 @@
 export interface Category {
   id: string;
-  createdAt: string;
-  updatedAt: string;
-  version: number;
-  parent: Category | null;
+  parentId: string | null;
+  parentName: string | null;
   categoryName: string;
   description: string;
+  status: string | null;
   deleted: boolean;
+  createdAt: string;
+  updatedAt: string;
 }
 
 export interface CategoryCreateRequest {
-  parent?: {
-    id: string;
-  };
+  parentId?: string;
   categoryName: string;
   description: string;
+  status?: string;
 }

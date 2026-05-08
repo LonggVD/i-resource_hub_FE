@@ -44,17 +44,22 @@ export const routes: Routes = [
         path: 'resources',
         loadComponent: () =>
           import('./features/resources/resources.component').then((m) => m.ResourcesComponent),
+        title: 'Tra cứu tài nguyên',
       },
       {
         path: 'student-shop',
         loadComponent: () =>
-          import('./features/student-shop/student-shop.component').then((m) => m.StudentShopComponent),
-        title: 'Thử nghiệm Shop',
+          import('./features/student-shop/student-shop.component').then(
+            (m) => m.StudentShopComponent,
+          ),
+        title: 'Tra cứu tài nguyên',
       },
       {
         path: 'resources/:id',
         loadComponent: () =>
-          import('./features/resource-detail/resource-detail.component').then((m) => m.ResourceDetailComponent),
+          import('./features/resource-detail/resource-detail.component').then(
+            (m) => m.ResourceDetailComponent,
+          ),
         title: 'Chi tiết thiết bị',
       },
       {

@@ -16,19 +16,63 @@
   <!-- Right section -->
   <div class="header__right">
     <!-- Notifications -->
-    <button class="header__action-btn" title="Thông báo">
-      <tui-badged-content>
-        @if (notificationCount() > 0) {
-          <tui-badge
-            tuiBadge
-            tuiSlot="bottom"
-            appearance="error"
-            size="s"
-          >{{ notificationCount() }}</tui-badge>
-        }
-        <tui-icon icon="@tui.bell" />
-      </tui-badged-content>
-    </button>
+    <div class="header__notif-wrapper">
+      <button class="header__action-btn" title="Thông báo" (click)="toggleNotifPanel()">
+        <tui-badged-content>
+          @if (notificationCount() > 0) {
+            <tui-badge tuiBadge tuiSlot="bottom" appearance="error" size="s">
+              {{ notificationCount() > 99 ? '99+' : notificationCount() }}
+            </tui-badge>
+          }
+          <tui-icon icon="@tui.bell" />
+        </tui-badged-content>
+      </button>
+
+      @if (showNotifPanel()) {
+        <div class="header__dropdown-backdrop" (click)="closeNotifPanel()"></div>
+        <div class="notif-panel">
+          <div class="notif-panel__head">
+            <span class="notif-panel__title">Thông báo</span>
+            @if (notificationCount() > 0) {
+              <button class="notif-panel__mark-all" (click)="onMarkAll($event)">
+                Đánh dấu đã đọc
+              </button>
+            }
+          </div>
+
+          <div class="notif-panel__list">
+            @if (notifications().length === 0) {
+              <div class="notif-empty">
+                <tui-icon icon="@tui.bell-off" class="notif-empty__icon" />
+                <span>Chưa có thông báo nào</span>
+              </div>
+            } @else {
+              @for (n of notifications(); track n.id) {
+                <div
+                  class="notif-item"
+                  [class.notif-item--unread]="!n.read"
+                  (click)="onNotifClick(n)"
+                >
+                  <div class="notif-item__dot" [class.notif-item__dot--read]="n.read"></div>
+                  <div class="notif-item__body">
+                    <div class="notif-item__title">{{ n.title }}</div>
+                    <div class="notif-item__content">{{ n.content }}</div>
+                    <div class="notif-item__time">{{ n.createdAt | date: 'HH:mm dd/MM/yyyy' }}</div>
+                  </div>
+                  <button
+                    class="notif-item__remove"
+                    (click)="onRemove(n, $event)"
+                    aria-label="Xoá thông báo"
+                  >
+                    <tui-icon icon="@tui.x" />
+                  </button>
+                </div>
+              }
+            }
+          </div>
+        </div>
+      }
+    </div>
 
     <!-- User Menu -->
     <div class="header__user" (click)="toggleUserMenu()">

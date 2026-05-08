@@ -1,38 +1,80 @@
 <div class="detail-container">
   <tui-loader [showLoader]="isLoading()" [overlay]="true">
     <div class="dialog-layout">
-      <!-- Khối bên trái: Ảnh minh chứng -->
+      <!-- ===== Khối bên trái: Gallery ảnh minh chứng ===== -->
       <div class="left-column">
-        <div class="detail-section" *ngIf="context.data.evidences && context.data.evidences.length > 0">
-          <h3 class="section-title">Minh chứng ({{ context.data.evidences.length }})</h3>
-          <div class="evidence-list-vertical">
-            <div *ngFor="let ev of context.data.evidences" class="evidence-card">
-              <div class="evidence-meta">
-                <span class="ev-type">{{ ev.evidenceType === 'PENALTY_PROOF' ? 'Xử phạt' : ev.evidenceType }}</span>
-                <span class="ev-date">{{ ev.createdAt | date: 'HH:mm dd/MM' }}</span>
+        <ng-container *ngIf="galleryImages().length > 0; else noEvidence">
+          <div class="gallery-header">
+            <span class="gallery-title">Minh chứng</span>
+            <span class="gallery-count">{{ currentIndex() + 1 }} / {{ galleryImages().length }}</span>
+          </div>
+
+          <div class="gallery-body">
+            <!-- Thumbnail strip dọc -->
+            <div class="thumb-strip">
+              <button
+                type="button"
+                *ngFor="let img of galleryImages(); let i = index"
+                class="thumb-item"
+                [class.active]="i === currentIndex()"
+                (click)="selectImage(i)"
+                [attr.aria-label]="'Ảnh ' + (i + 1)"
+              >
+                <irh-image [src]="img.url" width="100%" height="100%" className="thumb-photo"></irh-image>
+                <span class="thumb-index">{{ i + 1 }}</span>
+              </button>
+            </div>
+
+            <!-- Khu vực ảnh chính -->
+            <div class="main-stage">
+              <div class="main-meta" *ngIf="currentImage() as cur">
+                <span class="meta-type" [attr.data-type]="cur.evidenceType">{{ formatType(cur.evidenceType) }}</span>
+                <span class="meta-date">{{ cur.createdAt | date: 'HH:mm dd/MM/yyyy' }}</span>
               </div>
-              <div class="ev-images">
-                <irh-image 
-                  *ngFor="let url of splitImages(ev.imageUrl)" 
-                  [src]="url"
+
+              <div class="main-image-wrapper">
+                <irh-image
+                  *ngIf="currentImage() as cur"
+                  [src]="cur.url"
                   width="100%"
-                  height="auto"
-                  className="ev-photo"
+                  height="100%"
+                  className="main-photo"
                 ></irh-image>
+
+                <button
+                  type="button"
+                  class="nav-btn nav-prev"
+                  *ngIf="galleryImages().length > 1"
+                  (click)="$event.stopPropagation(); prev()"
+                  aria-label="Ảnh trước"
+                >
+                  <tui-icon icon="@tui.chevron-left"></tui-icon>
+                </button>
+                <button
+                  type="button"
+                  class="nav-btn nav-next"
+                  *ngIf="galleryImages().length > 1"
+                  (click)="$event.stopPropagation(); next()"
+                  aria-label="Ảnh sau"
+                >
+                  <tui-icon icon="@tui.chevron-right"></tui-icon>
+                </button>
               </div>
-              <p class="ev-desc" *ngIf="ev.description">{{ ev.description }}</p>
+
+              <p class="main-desc" *ngIf="currentImage()?.description as desc">{{ desc }}</p>
             </div>
           </div>
-        </div>
-        
-        <!-- Placeholder nếu không có ảnh -->
-        <div class="no-evidence" *ngIf="!context.data.evidences || context.data.evidences.length === 0">
-          <tui-icon icon="@tui.image-off" class="off-icon"></tui-icon>
-          <span>Không có ảnh minh chứng</span>
-        </div>
+        </ng-container>
+
+        <ng-template #noEvidence>
+          <div class="no-evidence">
+            <tui-icon icon="@tui.image-off" class="off-icon"></tui-icon>
+            <span>Không có ảnh minh chứng</span>
+          </div>
+        </ng-template>
       </div>
 
-      <!-- Khối bên phải: Thông tin chi tiết -->
+      <!-- ===== Khối bên phải: Thông tin chi tiết ===== -->
       <div class="right-column">
         <div class="detail-section">
           <h3 class="section-title">Thông tin sinh viên</h3>
@@ -67,7 +109,7 @@
             </div>
             <div class="info-row" *ngIf="context.data.fineAmount">
               <span class="label">Tiền phạt:</span>
-              <span class="value money">{{ context.data.fineAmount | currency:'VND':'symbol':'1.0-0' }}</span>
+              <span class="value money">{{ context.data.fineAmount | currency: 'VND':'symbol':'1.0-0' }}</span>
             </div>
             <div class="info-row">
               <span class="label">Ngày:</span>
@@ -90,7 +132,10 @@
           <h3 class="section-title">Đơn mượn liên quan</h3>
           <div class="booking-info-box">
             <p><strong>Thiết bị:</strong> {{ context.data.bookingDeviceName }}</p>
-            <p><strong>Thời gian:</strong> Ngày {{ context.data.bookingDate | date: 'dd/MM/yyyy' }} - {{ context.data.bookingSlot }}</p>
+            <p>
+              <strong>Thời gian:</strong> Ngày {{ context.data.bookingDate | date: 'dd/MM/yyyy' }} -
+              {{ context.data.bookingSlot }}
+            </p>
             <p><strong>Mã lô:</strong> {{ context.data.bookingBatchToken }}</p>
           </div>
         </div>
@@ -99,8 +144,6 @@
   </tui-loader>
 
   <div class="dialog-actions">
-    <button tuiButton appearance="secondary" size="m" (click)="context.completeWith()">
-      Đóng
-    </button>
+    <button tuiButton appearance="secondary" size="m" (click)="context.completeWith()">Đóng</button>
   </div>
 </div>

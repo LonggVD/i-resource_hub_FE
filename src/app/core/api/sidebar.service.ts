@@ -42,12 +42,20 @@ export class SidebarService {
         route: '/dashboard',
         roles: ['ROLE_ADMIN', 'ROLE_MANAGER'],
       },
-      // --- Student Menu ---
+      // --- Tra cứu tài nguyên ---
+      // Admin/Manager dùng trang ag-Grid (full CRUD inline) tại /resources
+      // Student dùng trang shop (gallery, wishlist, mượn ngay) tại /student-shop
       {
         label: 'Tra cứu tài nguyên',
         icon: '@tui.search',
         route: '/resources',
-        roles: ['ROLE_STUDENT', 'ROLE_ADMIN', 'ROLE_MANAGER'],
+        roles: ['ROLE_ADMIN', 'ROLE_MANAGER'],
+      },
+      {
+        label: 'Tra cứu tài nguyên',
+        icon: '@tui.search',
+        route: '/student-shop',
+        roles: ['ROLE_STUDENT'],
       },
       {
         label: 'Đặt lịch mượn',
@@ -65,12 +73,6 @@ export class SidebarService {
         label: 'Vi phạm & Xử phạt',
         icon: '@tui.shield-alert',
         route: '/my-penalties',
-        roles: ['ROLE_STUDENT'],
-      },
-      {
-        label: 'Thử nghiệm Shop',
-        icon: '@tui.shopping-bag',
-        route: '/student-shop',
         roles: ['ROLE_STUDENT'],
       },
 

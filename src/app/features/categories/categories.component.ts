@@ -132,7 +132,7 @@ export class CategoriesComponent implements OnInit {
     };
 
     if (parent) {
-      payload.parent = { id: parent.id };
+      payload.parentId = parent.id;
     }
 
     this.isSubmittingAddDialog.set(true);
@@ -189,7 +189,7 @@ export class CategoriesComponent implements OnInit {
     const formValue = this.editForm.getRawValue();
 
     const payload: CategoryCreateRequest = {
-      parent: category.parent ? { id: category.parent.id } : undefined,
+      parentId: category.parentId ?? undefined,
       categoryName: formValue.categoryName.trim(),
       description: formValue.description.trim(),
     };
@@ -287,8 +287,8 @@ export class CategoriesComponent implements OnInit {
     flatCategories.forEach((cat) => {
       const node = nodeMap.get(cat.id.toString());
       if (node) {
-        if (cat.parent && cat.parent.id) {
-          const parentNode = nodeMap.get(cat.parent.id.toString());
+        if (cat.parentId) {
+          const parentNode = nodeMap.get(cat.parentId.toString());
           if (parentNode && parentNode.children) {
             parentNode.children.push(node);
           }
@@ -325,7 +325,7 @@ export class CategoriesComponent implements OnInit {
     },
     {
       headerName: 'Danh mục cha',
-      valueGetter: (params) => params.data?.parent?.categoryName || '—',
+      valueGetter: (params) => params.data?.parentName || '—',
       flex: 1.5,
       minWidth: 140,
     },
