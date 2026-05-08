@@ -1,0 +1,170 @@
+<div class="cart-container">
+  <header class="cart-header">
+    <h1 class="tui-text_h3">Giỏ hàng mượn đồ ({{ cartCount() }})</h1>
+    <div class="header-actions">
+      <button tuiButton appearance="flat" size="m" (click)="goBack()">Tiếp tục xem đồ</button>
+      <button tuiButton appearance="secondary-destructive" size="m" icon="@tui.trash" (click)="onClearCart(clearConfirmDialog)">Xóa tất cả</button>
+    </div>
+  </header>
+
+  <!-- Popup xác nhận xóa toàn bộ giỏ hàng -->
+  <ng-template #clearConfirmDialog let-observer>
+    <div class="confirm-dialog">
+      <p class="tui-text_body-m mb-4">Bạn có chắc chắn muốn xóa toàn bộ các thiết bị sau khỏi giỏ hàng không?</p>
+      
+      <div class="confirm-item-list">
+        <div *ngFor="let item of items()" class="confirm-item">
+          <tui-icon icon="@tui.package" class="item-icon"></tui-icon>
+          <span class="item-name">{{ item.resource.name }}</span>
+          <tui-badge appearance="neutral" size="s" class="item-qty">x{{ item.quantity }}</tui-badge>
+        </div>
+      </div>
+
+      <div class="confirm-actions">
+        <button tuiButton appearance="flat" size="m" (click)="observer.complete()" class="btn-cancel">Hủy</button>
+        <button tuiButton appearance="primary-destructive" size="m" (click)="confirmClear(observer)">Xác nhận xóa</button>
+      </div>
+    </div>
+  </ng-template>
+
+  <div class="cart-content" *ngIf="items().length > 0; else emptyCart">
+    <!-- List of Items -->
+    <main class="cart-main">
+      <div class="cart-card" *ngFor="let item of items()" [class.selected]="selectedItemIds().has(item.id)">
+        <div class="cart-item-content">
+          <!-- Cột 1: Checkbox & Image -->
+          <div class="item-visual">
+            <input
+              tuiCheckbox
+              type="checkbox"
+              [ngModel]="selectedItemIds().has(item.id)"
+              (ngModelChange)="toggleItemSelection(item.id)"
+              class="item-checkbox"
+            />
+            <div class="item-img-wrapper">
+              <irh-image [src]="item.resource.imageUrl ?? ''" class="item-img"></irh-image>
+            </div>
+          </div>
+
+          <!-- Cột 2: Info & Qty -->
+          <div class="item-details">
+            <h4 class="item-name">{{ item.resource.name }}</h4>
+            <div class="item-info-tags">
+              <span class="info-tag">{{ item.resource.unit?.unitName }}</span>
+            </div>
+            
+            <div class="qty-availability-row">
+              <div class="item-qty-control" [class.qty-over]="(item.availableQuantity !== undefined) && item.quantity > item.availableQuantity">
+                <button (click)="updateItemQty(item, -1)">-</button>
+                <span class="qty-num">{{ item.quantity }}</span>
+                <button (click)="updateItemQty(item, 1)" 
+                        [disabled]="(item.availableQuantity !== undefined) && item.quantity >= item.availableQuantity">+</button>
+              </div>
+              <span class="info-tag available" *ngIf="item.availableQuantity !== undefined">
+                Sẵn sàng: {{ item.availableQuantity }}
+              </span>
+            </div>
+          </div>
+
+          <!-- Cột 3: Config (Date & Slot) -->
+          <div class="item-config-section">
+            <div class="config-field">
+              <label>Ngày mượn</label>
+              <input type="date" class="config-date-input" 
+                     [value]="formatTuiDayToISO(item.bookingDate)"
+                     (change)="updateConfig(item, 'date', $any($event.target).value)">
+            </div>
+            <div class="config-field">
+              <label>Khung giờ</label>
+              <app-irh-select 
+                [options]="getSlotOptions()" 
+                [selectedValue]="item.slot?.id || ''"
+                placeholder="Chọn ca mượn"
+                (selectionChange)="updateConfig(item, 'slotId', $event)"
+                class="config-select-ui"
+              ></app-irh-select>
+            </div>
+          </div>
+          
+          <!-- Nút xóa riêng lẻ -->
+          <button tuiIconButton appearance="flat" size="s" icon="@tui.x" (click)="removeItem(item.id)" class="item-remove-btn"></button>
+        </div>
+      </div>
+    </main>
+
+    <!-- Khối tổng kết bên phải (Phong cách Hóa đơn) -->
+    <aside class="cart-sidebar">
+      <div class="summary-card">
+        <h3 class="summary-title">Tổng kết yêu cầu</h3>
+        
+        <div class="invoice-container">
+          <div class="invoice-header">
+            <span>Chi tiết thiết bị mượn</span>
+          </div>
+
+          <div class="invoice-body">
+            <ng-container *ngIf="selectedItemsList().length > 0; else noSelection">
+              <div class="invoice-item" *ngFor="let item of selectedItemsList()">
+                <div class="item-main-row">
+                  <span class="item-name">{{ item.resource.name }}</span>
+                  <span class="item-qty">x{{ item.quantity }}</span>
+                </div>
+                <div class="item-detail-row">
+                  <span class="detail-label">Ngày:</span>
+                  <span class="detail-value">{{ item.bookingDate?.toString() || 'Chưa chọn' }}</span>
+                </div>
+                <div class="item-detail-row">
+                  <span class="detail-label">Ca:</span>
+                  <span class="detail-value text-truncate">{{ item.slot?.slotName || 'Chưa chọn' }}</span>
+                </div>
+              </div>
+            </ng-container>
+            <ng-template #noSelection>
+              <div class="no-selection-msg">
+                <tui-icon icon="@tui.info" class="mb-2"></tui-icon>
+                <p>Vui lòng tích chọn thiết bị để xem tổng kết mượn.</p>
+              </div>
+            </ng-template>
+          </div>
+
+          <div class="invoice-footer">
+            <div class="total-row">
+              <span>Đang chọn:</span>
+              <span>{{ selectedItemIds().size }} món</span>
+            </div>
+            <div class="total-row primary-total">
+              <span>Tổng thiết bị:</span>
+              <span>{{ totalSelectedQuantity() }}</span>
+            </div>
+          </div>
+        </div>
+
+        <p class="summary-hint">
+          Lưu ý: Bạn chỉ có thể mượn tối đa số lượng sẵn có trong kho.
+        </p>
+        
+        <button 
+          tuiButton 
+          size="l" 
+          appearance="primary" 
+          class="checkout-btn"
+          [disabled]="isSubmitting() || selectedItemIds().size === 0"
+          (click)="onCheckout()"
+        >
+          <tui-loader [showLoader]="isSubmitting()" [inheritColor]="true">
+            Xác nhận mượn ngay
+          </tui-loader>
+        </button>
+      </div>
+    </aside>
+  </div>
+
+  <ng-template #emptyCart>
+    <div class="empty-state">
+      <tui-icon icon="@tui.shopping-cart" class="empty-icon"></tui-icon>
+      <h3>Giỏ hàng đang trống</h3>
+      <p>Hãy dạo quanh cửa hàng và chọn những thiết bị bạn cần nhé!</p>
+      <button tuiButton appearance="primary" (click)="goBack()">Quay lại cửa hàng</button>
+    </div>
+  </ng-template>
+</div>

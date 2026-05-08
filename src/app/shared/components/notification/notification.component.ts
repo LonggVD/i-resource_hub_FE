@@ -14,6 +14,6 @@ export class NotificationComponent {
   // Inject MAT_SNACK_BAR_DATA để nhận message và type
   constructor(
     @Inject(MAT_SNACK_BAR_DATA)
-    public data: { message: string; type: 'success' | 'error' | 'info' },
+    public data: { message: string; type: 'success' | 'error' | 'info' | 'warning' },
   ) {}
 }

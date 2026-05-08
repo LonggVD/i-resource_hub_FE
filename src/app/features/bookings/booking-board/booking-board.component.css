@@ -1,36 +1,38 @@
-/* ===== Kanban Layout ===== */
+/* ===== Kanban Layout: Pro Dashboard Style ===== */
 .kanban-wrapper {
-  padding: 24px;
-  background-color: #fbfbfc;
-  min-height: calc(100vh - 64px);
-  font-family: 'Inter', sans-serif;
+  padding: 16px 24px;
+  background-color: #f1f5f9;
+  height: calc(100vh - 64px);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
 }
 
 .kanban-header {
-  margin-bottom: 24px;
+  margin-bottom: 16px;
   display: flex;
   justify-content: space-between;
-  align-items: flex-end;
+  align-items: center;
   flex-wrap: wrap;
-  gap: 16px;
+  gap: 12px;
 }
 
 .kanban-title {
-  font-size: 1.75rem;
-  font-weight: 700;
-  color: #1e293b;
-  margin: 0 0 4px 0;
+  font-size: 1.5rem;
+  font-weight: 800;
+  color: #0f172a;
+  margin: 0;
 }
 
 .kanban-subtitle {
   color: #64748b;
-  font-size: 0.95rem;
+  font-size: 0.875rem;
 }
 
-/* ===== Toolbar ===== */
+/* ===== Toolbar: Compact & Functional ===== */
 .kanban-toolbar {
   display: flex;
-  gap: 12px;
+  gap: 8px;
   align-items: center;
 }
 
@@ -42,288 +44,264 @@
 
 .search-icon {
   position: absolute;
-  left: 12px;
+  left: 10px;
   color: #94a3b8;
-  font-size: 1.1rem;
 }
 
 .search-input {
-  padding: 10px 12px 10px 40px;
-  border-radius: 10px;
-  border: 1px solid #e2e8f0;
-  width: 280px;
-  font-size: 0.9rem;
-  background-color: white;
-  transition: all 0.2s ease;
+  padding: 8px 12px 8px 34px;
+  border-radius: 8px;
+  border: 1px solid #cbd5e1;
+  width: 240px;
+  font-size: 0.875rem;
+  transition: all 0.2s;
 }
 
 .search-input:focus {
   outline: none;
-  border-color: #8b5cf6;
-  box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.1);
+  border-color: #6366f1;
+  box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.1);
 }
 
 .date-filter {
-  padding: 9px 12px;
-  border-radius: 10px;
-  border: 1px solid #e2e8f0;
-  font-size: 0.9rem;
+  padding: 7px 10px;
+  border-radius: 8px;
+  border: 1px solid #cbd5e1;
+  font-size: 0.875rem;
   color: #475569;
-  background-color: white;
-  cursor: pointer;
 }
 
-
+/* ===== Kanban Board: Fixed Height & Scrollable Columns ===== */
 .kanban-board {
   display: flex;
-  gap: 20px;
+  gap: 16px;
+  flex: 1;
   overflow-x: auto;
-  align-items: flex-start;
-  padding-bottom: 16px;
+  overflow-y: hidden;
+  padding-bottom: 8px;
 }
 
-/* ===== Column Design ===== */
 .kanban-column {
-  flex: 1;
-  min-width: 320px;
-  max-width: 400px;
-  background-color: #f1f5f9;
+  flex: 0 0 320px;
+  background-color: #e2e8f0;
   border-radius: 12px;
   display: flex;
   flex-direction: column;
-  max-height: calc(100vh - 200px);
-  border: 1px solid rgba(226, 232, 240, 0.6);
+  max-height: 100%;
 }
 
 .column-header {
-  padding: 16px 20px;
+  padding: 12px 16px;
   display: flex;
   align-items: center;
-  gap: 10px;
-  border-bottom: 1px solid #e2e8f0;
+  gap: 8px;
+  border-bottom: 2px solid rgba(0,0,0,0.05);
 }
 
 .column-dot {
-  width: 8px;
-  height: 8px;
+  width: 10px;
+  height: 10px;
   border-radius: 50%;
 }
 
 .pending .column-dot { background-color: #f59e0b; }
 .approved .column-dot { background-color: #10b981; }
-.borrowed .column-dot { background-color: #3b82f6; }
-.returned .column-dot { background-color: #64748b; }
+.borrowed .column-dot { background-color: #6366f1; }
+.returned .column-dot { background-color: #94a3b8; }
 
 .column-title {
-  font-size: 0.95rem;
-  font-weight: 600;
-  color: #475569;
+  font-size: 0.875rem;
+  font-weight: 700;
+  color: #1e293b;
   margin: 0;
   flex: 1;
+  text-transform: uppercase;
 }
 
 .column-count {
-  background: #e2e8f0;
-  color: #64748b;
+  background: white;
+  color: #475569;
   font-size: 0.75rem;
-  font-weight: 700;
-  padding: 2px 8px;
+  font-weight: 800;
+  padding: 1px 8px;
   border-radius: 99px;
 }
 
-/* ===== List & Drag & Drop ===== */
+/* ===== List Scroll Area ===== */
 .kanban-list {
-  min-height: 250px; /* Tăng chiều cao tối thiểu để dễ thả vào hơn */
+  flex: 1;
+  overflow-y: auto;
   padding: 12px;
   display: flex;
   flex-direction: column;
-  gap: 12px;
-  overflow-y: auto;
-  transition: background-color 0.2s ease;
+  gap: 10px;
 }
 
-.kanban-list.cdk-drop-list-dragging {
-  background-color: rgba(203, 213, 225, 0.2);
-  border-radius: 0 0 12px 12px;
+.device-count-tag {
+  background: #eef2ff;
+  color: #6366f1;
+  font-size: 10px;
+  font-weight: 800;
+  padding: 1px 6px;
+  border-radius: 4px;
+  border: 1px solid #c7d2fe;
 }
 
-/* ===== Card Design ===== */
+/* Custom Scrollbar for columns */
+.kanban-list::-webkit-scrollbar { width: 5px; }
+.kanban-list::-webkit-scrollbar-track { background: transparent; }
+.kanban-list::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
+
+/* ===== Compact Card Design ===== */
 .booking-card {
   background: white;
   border-radius: 10px;
-  padding: 16px;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05), 0 1px 2px rgba(0, 0, 0, 0.02);
-  border: 1px solid #e2e8f0;
+  padding: 12px;
+  border: 1px solid #cbd5e1;
   cursor: grab;
-  transition: box-shadow 0.2s ease, transform 0.2s ease;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
   position: relative;
-  user-select: none;
-  display: flex;
-  flex-direction: column;
-}
-
-.card-content {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
-
-.card-actions {
-  margin-top: 12px;
-  display: flex;
-  gap: 8px;
-  border-top: 1px dashed #e2e8f0;
-  padding-top: 12px;
-}
-
-.card-actions button {
-  flex: 1;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 6px;
-  padding: 6px 4px;
-  border-radius: 6px;
-  font-size: 0.8rem;
-  font-weight: 600;
-  border: none;
-  cursor: pointer;
-  transition: all 0.2s ease;
-}
-
-.btn-approve {
-  background-color: #ecfdf5;
-  color: #059669;
-}
-
-.btn-approve:hover { background: #15803d; transform: translateY(-1px); }
-.btn-reject:hover { background: #be123c; transform: translateY(-1px); }
-
-.btn-handover {
-  flex: 1;
-  background: #6366f1;
-  color: white;
-  border: none;
-  padding: 0.5rem;
-  border-radius: 8px;
-  font-size: 0.8125rem;
-  font-weight: 600;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.5rem;
-  transition: all 0.2s;
-}
-.btn-handover:hover { background: #4f46e5; transform: translateY(-1px); }
-
-.btn-return {
-  background: #10b981;
-  color: white;
-  border: none;
-  padding: 0.5rem;
-  border-radius: 8px;
-  font-size: 0.8125rem;
-  font-weight: 600;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.5rem;
-  transition: all 0.2s;
-}
-.btn-return:hover { background: #059669; transform: translateY(-1px); }
-
-.btn-damage {
-  background: white;
-  color: #ef4444;
-  border: 1.5px solid #fee2e2;
-  padding: 0.5rem;
-  border-radius: 8px;
-  font-size: 0.8125rem;
-  font-weight: 600;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.5rem;
-  transition: all 0.2s;
-}
-.btn-damage:hover { background: #fef2f2; border-color: #fca5a5; }
-
-.card-actions.stack {
-  flex-direction: column;
-}
-
-.empty-column {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  padding: 3rem 1rem;
-  color: #94a3b8;
-  opacity: 0.6;
-}
-.empty-icon {
-  font-size: 2.5rem;
-  margin-bottom: 0.75rem;
-}
-.empty-column p {
-  margin: 0;
-  font-size: 0.875rem;
-  font-weight: 500;
-}
-
-.btn-reject {
-  background-color: #fef2f2;
-  color: #dc2626;
-}
-
-.btn-reject:hover {
-  background-color: #ef4444;
-  color: white;
-}
-
-.time-tag.returned {
-  background-color: #f1f5f9;
-  border-color: #e2e8f0;
-  color: #475569;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.05);
 }
 
 .booking-card:hover {
   transform: translateY(-2px);
-  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.08), 0 4px 6px -2px rgba(0, 0, 0, 0.04);
-  border-color: #cbd5e1;
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+  border-color: #6366f1;
 }
 
-.booking-card:active {
+.card-badges {
+  display: flex;
+  gap: 6px;
+  margin-bottom: 8px;
+  flex-wrap: wrap;
+}
+
+.card-device {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 6px;
+}
+
+.device-icon {
+  font-size: 16px;
+  color: #64748b;
+}
+
+.device-name {
+  font-size: 13px;
+  font-weight: 700;
+  color: #1e293b;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.card-borrower {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 8px;
+  font-size: 12px;
+  color: #64748b;
+}
+
+.borrower-icon { font-size: 14px; }
+
+.card-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 4px;
+}
+
+.time-tag {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 11px;
+  color: #94a3b8;
+  font-weight: 500;
+}
+
+.time-icon { font-size: 12px; }
+
+/* ===== Action Buttons: Compact & Dynamic ===== */
+.card-actions {
+  margin-top: 10px;
+  padding-top: 10px;
+  border-top: 1px dashed #e2e8f0;
+  display: flex;
+  gap: 6px;
+}
+
+.card-actions button {
+  flex: 1;
+  border: none;
+  border-radius: 6px;
+  padding: 6px;
+  font-size: 11px;
+  font-weight: 700;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  transition: all 0.2s;
+}
+
+.btn-approve { background: #f0fdf4; color: #16a34a; border: 1px solid #bbf7d0 !important; }
+.btn-approve:hover { background: #16a34a; color: white; }
+
+.btn-reject { background: #fef2f2; color: #dc2626; border: 1px solid #fee2e2 !important; }
+.btn-reject:hover { background: #dc2626; color: white; }
+
+.btn-handover { background: #6366f1; color: white; }
+.btn-handover:hover { background: #4f46e5; }
+
+.btn-return { 
+  background: #10b981; 
+  color: white; 
+  box-shadow: 0 4px 6px -1px rgba(16, 185, 129, 0.2);
+}
+.btn-return:hover { background: #059669; }
+
+/* Overlays & Empty States */
+.expired-overlay {
+  margin-top: 8px;
+  text-align: center;
+}
+
+.booking-card.expired {
+  background: #f8fafc;
+  opacity: 0.8;
+}
+
+.empty-column {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  color: #94a3b8;
+  padding: 40px 0;
+}
+
+.empty-icon { font-size: 32px; margin-bottom: 8px; opacity: 0.5; }
+.empty-column p { font-size: 12px; font-weight: 600; }
+
+/* Drag & Drop Visuals */
+.cdk-drag-preview {
+  box-shadow: 0 15px 30px rgba(0,0,0,0.15);
   cursor: grabbing;
 }
 
-/* ===== Dragging Effects ===== */
-.dragging-preview {
-  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25) !important;
-  border-radius: 10px;
-  opacity: 0.95;
-  transform: rotate(3deg); /* Tạo hiệu ứng thẻ bay hơi nghiêng */
-  pointer-events: none;
-}
-
 .card-placeholder {
-  opacity: 0.3;
-  background: #cbd5e1;
-  border: 2px dashed #94a3b8;
+  background: rgba(0,0,0,0.05);
+  border: 2px dashed rgba(0,0,0,0.1);
   border-radius: 10px;
-  height: 100px; /* Đảm bảo placeholder có chiều cao */
-  margin-bottom: 12px;
-  transition: transform 250ms cubic-bezier(0, 0, 0.2, 1);
-}
-
-.cdk-drag-animating {
-  transition: transform 300ms cubic-bezier(0, 0, 0.2, 1);
-}
-
-.kanban-list.cdk-drop-list-dragging .booking-card:not(.cdk-drag-placeholder) {
-  transition: transform 300ms cubic-bezier(0, 0, 0.2, 1);
+  height: 60px;
+  margin-bottom: 10px;
 }
 

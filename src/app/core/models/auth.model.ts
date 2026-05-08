@@ -12,6 +12,7 @@ export interface LoginResponse {
   roles: string[];
   unitId: string | null;
   dataScope: string;
+  creditScore: number;
 }
 
 export interface SignUpRequest {

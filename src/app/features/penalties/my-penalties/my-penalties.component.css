@@ -1,0 +1,184 @@
+.my-penalties-container {
+  padding: 2rem;
+  max-width: 1000px;
+  margin: 0 auto;
+}
+
+.page-header {
+  margin-bottom: 2.5rem;
+}
+
+.text-secondary {
+  color: #64748b;
+  margin-top: 0.5rem;
+}
+
+.penalties-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.penalty-card {
+  background: white;
+  border-radius: 20px;
+  box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 8px;
+  transition: transform 0.2s, box-shadow 0.2s;
+  border: 1px solid #e2e8f0;
+  border-left: 6px solid #ef4444;
+}
+
+.penalty-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.08);
+}
+
+.penalty-card.revoked {
+  opacity: 0.8;
+  border-left: 6px solid #94a3b8;
+}
+
+/* Nội dung */
+.card-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  padding: 24px;
+}
+
+.card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.header-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.created-at {
+  font-size: 0.85rem;
+  color: #64748b;
+  font-weight: 500;
+}
+
+.status-label {
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: #ef4444;
+  letter-spacing: 0.05em;
+}
+
+.status-label.revoked {
+  color: #64748b;
+}
+
+.card-body {
+  flex: 1;
+}
+
+.description {
+  margin: 0 0 12px 0;
+  font-size: 1.1rem;
+  color: #1e293b;
+  font-weight: 700;
+  line-height: 1.4;
+}
+
+.booking-link {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  background: #f1f5f9;
+  padding: 10px 14px;
+  border-radius: 12px;
+  margin-bottom: 16px;
+}
+
+.link-icon {
+  color: #3b82f6;
+  margin-top: 2px;
+}
+
+.link-text {
+  display: flex;
+  flex-direction: column;
+}
+
+.link-label {
+  font-size: 0.65rem;
+  font-weight: 800;
+  color: #64748b;
+  letter-spacing: 0.05em;
+}
+
+.link-value {
+  font-size: 0.85rem;
+  color: #334155;
+  font-weight: 600;
+}
+
+.penalty-stats {
+  display: flex;
+  gap: 24px;
+  margin-bottom: 16px;
+}
+
+.stat-item {
+  display: flex;
+  flex-direction: column;
+}
+
+.stat-label {
+  font-size: 0.65rem;
+  font-weight: 700;
+  color: #94a3b8;
+  margin-bottom: 2px;
+}
+
+.stat-value {
+  font-size: 0.95rem;
+  font-weight: 700;
+}
+
+.stat-value.danger { color: #ef4444; }
+.stat-value.money { color: #059669; }
+.stat-value.highlight { color: #f59e0b; }
+
+.card-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  padding-top: 16px;
+  border-top: 1px solid #f1f5f9;
+}
+
+.empty-state {
+  text-align: center;
+  padding: 4rem 2rem;
+  background: white;
+  border-radius: 24px;
+  border: 2px dashed #e2e8f0;
+}
+
+.empty-icon {
+  font-size: 4rem;
+  color: #10b981;
+  margin-bottom: 1.5rem;
+}
+
+.empty-state h3 {
+  font-size: 1.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.empty-state p {
+  color: #64748b;
+}

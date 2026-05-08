@@ -163,13 +163,61 @@
   height: 40px;
 }
 
-.card-footer {
+.card-footer-info {
   margin-top: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding-top: 12px;
+  border-top: 1px solid #f1f5f9;
+}
+
+.badge-group {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  align-items: center;
+}
+
+.unit-icon-mini {
+  width: 12px;
+  height: 12px;
+  margin-right: 2px;
+  color: #6366f1;
+}
+
+.stock-info {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding-top: 12px;
-  border-top: 1px solid #f1f5f9;
+  padding: 8px 12px;
+  background: #f8fafc;
+  border-radius: 12px;
+  border: 1px solid #f1f5f9;
+}
+
+.stock-label {
+  font-size: 12px;
+  font-weight: 600;
+  color: #64748b;
+}
+
+.stock-value {
+  font-size: 13px;
+  font-weight: 700;
+  color: #10b981;
+}
+
+.stock-value.out-of-stock {
+  color: #ef4444;
+}
+
+.card-actions {
+  margin-top: 12px;
+}
+
+.w-full {
+  width: 100% !important;
 }
 
 .form-field__label {

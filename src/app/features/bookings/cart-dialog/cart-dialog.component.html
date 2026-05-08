@@ -11,14 +11,33 @@
           </div>
           <div class="item-info">
             <p class="item-name">{{ item.resource.name }}</p>
-            <div class="qty-control mt-2">
-              <button type="button" tuiButton appearance="flat" size="xs" (click)="updateQty(item.id, item.quantity - 1)">
-                <tui-icon icon="@tui.minus"></tui-icon>
-              </button>
-              <span class="qty-value">{{ item.quantity }}</span>
-              <button type="button" tuiButton appearance="flat" size="xs" (click)="updateQty(item.id, item.quantity + 1)">
-                <tui-icon icon="@tui.plus"></tui-icon>
-              </button>
+            <p class="item-unit" *ngIf="item.resource.unit">
+              <tui-icon icon="@tui.map-pin" class="unit-icon"></tui-icon>
+              {{ item.resource.unit.unitName }}
+            </p>
+            <div class="qty-container mt-2">
+              <div class="qty-control">
+                <button type="button" tuiButton appearance="flat" size="xs" (click)="updateQty(item.id, item.quantity - 1)">
+                  <tui-icon icon="@tui.minus"></tui-icon>
+                </button>
+                <span class="qty-value">{{ item.quantity }}</span>
+                <button 
+                  type="button" 
+                  tuiButton 
+                  appearance="flat" 
+                  size="xs" 
+                  [disabled]="item.availableQuantity !== undefined && item.quantity >= item.availableQuantity"
+                  (click)="updateQty(item.id, item.quantity + 1)"
+                >
+                  <tui-icon icon="@tui.plus"></tui-icon>
+                </button>
+              </div>
+              <div class="availability-hint" *ngIf="item.availableQuantity !== undefined">
+                <span class="hint-label">Sẵn sàng:</span>
+                <span class="hint-value" [class.low-stock]="item.availableQuantity < 5">
+                  {{ item.availableQuantity }} máy
+                </span>
+              </div>
             </div>
           </div>
           <button type="button" tuiButton appearance="flat" size="s" class="remove-btn" (click)="removeItem(item.id)">

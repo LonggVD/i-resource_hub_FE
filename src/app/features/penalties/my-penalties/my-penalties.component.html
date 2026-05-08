@@ -1,0 +1,82 @@
+<div class="my-penalties-container">
+  <header class="page-header">
+    <div class="header-content">
+      <h1 class="tui-text_h3">Lịch sử vi phạm & Xử phạt</h1>
+      <p class="tui-text_body-m text-secondary">Xem lại các lỗi vi phạm và trạng thái xử lý kỷ luật của bạn.</p>
+    </div>
+  </header>
+
+  <tui-loader [showLoader]="isLoading()" [overlay]="true">
+    <div class="penalties-list" *ngIf="penalties().length > 0; else emptyState">
+      <div *ngFor="let p of penalties()" class="penalty-card" [class.revoked]="p.status === 'REVOKED'">
+        <!-- Nội dung chính -->
+        <div class="card-content">
+          <div class="card-header">
+            <div class="header-left">
+              <div class="type-badge">
+                <tui-badge [appearance]="p.status === 'REVOKED' ? 'neutral' : 'destructive'" size="m">
+                  {{ p.penaltyType }}
+                </tui-badge>
+              </div>
+              <span class="created-at">{{ p.createdAt | date: 'dd/MM/yyyy HH:mm' }}</span>
+            </div>
+            <div class="status-label" [class.revoked]="p.status === 'REVOKED'">
+              {{ getStatusLabel(p.status) | uppercase }}
+            </div>
+          </div>
+
+          <div class="card-body">
+            <h3 class="description">{{ p.description }}</h3>
+
+            <div *ngIf="p.bookingId" class="booking-link">
+              <div class="link-icon">
+                <tui-icon icon="@tui.link"></tui-icon>
+              </div>
+              <div class="link-text">
+                <span class="link-label">ĐƠN MƯỢN LIÊN QUAN:</span>
+                <span class="link-value">
+                  {{ p.bookingDeviceName }} (Ngày {{ p.bookingDate | date: 'dd/MM/yyyy' }} - {{ p.bookingSlot }})
+                </span>
+              </div>
+            </div>
+
+            <div class="penalty-stats">
+              <div class="stat-item">
+                <span class="stat-label">ĐIỂM TÍN NHIỆM:</span>
+                <span class="stat-value danger">-{{ p.penaltyPoint }} điểm</span>
+              </div>
+              <div class="stat-item" *ngIf="p.fineAmount">
+                <span class="stat-label">TIỀN PHẠT:</span>
+                <span class="stat-value money">{{ p.fineAmount | currency:'VND':'symbol':'1.0-0' }}</span>
+              </div>
+              <div class="stat-item" *ngIf="p.requiresReview">
+                <span class="stat-label">BẢN KIỂM ĐIỂM:</span>
+                <span class="stat-value highlight">{{ p.reviewStatus === 'APPROVED' ? 'Đã duyệt' : 'Chờ nộp bản kiểm điểm' }}</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="card-footer">
+            <button tuiButton appearance="secondary" size="s" (click)="viewDetail(p)">
+              Chi tiết & Minh chứng
+            </button>
+            <button *ngIf="p.fineAmount && p.status !== 'COMPLETED'" tuiButton appearance="primary" size="s" (click)="payPenalty(p)">
+              Thanh toán tiền phạt
+            </button>
+            <button *ngIf="p.requiresReview && p.reviewStatus !== 'APPROVED'" tuiButton appearance="primary" size="s">
+              Nộp bản kiểm điểm
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <ng-template #emptyState>
+      <div class="empty-state">
+        <tui-icon icon="@tui.shield-check" class="empty-icon"></tui-icon>
+        <h3>Bạn không có vi phạm nào!</h3>
+        <p>Thật tuyệt vời, hãy tiếp tục tuân thủ quy định của phòng Lab nhé.</p>
+      </div>
+    </ng-template>
+  </tui-loader>
+</div>

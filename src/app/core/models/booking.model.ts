@@ -32,10 +32,71 @@ export interface Booking {
   deviceName?: string;
   borrowerName?: string;
   borrowerId?: string;
+  userId?: string;
+  borrowerUnitName?: string;
   slotId?: string;
   slotName?: string;
   startTime?: string;
   endTime?: string;
+  serialNumber?: string;
+  batchToken?: string;
+  expired?: boolean;
+  ownerUnitId?: string;
+  ownerUnitName?: string;
+  hasDamage?: boolean;
+  damageDescription?: string;
+  resolution?: string;
+  isResolved?: boolean;
+  evidenceImageUrl?: string;
+  isPenalized?: boolean;
+}
+
+export interface GroupedBooking {
+  batchToken: string;
+  bookingDate: string;
+  slotName: string;
+  startTime: string;
+  endTime: string;
+  status: BookingStatus;
+  purpose: string;
+  borrowerName?: string;
+  borrowerId?: string;
+  userId?: string;
+  borrowerUnitName?: string;
+  expired?: boolean;
+  // Các thiết bị trong nhóm này
+  items: {
+    deviceName: string;
+    serialNumber: string;
+    id: string;
+    status: BookingStatus;
+    qrCodeToken?: string;
+    ownerUnitName?: string;
+    hasDamage?: boolean;
+    damageDescription?: string;
+    resolution?: string;
+    isResolved?: boolean;
+    evidenceImageUrl?: string;
+  }[];
+  // Phân nhóm theo khoa để hiển thị thông minh
+  unitGroups?: {
+    unitName: string;
+    status: BookingStatus;
+    items: any[];
+    hasDamage?: boolean;
+    damageDescription?: string;
+    resolution?: string;
+    isResolved?: boolean;
+    evidenceImageUrl?: string;
+  }[];
+  // Tổng hợp status
+  displayStatus: BookingStatus;
+  hasDamage?: boolean;
+  damageDescription?: string;
+  resolution?: string;
+  isResolved?: boolean;
+  evidenceImageUrl?: string;
+  isPenalized?: boolean;
 }
 
 export interface EvidenceRequest {

@@ -77,6 +77,7 @@
                size="s"
                appearance="whiteblock"
                class="overlay-btn"
+               [disabled]="(resource.availableQuantity ?? 0) <= 0"
                (click)="onAddToCart(resource)"
              >
                <tui-icon icon="@tui.shopping-cart"></tui-icon>&nbsp;Thêm vào danh sách
@@ -86,13 +87,31 @@
         <div class="card-info-section">
           <h3 class="resource-name">{{ resource.name }}</h3>
           <p class="resource-description">{{ resource.description }}</p>
-          <div class="card-footer">
-            <tui-badge appearance="secondary" size="s">{{ resource.category?.categoryName }}</tui-badge>
+          <div class="card-footer-info">
+            <div class="badge-group">
+              <tui-badge appearance="secondary" size="s">{{ resource.category?.categoryName }}</tui-badge>
+              <tui-badge *ngIf="resource.unit" appearance="neutral" size="s">
+                <tui-icon icon="@tui.map-pin" class="unit-icon-mini"></tui-icon>
+                {{ resource.unit.unitName }}
+              </tui-badge>
+            </div>
+            
+            <div class="stock-info">
+              <span class="stock-label">Sẵn sàng:</span>
+              <span class="stock-value" [class.out-of-stock]="(resource.availableQuantity ?? 0) <= 0">
+                {{ resource.availableQuantity ?? 0 }} / {{ resource.totalQuantity ?? 0 }}
+              </span>
+            </div>
+          </div>
+
+          <div class="card-actions">
             <button
               tuiButton
-              appearance="flat"
+              appearance="primary"
               size="s"
               iconStart="@tui.plus"
+              class="w-full"
+              [disabled]="(resource.availableQuantity ?? 0) <= 0"
               (click)="onAddToCart(resource)"
             >
               Thêm mượn

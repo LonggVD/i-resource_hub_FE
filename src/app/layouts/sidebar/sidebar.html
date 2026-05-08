@@ -47,6 +47,10 @@
           <tui-icon icon="@tui.shield" />
           <span>{{ userRoleLabel() }}</span>
         </div>
+        <div class="sidebar__footer-score" *ngIf="authService.hasRole('ROLE_STUDENT')">
+          <tui-icon icon="@tui.star" class="score-icon" />
+          <span>Điểm: <strong>{{ creditScore() }}</strong></span>
+        </div>
         <div class="sidebar__footer-version">v1.0.0</div>
       </div>
     }

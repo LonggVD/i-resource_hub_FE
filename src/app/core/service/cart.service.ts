@@ -12,6 +12,7 @@ export interface CartItem {
   quantity: number;
   bookingDate: TuiDay;
   slot: TimeSlot | null;
+  availableQuantity?: number;
 }
 
 @Injectable({
@@ -35,15 +36,43 @@ export class CartService {
   );
   public readonly isEmpty = computed(() => this.cartItems().length === 0);
 
+  // ── Selection Signals ─────────────────────────────────────
+  readonly selectedItemIds = signal<Set<string>>(new Set());
+
+  public readonly totalSelectedQuantity = computed(() => 
+    this.cartItems()
+      .filter(item => this.selectedItemIds().has(item.id))
+      .reduce((sum, item) => sum + item.quantity, 0)
+  );
+
+  toggleSelection(id: string) {
+    const current = new Set(this.selectedItemIds());
+    if (current.has(id)) current.delete(id);
+    else current.add(id);
+    this.selectedItemIds.set(current);
+  }
+
+  isItemSelected(id: string): boolean {
+    return this.selectedItemIds().has(id);
+  }
+
   // ── Actions ──────────────────────────────────────────────
   loadCart() {
     this.http.get<any[]>(this.apiUrl).pipe(
       map(items => items.map(item => ({
         id: item.id,
-        resource: { id: item.resourceTemplateId, name: item.resourceName, imageUrl: item.imageUrl, unit: { unitName: item.unitName } } as any,
+        resource: { 
+          id: item.resourceTemplateId, 
+          name: item.resourceName, 
+          imageUrl: item.imageUrl, 
+          unit: { unitName: item.unitName },
+          totalQuantity: item.totalQuantity,
+          availableQuantity: item.availableQuantity
+        } as any,
         quantity: item.quantity,
         bookingDate: item.bookingDate ? this.parseDate(item.bookingDate) : TuiDay.currentLocal(),
-        slot: item.slotId ? { id: item.slotId, slotName: item.slotName } as any : null
+        slot: item.slotId ? { id: item.slotId, slotName: item.slotName } as any : null,
+        availableQuantity: item.availableQuantity // Gán mặc định ban đầu
       })))
     ).subscribe(data => this.cartItems.set(data));
   }
@@ -83,6 +112,12 @@ export class CartService {
         item.id === cartItemId ? { ...item, bookingDate, slot } : item
       ));
     });
+  }
+
+  updateAvailableQuantity(cartItemId: string, availableQuantity: number) {
+    this.cartItems.update(prev => prev.map(item => 
+      item.id === cartItemId ? { ...item, availableQuantity } : item
+    ));
   }
 
   clearCart() {

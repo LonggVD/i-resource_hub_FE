@@ -1,0 +1,106 @@
+<div class="detail-container">
+  <tui-loader [showLoader]="isLoading()" [overlay]="true">
+    <div class="dialog-layout">
+      <!-- Khối bên trái: Ảnh minh chứng -->
+      <div class="left-column">
+        <div class="detail-section" *ngIf="context.data.evidences && context.data.evidences.length > 0">
+          <h3 class="section-title">Minh chứng ({{ context.data.evidences.length }})</h3>
+          <div class="evidence-list-vertical">
+            <div *ngFor="let ev of context.data.evidences" class="evidence-card">
+              <div class="evidence-meta">
+                <span class="ev-type">{{ ev.evidenceType === 'PENALTY_PROOF' ? 'Xử phạt' : ev.evidenceType }}</span>
+                <span class="ev-date">{{ ev.createdAt | date: 'HH:mm dd/MM' }}</span>
+              </div>
+              <div class="ev-images">
+                <irh-image 
+                  *ngFor="let url of splitImages(ev.imageUrl)" 
+                  [src]="url"
+                  width="100%"
+                  height="auto"
+                  className="ev-photo"
+                ></irh-image>
+              </div>
+              <p class="ev-desc" *ngIf="ev.description">{{ ev.description }}</p>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Placeholder nếu không có ảnh -->
+        <div class="no-evidence" *ngIf="!context.data.evidences || context.data.evidences.length === 0">
+          <tui-icon icon="@tui.image-off" class="off-icon"></tui-icon>
+          <span>Không có ảnh minh chứng</span>
+        </div>
+      </div>
+
+      <!-- Khối bên phải: Thông tin chi tiết -->
+      <div class="right-column">
+        <div class="detail-section">
+          <h3 class="section-title">Thông tin sinh viên</h3>
+          <div class="info-grid-compact">
+            <div class="info-row">
+              <span class="label">Họ tên:</span>
+              <span class="value">{{ context.data.studentName }}</span>
+            </div>
+            <div class="info-row">
+              <span class="label">Mã SV:</span>
+              <span class="value">{{ context.data.studentCode }}</span>
+            </div>
+            <div class="info-row">
+              <span class="label">Điểm tín nhiệm:</span>
+              <span class="value score" [class.danger]="context.data.currentCreditScore <= 0">
+                {{ context.data.currentCreditScore }}
+              </span>
+            </div>
+          </div>
+        </div>
+
+        <div class="detail-section">
+          <h3 class="section-title">Chi tiết vi phạm</h3>
+          <div class="info-grid-compact">
+            <div class="info-row">
+              <span class="label">Loại:</span>
+              <span class="value highlight">{{ context.data.penaltyType }}</span>
+            </div>
+            <div class="info-row">
+              <span class="label">Điểm trừ:</span>
+              <span class="value danger">-{{ context.data.penaltyPoint }}</span>
+            </div>
+            <div class="info-row" *ngIf="context.data.fineAmount">
+              <span class="label">Tiền phạt:</span>
+              <span class="value money">{{ context.data.fineAmount | currency:'VND':'symbol':'1.0-0' }}</span>
+            </div>
+            <div class="info-row">
+              <span class="label">Ngày:</span>
+              <span class="value">{{ context.data.createdAt | date: 'dd/MM/yyyy HH:mm' }}</span>
+            </div>
+            <div class="info-row">
+              <span class="label">Người lập:</span>
+              <span class="value">{{ context.data.createdByName }}</span>
+            </div>
+          </div>
+
+          <div class="description-box-v2">
+            <span class="label">Nội dung chi tiết:</span>
+            <p class="description">{{ context.data.description }}</p>
+          </div>
+        </div>
+
+        <!-- Thông tin đơn mượn nếu có -->
+        <div class="detail-section" *ngIf="context.data.bookingId">
+          <h3 class="section-title">Đơn mượn liên quan</h3>
+          <div class="booking-info-box">
+            <p><strong>Thiết bị:</strong> {{ context.data.bookingDeviceName }}</p>
+            <p><strong>Thời gian:</strong> Ngày {{ context.data.bookingDate | date: 'dd/MM/yyyy' }} - {{ context.data.bookingSlot }}</p>
+            <p><strong>Mã lô:</strong> {{ context.data.bookingBatchToken }}</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </tui-loader>
+
+  <div class="dialog-actions">
+    <button tuiButton appearance="secondary" size="m" (click)="context.completeWith()">
+      Đóng
+    </button>
+  </div>
+</div>

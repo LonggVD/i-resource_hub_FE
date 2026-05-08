@@ -11,6 +11,11 @@
         <tui-icon icon="@tui.search" class="search-icon" />
         <input type="text" placeholder="Tìm SV hoặc Mã thiết bị..." class="search-input">
       </div>
+      
+      <button tuiButton appearance="primary" size="m" (click)="openReturnModal()">
+        <tui-icon icon="@tui.scan-qr-code" />&nbsp; Quét trả đồ
+      </button>
+
       <input type="date" class="date-filter">
     </div>
   </div>
@@ -18,13 +23,13 @@
   <div class="kanban-board" cdkDropListGroup>
     <!-- Cột Template -->
     <ng-container *ngFor="let col of [
-      {id: 'PENDING', title: 'Chờ duyệt', data: pendingBookings(), class: 'pending'},
-      {id: 'APPROVED', title: 'Đã duyệt', data: approvedBookings(), class: 'approved'},
-      {id: 'BORROWED', title: 'Đang mượn', data: borrowedBookings(), class: 'borrowed'},
-      {id: 'RETURNED', title: 'Đã trả', data: returnedBookings(), class: 'returned'}
+      {id: 'PENDING', title: 'Chờ duyệt', data: pendingGroups(), class: 'pending'},
+      {id: 'APPROVED', title: 'Đã duyệt', data: approvedGroups(), class: 'approved'},
+      {id: 'BORROWED', title: 'Đang mượn', data: borrowedGroups(), class: 'borrowed'},
+      {id: 'RETURNED', title: 'Đã trả', data: returnedGroups(), class: 'returned'}
     ]">
-      <div class="kanban-column">
-        <div class="column-header" [ngClass]="col.class">
+      <div class="kanban-column" [ngClass]="col.class">
+        <div class="column-header">
           <span class="column-dot"></span>
           <h2 class="column-title">{{ col.title }}</h2>
           <span class="column-count">{{ col.data.length }}</span>
@@ -37,69 +42,93 @@
           (cdkDropListDropped)="drop($event)"
           class="kanban-list"
         >
-          <div *ngFor="let booking of col.data" cdkDrag class="booking-card">
-            <!-- Giao diện chính của thẻ -->
-            <div class="card-content" (click)="openDetailModal(booking)">
-              <div class="card-device">
-                <tui-icon icon="@tui.monitor" class="device-icon" />
-                <span class="device-name">{{ booking.deviceName }}</span>
-              </div>
-              
-              <div class="card-borrower">
-                <tui-icon icon="@tui.user" class="borrower-icon" />
-                <span class="borrower-text">{{ booking.borrowerId }} - {{ booking.borrowerName }}</span>
-              </div>
+          <div *ngFor="let group of col.data" cdkDrag 
+               [class.expired]="group.expired"
+               class="booking-card">
+            
+            <div class="card-badges">
+              <tui-badge *ngIf="col.id === 'BORROWED'" 
+                [appearance]="getReturnedCount(group) === group.items.length ? 'success' : 'warning'" size="s">
+                {{ getReturnedCount(group) }}/{{ group.items.length }} Đã trả
+              </tui-badge>
+              <tui-badge *ngIf="group.hasDamage" appearance="destructive" size="s" class="damage-badge">
+                <tui-icon icon="@tui.triangle-alert"></tui-icon>&nbsp;SỰ CỐ
+              </tui-badge>
+            </div>
 
-              <div class="card-footer">
-                <div class="time-tag" [ngClass]="col.class">
-                  <tui-icon icon="@tui.clock" class="time-icon" />
-                  <span>{{ booking.startTime }} - {{ booking.endTime }}</span>
-                </div>
+            <div class="card-device" (click)="openDetailModal(group)" style="cursor: pointer;">
+              <span class="device-name">
+                <tui-icon icon="@tui.monitor" class="device-icon" />
+                {{ group.items[0].deviceName }}
+                <span *ngIf="group.items.length > 1" class="device-count-tag">+{{ group.items.length - 1 }}</span>
+              </span>
+            </div>
+            
+            <div class="card-borrower" (click)="openDetailModal(group)" style="cursor: pointer;">
+              <tui-icon icon="@tui.user" class="borrower-icon" />
+              <span class="borrower-name">
+                {{ group.borrowerName || 'Sinh viên' }}
+              </span>
+            </div>
+
+            <div class="card-footer" (click)="openDetailModal(group)" style="cursor: pointer;">
+              <div class="time-tag">
+                <tui-icon icon="@tui.clock" class="time-icon" />
+                <span>{{ group.slotName }} ({{ group.startTime?.substring(0,5) }}-{{ group.endTime?.substring(0,5) }})</span>
               </div>
             </div>
 
-            <!-- Hành động nhanh cho cột PENDING -->
-            @if (col.id === 'PENDING') {
-              <div class="card-actions">
-                <button class="btn-approve" (click)="quickApprove(booking); $event.stopPropagation()">
-                  <tui-icon icon="@tui.check" /> Duyệt
+            <!-- Actions Section -->
+            <div class="card-actions">
+              <!-- PENDING -->
+              <ng-container *ngIf="col.id === 'PENDING'">
+                <button class="btn-approve" [disabled]="group.expired" (click)="quickApprove(group); $event.stopPropagation()">
+                  Duyệt
                 </button>
-                <button class="btn-reject" (click)="openRejectModal(booking); $event.stopPropagation()">
-                  <tui-icon icon="@tui.x" /> Từ chối
+                <button class="btn-reject" (click)="openRejectModal(group); $event.stopPropagation()">
+                  Từ chối
                 </button>
-              </div>
-            }
+              </ng-container>
 
-            <!-- Hành động cho cột APPROVED -->
-            @if (col.id === 'APPROVED') {
-              <div class="card-actions">
-                <button class="btn-handover" (click)="openHandoverModal(booking); $event.stopPropagation()">
-                  <tui-icon icon="@tui.hand-helping" /> Bàn giao (QR)
+              <!-- APPROVED -->
+              <ng-container *ngIf="col.id === 'APPROVED'">
+                <button class="btn-handover" [disabled]="group.expired" (click)="openHandoverModal(group); $event.stopPropagation()">
+                  Bàn giao
                 </button>
-              </div>
-            }
+              </ng-container>
 
-            <!-- Hành động cho cột BORROWED -->
-            @if (col.id === 'BORROWED') {
-              <div class="card-actions stack">
-                <button class="btn-return" (click)="openReturnModal(booking); $event.stopPropagation()">
-                  <tui-icon icon="@tui.refresh-ccw" /> Nhận lại đồ
+              <!-- BORROWED -->
+              <ng-container *ngIf="col.id === 'BORROWED'">
+                <button class="btn-return" (click)="openReturnModal(group); $event.stopPropagation()">
+                  <tui-icon icon="@tui.refresh-ccw" /> Nhận lại
                 </button>
-                <button class="btn-damage" (click)="openReportDamageModal(booking); $event.stopPropagation()">
-                  <tui-icon icon="@tui.alert-triangle" /> Báo cáo sự cố
+                <button *ngIf="(group.expired || group.hasDamage) && !group.isPenalized" class="btn-reject tui-space_left-2" (click)="openPenaltyDialog(group); $event.stopPropagation()" style="background-color: #ef4444; color: white;">
+                  <tui-icon icon="@tui.shield-alert" /> Phạt
                 </button>
-              </div>
-            }
+                <button *ngIf="group.isPenalized" class="btn-reject tui-space_left-2" [disabled]="true" style="background-color: #10b981; color: white; border: none; cursor: default;">
+                  <tui-icon icon="@tui.check" /> Đã xử phạt
+                </button>
+              </ng-container>
 
-            <!-- 1. Preview: Hình ảnh thẻ khi đang được kéo -->
+              <!-- RETURNED -->
+              <ng-container *ngIf="col.id === 'RETURNED' && (group.hasDamage || group.expired)">
+                <button *ngIf="!group.isPenalized" class="btn-reject" (click)="openPenaltyDialog(group); $event.stopPropagation()" style="background-color: #ef4444; color: white; width: 100%;">
+                  <tui-icon icon="@tui.shield-alert" /> Xử phạt
+                </button>
+                <button *ngIf="group.isPenalized" class="btn-reject" [disabled]="true" style="background-color: #10b981; color: white; border: none; cursor: default; width: 100%;">
+                  <tui-icon icon="@tui.check" /> Đã xử phạt
+                </button>
+              </ng-container>
+            </div>
+
+            <div *ngIf="group.expired && col.id !== 'RETURNED'" class="expired-overlay">
+              <tui-badge appearance="error" size="s">HẾT HẠN</tui-badge>
+            </div>
+
+            <!-- Drag Preview -->
             <div class="booking-card dragging-preview" *cdkDragPreview>
-              <div class="card-device">
-                <tui-icon icon="@tui.monitor" class="device-icon" />
-                <span class="device-name">{{ booking.deviceName }}</span>
-              </div>
+               <span class="device-name">{{ group.items[0].deviceName }} ({{ group.items.length }})</span>
             </div>
-
-            <!-- 2. Placeholder: Ô trống hiện ra tại vị trí sắp thả -->
             <div class="card-placeholder" *cdkDragPlaceholder></div>
           </div>
           

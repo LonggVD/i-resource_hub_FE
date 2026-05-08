@@ -1,0 +1,92 @@
+<tui-loader [showLoader]="isLoading()" [overlay]="true">
+  <div class="detail-container" *ngIf="resource() as item">
+    <header class="detail-header">
+      <button tuiButton appearance="flat" size="s" (click)="goBack()">
+        <tui-icon icon="@tui.arrow-left"></tui-icon>&nbsp; Quay lại cửa hàng
+      </button>
+    </header>
+
+    <div class="detail-main">
+      <!-- Left: Image Gallery -->
+      <section class="detail-gallery">
+        <div class="resource-visual">
+          <irh-image [src]="item.imageUrl ?? ''" class="main-img"></irh-image>
+        </div>
+        <!-- Thumbnail placeholders -->
+        <div class="thumbnails">
+          <div class="thumb-item active" [style.background-image]="'url(' + (item.imageUrl || 'assets/images/placeholder.svg') + ')'"></div>
+          <div class="thumb-item"></div>
+          <div class="thumb-item"></div>
+        </div>
+      </section>
+
+      <!-- Right: Info & Action -->
+      <section class="detail-info">
+        <div class="info-header">
+          <tui-badge appearance="secondary" size="m" class="category-tag">{{ item.category?.categoryName }}</tui-badge>
+          <h1 class="item-name">{{ item.name }}</h1>
+          <p class="item-unit">{{ item.unit?.unitName }}</p>
+        </div>
+
+        <div class="status-row">
+          <span class="stock-status" [class.out]="(item.availableQuantity ?? 0) === 0">
+            <tui-icon [icon]="(item.availableQuantity ?? 0) > 0 ? '@tui.check' : '@tui.x'"></tui-icon>
+            {{ (item.availableQuantity ?? 0) > 0 ? 'Sẵn sàng: ' + item.availableQuantity + ' thiết bị' : 'Đã hết đồ' }}
+          </span>
+        </div>
+
+        <div class="description-box">
+          <h4>Mô tả thiết bị</h4>
+          <div class="desc-content">
+            {{ item.description || 'Thiết bị này chưa có mô tả chi tiết. Vui lòng liên hệ quản lý phòng Lab để biết thêm thông tin.' }}
+          </div>
+        </div>
+
+        <!-- Action Card -->
+        <div class="action-box" [formGroup]="bookingForm">
+          <div class="qty-selector">
+            <span class="qty-label">Số lượng:</span>
+            <div class="qty-controls">
+              <button type="button" (click)="updateQty(-1)" [disabled]="(bookingForm.get('quantity')?.value ?? 0) <= 1">-</button>
+              <input type="number" formControlName="quantity" readonly>
+              <button type="button" (click)="updateQty(1)" [disabled]="(bookingForm.get('quantity')?.value ?? 0) >= (item.availableQuantity ?? 0)">+</button>
+            </div>
+          </div>
+
+          <div class="main-buttons">
+            <button 
+              tuiButton 
+              size="l" 
+              class="add-cart-btn w-full"
+              [disabled]="(item.availableQuantity ?? 0) === 0"
+              (click)="addToCart(item)"
+            >
+              Thêm vào giỏ hàng
+            </button>
+            <button 
+              tuiButton 
+              size="l" 
+              appearance="secondary" 
+              class="quick-book-btn w-full mt-3"
+              [disabled]="(item.availableQuantity ?? 0) === 0"
+              (click)="onQuickBook(item)"
+            >
+              Đặt lịch nhanh
+            </button>
+          </div>
+        </div>
+
+        <footer class="info-footer">
+          <div class="policy-item">
+            <tui-icon icon="@tui.shield-check"></tui-icon>
+            <span>Bảo quản đúng quy định</span>
+          </div>
+          <div class="policy-item">
+            <tui-icon icon="@tui.clock"></tui-icon>
+            <span>Trả đồ đúng hạn</span>
+          </div>
+        </footer>
+      </section>
+    </div>
+  </div>
+</tui-loader>

@@ -57,12 +57,14 @@ import { ResourceItemActionRendererComponent } from './resource-item-action-rend
 import { ResourceItemStatusBadgeRendererComponent } from './resource-item-status-badge-renderer.component';
 
 // Taiga UI
-import { TuiButton, TuiIcon, TuiLoader, TuiTextfield } from '@taiga-ui/core';
+import { TuiButton, TuiIcon, TuiLoader, TuiTextfield, TuiDialogService } from '@taiga-ui/core';
+import { PolymorpheusComponent } from '@taiga-ui/polymorpheus';
 import { TuiDialog } from '@taiga-ui/experimental';
 
 // QR Code Libraries
 import { QRCodeModule } from 'angularx-qrcode';
 import { NgxScannerQrcodeComponent, ScannerQRCodeResult, LOAD_WASM } from 'ngx-scanner-qrcode';
+import { ResourceItemBulkDialogComponent } from './resource-item-bulk-dialog/resource-item-bulk-dialog.component';
 
 @Component({
   selector: 'app-resource-items',
@@ -95,6 +97,7 @@ export class ResourceItemComponent implements OnInit, OnDestroy {
   private readonly authService = inject(AuthService);
   private readonly notification = inject(NotificationService);
   private readonly cdr = inject(ChangeDetectorRef);
+  private readonly dialogService = inject(TuiDialogService);
 
   // --- Scanner ViewChild ---
   @ViewChild('scannerRef') scanner!: NgxScannerQrcodeComponent;
@@ -103,7 +106,6 @@ export class ResourceItemComponent implements OnInit, OnDestroy {
   public readonly isLoading = signal(false);
   private readonly _rawData = signal<ResourceItemResponse[]>([]);
   public readonly templates = signal<ResourceTemplate[]>([]);
-  public readonly units = signal<OrganizationUnitResponse[]>([]);
 
   // --- Filter State ---
   public readonly searchQuery = signal('');
@@ -148,7 +150,6 @@ export class ResourceItemComponent implements OnInit, OnDestroy {
   // --- Forms ---
   public itemForm = new FormGroup({
     templateId: new FormControl('', Validators.required),
-    unitId: new FormControl('', Validators.required),
     serialNumber: new FormControl('', Validators.required),
     conditionStatus: new FormControl('GOOD', Validators.required),
     status: new FormControl('AVAILABLE', Validators.required),
@@ -156,18 +157,9 @@ export class ResourceItemComponent implements OnInit, OnDestroy {
     warrantyExpiry: new FormControl(''),
   });
 
-  public batchForm = new FormGroup({
-    templateId: new FormControl('', Validators.required),
-    unitId: new FormControl('', Validators.required),
-    serialNumbersText: new FormControl('', Validators.required),
-    conditionStatus: new FormControl('GOOD', Validators.required),
-    status: new FormControl('AVAILABLE', Validators.required),
-  });
-
   public qrSerialNumber = new FormControl('');
 
   // --- Modal Flags ---
-  public showBatchModal = signal(false);
   public showQRModal = signal(false);
   public showFormModal = signal(false);
   public openPreviewDialog = signal(false);
@@ -329,7 +321,6 @@ export class ResourceItemComponent implements OnInit, OnDestroy {
   ngOnInit() {
     this.refreshData();
     this.loadTemplates();
-    this.loadUnits();
   }
 
   ngOnDestroy() {
@@ -360,13 +351,6 @@ export class ResourceItemComponent implements OnInit, OnDestroy {
     });
   }
 
-  loadUnits() {
-    this.unitService.getAllUnits().subscribe((res) => {
-      this.units.set(res);
-      this.cdr.detectChanges();
-    });
-  }
-
   // --- Modal Logic ---
   openAddModal() {
     this.isEditMode.set(false);
@@ -374,18 +358,22 @@ export class ResourceItemComponent implements OnInit, OnDestroy {
     this.itemForm.reset({
       conditionStatus: 'GOOD',
       status: 'AVAILABLE',
-      unitId: this.isManager() ? this.userUnitId() : '',
     });
     this.showFormModal.set(true);
   }
 
   openBatchModal() {
-    this.batchForm.reset({
-      conditionStatus: 'GOOD',
-      status: 'AVAILABLE',
-      unitId: this.isManager() ? this.userUnitId() : '',
-    });
-    this.showBatchModal.set(true);
+    this.dialogService
+      .open<boolean>(new PolymorpheusComponent(ResourceItemBulkDialogComponent), {
+        label: 'Nhập kho thiết bị hàng loạt',
+        size: 'l',
+        dismissible: true,
+      })
+      .subscribe((result) => {
+        if (result) {
+          this.refreshData();
+        }
+      });
   }
 
   onEdit(item: ResourceItemResponse) {
@@ -393,7 +381,6 @@ export class ResourceItemComponent implements OnInit, OnDestroy {
     this.currentEditingId.set(item.id);
     this.itemForm.patchValue({
       templateId: item.template.id,
-      unitId: item.unit?.id ?? '',
       serialNumber: item.serialNumber,
       conditionStatus: item.conditionStatus,
       status: item.status,
@@ -758,42 +745,6 @@ export class ResourceItemComponent implements OnInit, OnDestroy {
     }
   }
 
-  submitBatchForm() {
-    if (this.batchForm.invalid) return;
-
-    const formVal = this.batchForm.getRawValue();
-    const serialNumbers = formVal
-      .serialNumbersText!.split('\n')
-      .map((s) => s.trim())
-      .filter((s) => s !== '');
-
-    if (serialNumbers.length === 0) {
-      this.notification.showError('Vui lòng nhập ít nhất một mã Serial');
-      return;
-    }
-
-    const payload: ResourceItemBatchCreateRequest = {
-      templateId: formVal.templateId!,
-      conditionStatus: formVal.conditionStatus!,
-      status: formVal.status!,
-      serialNumbers: serialNumbers,
-      unitId: formVal.unitId!,
-    };
-
-    this.isLoading.set(true);
-    this.resourceItemService.batchCreate(payload).subscribe({
-      next: (res) => {
-        this.notification.showSuccess(`Đã nhập thành công ${res.length} thiết bị`);
-        this.showBatchModal.set(false);
-        this.refreshData();
-      },
-      error: () => {
-        this.notification.showError('Lỗi khi nhập hàng loạt');
-        this.isLoading.set(false);
-      },
-    });
-  }
-
   handleScan() {
     const serial = this.qrSerialNumber.value;
     if (!serial) return;
@@ -818,9 +769,6 @@ export class ResourceItemComponent implements OnInit, OnDestroy {
     return this.templates().map((t) => ({ label: t.name, value: t.id }));
   }
 
-  getUnitOptions(): IrhSelectOption[] {
-    return this.units().map((u) => ({ label: u.unitName, value: u.id }));
-  }
 
   onSearchChange(event: Event) {
     const val = (event.target as HTMLInputElement).value;

@@ -1,0 +1,18 @@
+<div class="penalties-container">
+  <div class="header">
+    <div class="header-title">
+      <h1 class="tui-text_h3">Quản lý Xử Phạt</h1>
+      <span class="tui-text_body-s">Theo dõi và quản lý các án phạt của sinh viên</span>
+    </div>
+    <button tuiButton type="button" size="m" iconLeft="@tui.shield-alert" (click)="openCreateDialog()">
+      Ghi nhận vi phạm
+    </button>
+  </div>
+
+  <div class="grid-container" *ngIf="!isLoading()">
+    <irh-aggrid
+      [rowData]="penalties()"
+      [columnDefs]="colDefs"
+    ></irh-aggrid>
+  </div>
+</div>

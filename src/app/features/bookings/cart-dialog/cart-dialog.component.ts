@@ -54,6 +54,36 @@ export class CartDialogComponent implements OnInit {
 
   ngOnInit() {
     this.loadTimeSlots();
+    this.checkInitialAvailability();
+  }
+
+  checkInitialAvailability() {
+    this.items().forEach((item) => {
+      if (item.slot) {
+        this.checkAvailabilityForItem(item.id, item.resource.id, item.bookingDate, item.slot.id);
+      }
+    });
+  }
+
+  checkAvailabilityForItem(
+    cartItemId: string,
+    templateId: string,
+    bookingDate: TuiDay,
+    slotId: string,
+  ) {
+    const dateStr = `${bookingDate.year}-${String(bookingDate.month + 1).padStart(2, '0')}-${String(bookingDate.day).padStart(2, '0')}`;
+    this.bookingService.getAvailability(templateId, dateStr, slotId).subscribe((available) => {
+      this.cartService.updateAvailableQuantity(cartItemId, available);
+      const item = this.items().find((i) => i.id === cartItemId);
+      if (item && item.quantity > available) {
+        this.cartService.updateQuantity(cartItemId, available > 0 ? available : 1);
+        if (available <= 0) {
+          this.notificationService.showWarning(
+            `Thiết bị ${item.resource.name} hiện không còn trống trong khung giờ này.`,
+          );
+        }
+      }
+    });
   }
 
   loadTimeSlots() {
@@ -98,16 +128,20 @@ export class CartDialogComponent implements OnInit {
     const value = (event.target as HTMLInputElement).value;
     const [year, month, day] = value.split('-').map(Number);
     const tuiDay = new TuiDay(year, month - 1, day);
-    const item = this.items().find(i => i.id === cartItemId);
+    const item = this.items().find((i) => i.id === cartItemId);
     if (item) {
       this.cartService.updateItemDetails(cartItemId, tuiDay, item.slot);
+      if (item.slot) {
+        this.checkAvailabilityForItem(cartItemId, item.resource.id, tuiDay, item.slot.id);
+      }
     }
   }
 
   onSlotChange(cartItemId: string, slot: TimeSlot) {
-    const item = this.items().find(i => i.id === cartItemId);
+    const item = this.items().find((i) => i.id === cartItemId);
     if (item) {
       this.cartService.updateItemDetails(cartItemId, item.bookingDate, slot);
+      this.checkAvailabilityForItem(cartItemId, item.resource.id, item.bookingDate, slot.id);
     }
   }
 
@@ -120,6 +154,13 @@ export class CartDialogComponent implements OnInit {
 
   updateQty(id: string, qty: number) {
     if (qty < 1) return;
+    const item = this.items().find((i) => i.id === id);
+    if (item && item.availableQuantity !== undefined && qty > item.availableQuantity) {
+      this.notificationService.showWarning(
+        `không có nhiều hơn ${item.availableQuantity} thiết bị cho mục này`,
+      );
+      return;
+    }
     this.cartService.updateQuantity(id, qty);
   }
 

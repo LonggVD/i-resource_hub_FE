@@ -1,0 +1,109 @@
+<tui-loader [showLoader]="isSubmitting()" [overlay]="true">
+  <div class="bulk-dialog">
+    <form [formGroup]="bulkForm" (ngSubmit)="submit()">
+      <div class="form-grid single-col">
+        <!-- Mẫu thiết bị -->
+        <div class="form-field">
+          <label class="form-label">Mẫu thiết bị <span class="required">*</span></label>
+          <app-irh-select
+            [options]="templates()"
+            formControlName="templateId"
+            placeholder="Chọn mẫu thiết bị..."
+          ></app-irh-select>
+        </div>
+      </div>
+
+      <!-- Chế độ nhập -->
+      <div class="mode-selector">
+        <label class="form-label">Chế độ nhập kho</label>
+        <div class="tabs-container">
+          <button 
+            type="button"
+            class="tab-btn" 
+            [class.active]="currentMode() === 'MANUAL'"
+            (click)="bulkForm.patchValue({ mode: 'MANUAL' })"
+          >
+            <tui-icon icon="@tui.edit-3"></tui-icon> Nhập thủ công
+          </button>
+          <button 
+            type="button"
+            class="tab-btn" 
+            [class.active]="currentMode() === 'AUTO'"
+            (click)="bulkForm.patchValue({ mode: 'AUTO' })"
+          >
+            <tui-icon icon="@tui.sparkles"></tui-icon> Tự động sinh mã
+          </button>
+        </div>
+      </div>
+
+      <!-- Vùng nhập dữ liệu linh hoạt -->
+      <div class="content-area">
+        <!-- Chế độ Nhập thủ công -->
+        <div *ngIf="currentMode() === 'MANUAL'" class="manual-section">
+          <div class="form-field">
+            <label class="form-label">Danh sách mã Serial <span class="required">*</span></label>
+            <tui-textfield>
+              <textarea
+                tuiTextfield
+                formControlName="serialNumbersText"
+                [rows]="8"
+                placeholder="Dán hoặc quét danh sách mã Serial tại đây..."
+              ></textarea>
+            </tui-textfield>
+            <p class="field-hint">Mỗi mã Serial nằm trên một dòng riêng biệt.</p>
+          </div>
+        </div>
+
+        <!-- Chế độ Tự động sinh mã -->
+        <div *ngIf="currentMode() === 'AUTO'" class="auto-section">
+          <div class="form-grid">
+            <div class="form-field">
+              <label class="form-label">Tiền tố (Prefix)</label>
+              <tui-textfield tuiHintContent="Ví dụ: MAYCHIEU-">
+                <input tuiTextfield formControlName="prefix" placeholder="VD: MC-" />
+              </tui-textfield>
+            </div>
+            <div class="form-field">
+              <label class="form-label">Số lượng sinh mã <span class="required">*</span></label>
+              <tui-textfield>
+                <input tuiTextfield type="number" formControlName="quantity" />
+              </tui-textfield>
+            </div>
+          </div>
+          <div class="preview-box">
+            <p class="preview-title">Ví dụ mã sẽ sinh:</p>
+            <code>{{ bulkForm.value.prefix || 'PREFIX-' }}001</code>, 
+            <code>{{ bulkForm.value.prefix || 'PREFIX-' }}002</code>...
+          </div>
+        </div>
+      </div>
+
+      <!-- Tóm tắt số lượng -->
+      <div class="bulk-summary" [class.has-count]="totalCount() > 0">
+        <tui-icon icon="@tui.info"></tui-icon>
+        <span>Dự kiến tạo: <strong>{{ totalCount() }}</strong> thiết bị.</span>
+      </div>
+
+      <footer class="dialog-footer mt-6">
+        <button
+          tuiButton
+          type="button"
+          appearance="secondary"
+          size="m"
+          (click)="cancel()"
+          [disabled]="isSubmitting()"
+        >
+          Hủy bỏ
+        </button>
+        <button
+          tuiButton
+          type="submit"
+          size="m"
+          [disabled]="bulkForm.invalid || isSubmitting()"
+        >
+          Bắt đầu nhập lô
+        </button>
+      </footer>
+    </form>
+  </div>
+</tui-loader>

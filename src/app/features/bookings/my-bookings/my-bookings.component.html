@@ -7,55 +7,100 @@
   </header>
 
   <tui-loader [showLoader]="isLoading()" [overlay]="true">
-    <div class="bookings-grid" *ngIf="bookings().length > 0; else emptyState">
-      <div *ngFor="let booking of bookings()" class="booking-card">
-        <div class="card-status">
-          <tui-badge [appearance]="getStatusAppearance(booking.status)" size="s">
-            {{ getStatusLabel(booking.status) }}
-          </tui-badge>
+    <div class="bookings-stack" *ngIf="bookings().length > 0; else emptyState">
+      <div *ngFor="let group of pagedBookings" class="booking-card-expandable" 
+           [class.expanded]="isExpanded(group.batchToken)"
+           [class.has-issue]="group.items.some(hasDamage)">
+        
+        <!-- HEADER: Click to Toggle -->
+        <div class="card-header" (click)="toggleGroup(group.batchToken)">
+          <div class="header-main">
+            <div class="date-box">
+              <span class="day">{{ group.bookingDate | date: 'dd' }}</span>
+              <span class="month">T.{{ group.bookingDate | date: 'MM' }}</span>
+            </div>
+            <div class="summary-info">
+              <h3 class="group-title">Mượn {{ group.items.length }} thiết bị</h3>
+              <p class="time-meta">
+                <tui-icon icon="@tui.clock"></tui-icon>
+                Ca {{ group.slotName }} ({{ group.startTime?.substring(0, 5) }} - {{ group.endTime?.substring(0, 5) }})
+              </p>
+            </div>
+          </div>
+          
+          <div class="header-status">
+            <tui-badge [appearance]="getStatusAppearance(group.status)" size="m">
+              {{ getStatusLabel(group.status) }}
+            </tui-badge>
+            <tui-badge *ngIf="group.items.some(hasDamage)" appearance="destructive" size="m">CÓ SỰ CỐ</tui-badge>
+            <tui-icon [icon]="isExpanded(group.batchToken) ? '@tui.chevron-up' : '@tui.chevron-down'" class="chevron"></tui-icon>
+          </div>
         </div>
 
-        <div class="card-content">
-          <h2 class="device-name">{{ booking.deviceName }}</h2>
-          <div class="info-row">
-            <tui-icon icon="@tui.calendar" class="info-icon"></tui-icon>
-            <span>Ngày: {{ booking.bookingDate | date: 'dd/MM/yyyy' }}</span>
+        <!-- BODY: Collapsible -->
+        <div class="card-body" *ngIf="isExpanded(group.batchToken)">
+          <div *ngFor="let ug of group.unitGroups" class="unit-group-block">
+            <div class="unit-group-header">
+              <span class="unit-name"><tui-icon icon="@tui.building" class="mr-1"></tui-icon>{{ ug.unitName }}</span>
+              <div class="ug-actions">
+                <tui-badge [appearance]="getStatusAppearance(ug.status)" size="s">
+                  {{ getStatusLabel(ug.status) }}
+                </tui-badge>
+                <button 
+                  *ngIf="ug.status === 'PENDING'"
+                  tuiButton appearance="secondary-destructive" size="xs"
+                  (click)="onCancelUnit(ug, group); $event.stopPropagation()"
+                >
+                  Hủy đơn vị này
+                </button>
+              </div>
+            </div>
+            
+            <div class="device-list">
+              <div *ngFor="let item of ug.items" class="device-item-row" [class.cancelled]="item.status === 'CANCELLED'">
+                <div class="item-main">
+                  <span class="item-name" [class.damaged-text]="item.hasDamage">{{ item.deviceName }}</span>
+                  <span class="item-serial">S/N: {{ item.serialNumber }}</span>
+                </div>
+                <div class="item-actions">
+                   <button *ngIf="item.hasDamage" tuiButton appearance="flat" size="xs" class="issue-btn" (click)="viewIssue(item, issueModal); $event.stopPropagation()">
+                     Xem sự cố
+                   </button>
+                   <tui-badge *ngIf="item.status !== ug.status" [appearance]="getStatusAppearance(item.status)" size="s">
+                    {{ getStatusLabel(item.status) }}
+                  </tui-badge>
+                </div>
+              </div>
+            </div>
           </div>
-          <div class="info-row">
-            <tui-icon icon="@tui.clock" class="info-icon"></tui-icon>
-            <span>Ca: {{ booking.slotName }} ({{ booking.startTime?.substring(0, 5) }} - {{ booking.endTime?.substring(0, 5) }})</span>
-          </div>
-          <div class="info-row" *ngIf="booking.purpose">
-            <tui-icon icon="@tui.info" class="info-icon"></tui-icon>
-            <span class="purpose-text">Ghi chú: {{ booking.purpose }}</span>
+
+          <div class="card-footer-actions">
+            <button
+              *ngIf="group.items.some(hasApproved)"
+              tuiButton appearance="primary" size="m"
+              (click)="showTicket(group, ticketModal); $event.stopPropagation()"
+            >
+              <tui-icon icon="@tui.qr-code"></tui-icon>&nbsp;Xem mã vé điện tử
+            </button>
+
+            <button
+              *ngIf="group.items.some(isPending)"
+              tuiButton appearance="secondary-destructive" size="m"
+              (click)="onCancelAll(group); $event.stopPropagation()"
+            >
+              Hủy toàn bộ yêu cầu
+            </button>
           </div>
         </div>
+      </div>
 
-        <div class="card-footer">
-          <!-- Rule 4: Show Ticket only if Approved/Borrowed/Returned -->
-          <button
-            *ngIf="booking.status === 'APPROVED' || booking.status === 'BORROWED'"
-            tuiButton
-            appearance="primary"
-            size="s"
-            class="action-btn"
-            (click)="showTicket(booking, ticketModal)"
-          >
-            <tui-icon icon="@tui.qr-code"></tui-icon>&nbsp;Xem mã vé
-          </button>
-
-          <!-- Rule 1: Cancel with reason -->
-          <button
-            *ngIf="booking.status === 'PENDING' || booking.status === 'APPROVED'"
-            tuiButton
-            appearance="secondary-destructive"
-            size="s"
-            class="action-btn"
-            (click)="showCancelDialog(booking)"
-          >
-            Hủy đơn
-          </button>
-        </div>
+      <!-- Phân trang -->
+      <div class="pagination-footer" *ngIf="totalPages > 1">
+        <tui-pagination
+          [length]="totalPages"
+          [index]="page"
+          (indexChange)="onPageChange($event)"
+        ></tui-pagination>
       </div>
     </div>
 
@@ -71,47 +116,133 @@
 
 <!-- MODAL: Vé mượn đồ (Ticket) với QR Code - Rule 4 -->
 <ng-template #ticketModal let-observer let-data="data">
-  <div class="ticket-modal">
-    <div class="ticket-header">
-      <div class="ticket-logo">IRH</div>
-      <div class="ticket-title">VÉ MƯỢN THIẾT BỊ</div>
-    </div>
-
-    <div class="ticket-body">
-      <!-- Rule 4: Render QR Code -->
-      <div class="qr-wrapper">
-        <qrcode
-          [qrdata]="data.qrCodeToken"
-          [width]="200"
-          [errorCorrectionLevel]="'M'"
-          [margin]="2"
-        ></qrcode>
-        <p class="qr-token">{{ data.qrCodeToken }}</p>
+  <div class="ticket-modal-wrapper" id="printable-ticket">
+    <div class="ticket-header-compact">
+      <div class="header-main">
+        <div class="brand">IRH</div>
+        <div class="ticket-title">VÉ MƯỢN THIẾT BỊ</div>
       </div>
-
-      <div class="ticket-info">
-        <div class="ticket-info-item">
-          <label>Thiết bị:</label>
-          <span>{{ data.deviceName }}</span>
-        </div>
-        <div class="ticket-info-item">
-          <label>Mã thiết bị:</label>
-          <span>{{ data.serialNumber || 'Đang chuẩn bị...' }}</span>
-        </div>
-        <div class="ticket-info-item">
-          <label>Thời gian:</label>
-          <span>Ca {{ data.slotName }} ({{ data.startTime?.substring(0, 5) }} - {{ data.endTime?.substring(0, 5) }})</span>
-        </div>
-        <div class="ticket-info-item">
-          <label>Ngày mượn:</label>
-          <span>{{ data.bookingDate | date: 'dd/MM/yyyy' }}</span>
-        </div>
+      <div class="ticket-meta">
+        <span>Ngày: <strong>{{ data.bookingDate | date: 'dd/MM/yyyy' }}</strong></span>
+        <span>Ca: <strong>{{ data.slotName }}</strong></span>
       </div>
     </div>
 
-    <div class="ticket-footer">
-      <p>Vui lòng đưa mã này cho thủ kho để nhận đồ.</p>
-      <button tuiButton size="m" (click)="observer.complete()">Đóng</button>
+    <div class="ticket-content-side-by-side">
+      <!-- CỘT TRÁI: MÃ LÔ -->
+      <div class="batch-side" *ngIf="data.batchToken">
+        <div class="section-label">MÃ QUÉT NHẬN LÔ</div>
+        <div class="qr-container main-qr">
+          <qrcode
+            [qrdata]="data.batchToken"
+            [width]="180"
+            [errorCorrectionLevel]="'M'"
+            [margin]="2"
+          ></qrcode>
+        </div>
+        <p class="qr-hint">Dành cho Manager quét nhận lô</p>
+        
+        <div class="ticket-meta-bottom">
+          <div class="meta-row">
+            <label>Ngày mượn:</label>
+            <span>{{ data.bookingDate | date: 'dd/MM/yyyy' }}</span>
+          </div>
+          <div class="meta-row">
+            <label>Thời gian:</label>
+            <span>Ca {{ data.slotName }}</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- CỘT PHẢI: CHI TIẾT THIẾT BỊ -->
+      <div class="items-side">
+        <div class="section-label">MÃ THIẾT BỊ CHI TIẾT</div>
+        <div class="items-scroll-grid">
+          <ng-container *ngFor="let item of data.items">
+            <div *ngIf="item.status === 'APPROVED' || item.status === 'BORROWED'" class="item-qr-card-v">
+              <qrcode
+                *ngIf="item.qrCodeToken"
+                [qrdata]="item.qrCodeToken"
+                [width]="100"
+                [errorCorrectionLevel]="'M'"
+                [margin]="1"
+              ></qrcode>
+              <div class="item-info-v">
+                <span class="name">{{ item.deviceName }}</span>
+                <span class="sn">#{{ item.serialNumber }}</span>
+              </div>
+            </div>
+          </ng-container>
+        </div>
+      </div>
+    </div>
+
+    <div class="ticket-footer-actions no-print">
+      <button tuiButton appearance="secondary" size="m" (click)="printTicket()">
+        <tui-icon icon="@tui.printer"></tui-icon>&nbsp;In vé mượn
+      </button>
+      <button tuiButton appearance="primary" size="m" (click)="observer.complete()">
+        Đóng
+      </button>
+    </div>
+  </div>
+</ng-template>
+
+<!-- MODAL: Chi tiết sự cố / Hư hại -->
+<ng-template #issueModal let-observer let-data="data">
+  <div class="issue-modal-compact">
+    <div class="issue-main-info">
+      <div class="info-top">
+        <div class="device-meta">
+          <tui-icon icon="@tui.triangle-alert" class="alert-icon-s"></tui-icon>
+          <span class="device-label">Thiết bị:</span>
+          <span class="device-name">{{ data.deviceName }}</span>
+          <span class="serial-tag">S/N: {{ data.serialNumber }}</span>
+        </div>
+      </div>
+
+      <div class="issue-desc-box">
+        <label>Ghi chú sự cố:</label>
+        <p>{{ data.damageDescription || 'Phòng Lab chưa cung cấp mô tả chi tiết.' }}</p>
+      </div>
+    </div>
+
+    <div class="evidence-section" *ngIf="data.evidenceImageUrl">
+      <label class="section-label">Hình ảnh minh chứng:</label>
+      <div class="evidence-flex">
+        <div *ngFor="let url of data.evidenceImageUrl.split(',')" class="evidence-item">
+          <irh-image 
+            [src]="getEvidenceUrl(url)" 
+            alt="Minh chứng"
+            height="80px"
+            width="80px"
+          ></irh-image>
+        </div>
+      </div>
+    </div>
+
+    <div class="resolution-card" [class.resolved]="data.isResolved">
+      <div class="res-head">
+        <tui-icon [icon]="data.isResolved ? '@tui.circle-check' : '@tui.gavel'"></tui-icon>
+        <span>XỬ LÝ TỪ PHÒNG LAB</span>
+      </div>
+      <div class="res-content">
+        <p *ngIf="data.resolution; else pendingRes">
+          {{ data.resolution }}
+        </p>
+        <ng-template #pendingRes>
+          <span class="wait-msg">Đang chờ xử lý bồi thường...</span>
+        </ng-template>
+      </div>
+      <div class="res-badge" *ngIf="data.isResolved">
+        <tui-badge appearance="success" size="s">Xong</tui-badge>
+      </div>
+    </div>
+
+    <div class="issue-actions">
+      <button tuiButton appearance="secondary" size="m" (click)="observer.complete()">
+        Đóng
+      </button>
     </div>
   </div>
 </ng-template>

@@ -1,0 +1,185 @@
+.detail-container {
+  padding: 0;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+/* Khung layout chính - Cố định chiều cao để không tràn màn hình */
+.dialog-layout {
+  display: grid;
+  grid-template-columns: 380px 1fr;
+  gap: 24px;
+  width: 100%;
+  max-height: 70vh; /* Giới hạn chiều cao tối đa 70% màn hình */
+  overflow: hidden; /* Không cho cả khối tràn ra ngoài */
+}
+
+/* Cột trái: Ảnh - Có thanh cuộn riêng */
+.left-column {
+  height: 100%;
+  overflow-y: auto;
+  background: #f8fafc;
+  border-radius: 16px;
+  border: 1px solid #e2e8f0;
+}
+
+/* Cột phải: Thông tin - Có thanh cuộn riêng */
+.right-column {
+  height: 100%;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding-right: 8px; /* Tránh dính vào thanh cuộn */
+}
+
+.detail-section {
+  background: #ffffff;
+  padding: 16px;
+  border-radius: 16px;
+  border: 1px solid #f1f5f9;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+}
+
+.section-title {
+  margin: 0 0 10px 0;
+  font-size: 0.7rem;
+  font-weight: 800;
+  color: #64748b;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.section-title::after {
+  content: "";
+  flex: 1;
+  height: 1px;
+  background: #f1f5f9;
+}
+
+/* Thông tin dòng rút gọn */
+.info-grid-compact {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.info-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.8rem;
+}
+
+.label {
+  color: #94a3b8;
+  font-weight: 500;
+  font-size: 0.75rem;
+}
+
+.value {
+  font-weight: 700;
+  color: #1e293b;
+}
+
+.value.score { color: #10b981; }
+.value.score.danger { color: #ef4444; }
+.value.danger { color: #ef4444; }
+.value.highlight { color: #3b82f6; }
+.value.money { color: #059669; }
+
+/* Box mô tả gọn hơn */
+.description-box-v2 {
+  margin-top: 12px;
+  padding: 12px;
+  background: #f8fafc;
+  border-radius: 12px;
+  border: 1px solid #f1f5f9;
+}
+
+.description {
+  margin: 4px 0 0 0;
+  font-size: 0.8rem;
+  line-height: 1.5;
+  color: #475569;
+}
+
+/* Ảnh minh chứng bên trái */
+.evidence-list-vertical {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 12px;
+}
+
+.evidence-card {
+  background: white;
+  border-radius: 12px;
+  padding: 10px;
+  border: 1px solid #e2e8f0;
+}
+
+.evidence-meta {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 8px;
+}
+
+.ev-type {
+  font-size: 0.65rem;
+  font-weight: 800;
+  color: #3b82f6;
+  text-transform: uppercase;
+}
+
+.ev-date {
+  font-size: 0.7rem;
+  color: #94a3b8;
+}
+
+.ev-images {
+  border-radius: 8px;
+  overflow: hidden;
+  margin-bottom: 8px;
+}
+
+.ev-desc {
+  font-size: 0.75rem;
+  color: #475569;
+  margin: 0;
+  line-height: 1.4;
+}
+
+/* Scrollbar đẹp hơn */
+::-webkit-scrollbar {
+  width: 4px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 10px;
+}
+
+/* Box đơn mượn gọn */
+.booking-info-box {
+  font-size: 0.75rem;
+  color: #64748b;
+}
+
+.booking-info-box p {
+  margin: 4px 0;
+}
+
+/* Nút đóng cố định ở dưới Popup */
+.dialog-footer {
+  margin-top: 16px;
+  padding-top: 12px;
+  border-top: 1px solid #f1f5f9;
+  display: flex;
+  justify-content: flex-end;
+}

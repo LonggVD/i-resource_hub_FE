@@ -19,6 +19,7 @@ export class Sidebar {
   protected readonly menuItems;
   protected readonly userRoleLabel;
   protected readonly isAdmin;
+  protected readonly creditScore;
 
   constructor(
     protected sidebarService: SidebarService,
@@ -29,15 +30,20 @@ export class Sidebar {
     this.menuItems = this.sidebarService.menuItems;
 
     this.userRoleLabel = computed(() => {
-      const user = this.authService.user();
-      if (!user) return '';
-      if (user.roles.includes('ROLE_ADMIN')) return 'Quản trị viên';
-      return 'Sinh viên';
+      if (this.authService.hasRole('ROLE_ADMIN')) return 'Quản trị viên';
+      if (this.authService.hasRole('ROLE_MANAGER')) return 'Quản lý';
+      if (this.authService.hasRole('ROLE_STUDENT')) return 'Sinh viên';
+      return '';
     });
 
     this.isAdmin = computed(() => {
       const user = this.authService.user();
       return user?.roles.includes('ROLE_ADMIN') ?? false;
+    });
+
+    this.creditScore = computed(() => {
+      const user = this.authService.user();
+      return user?.creditScore ?? 0;
     });
   }
 

@@ -35,29 +35,42 @@ export class SidebarService {
     const roles = user?.roles ?? [];
 
     const allItems: SidebarItem[] = [
-      // --- Student Menu ---
+      // --- Menu Chung ---
       {
         label: 'Trang chủ',
         icon: '@tui.house',
         route: '/dashboard',
-        roles: ['ROLE_STUDENT', 'ROLE_ADMIN'],
+        roles: ['ROLE_ADMIN', 'ROLE_MANAGER'],
       },
+      // --- Student Menu ---
       {
         label: 'Tra cứu tài nguyên',
         icon: '@tui.search',
         route: '/resources',
-        roles: ['ROLE_STUDENT', 'ROLE_ADMIN', 'RESOURCE_VIEW'],
+        roles: ['ROLE_STUDENT', 'ROLE_ADMIN', 'ROLE_MANAGER'],
       },
       {
         label: 'Đặt lịch mượn',
         icon: '@tui.calendar-plus',
         route: '/bookings/create',
-        roles: ['ROLE_STUDENT', 'BOOKING_REQUEST'],
+        roles: ['ROLE_STUDENT'],
       },
       {
         label: 'Lịch của tôi',
         icon: '@tui.calendar-check',
         route: '/my-bookings',
+        roles: ['ROLE_STUDENT'],
+      },
+      {
+        label: 'Vi phạm & Xử phạt',
+        icon: '@tui.shield-alert',
+        route: '/my-penalties',
+        roles: ['ROLE_STUDENT'],
+      },
+      {
+        label: 'Thử nghiệm Shop',
+        icon: '@tui.shopping-bag',
+        route: '/student-shop',
         roles: ['ROLE_STUDENT'],
       },
 
@@ -66,37 +79,43 @@ export class SidebarService {
         label: 'Bảng quản lý mượn',
         icon: '@tui.layout-dashboard',
         route: '/admin/bookings',
-        roles: ['ROLE_ADMIN', 'ROLE_MANAGER', 'BOOKING_MANAGE'],
-      },
-      {
-        label: 'Quản lý yêu cầu',
-        icon: '@tui.clipboard-list',
-        route: '/admin/bookings-list',
-        roles: ['ROLE_ADMIN', 'ROLE_MANAGER', 'BOOKING_APPROVE'],
+        roles: ['ROLE_MANAGER'],
       },
       {
         label: 'Quản lý danh mục',
         icon: '@tui.chart-bar-stacked',
         route: '/admin/categories',
-        roles: ['ROLE_ADMIN', 'ROLE_MANAGER', 'CATEGORY_MANAGE'],
+        roles: ['ROLE_ADMIN'],
       },
       {
         label: 'Quản lý đơn vị',
         icon: '@tui.building',
         route: '/admin/organization-units',
-        roles: ['ROLE_ADMIN', 'UNIT_MANAGE'],
+        roles: ['ROLE_ADMIN'],
       },
       {
         label: 'Quản lý thiết bị',
         icon: '@tui.monitor',
         route: '/admin/resource-items',
-        roles: ['ROLE_ADMIN', 'ROLE_MANAGER', 'RESOURCE_MANAGE'],
+        roles: ['ROLE_ADMIN', 'ROLE_MANAGER'],
+      },
+      {
+        label: 'Quản lý khung giờ',
+        icon: '@tui.clock',
+        route: '/admin/time-slots',
+        roles: ['ROLE_ADMIN'],
       },
       {
         label: 'Quản lý người dùng',
         icon: '@tui.user-cog',
         route: '/admin/users',
-        roles: ['ROLE_ADMIN', 'USER_MANAGE'],
+        roles: ['ROLE_ADMIN'],
+      },
+      {
+        label: 'Quản lý xử phạt',
+        icon: '@tui.shield-alert',
+        route: '/admin/penalties',
+        roles: ['ROLE_MANAGER'],
       },
     ];
 

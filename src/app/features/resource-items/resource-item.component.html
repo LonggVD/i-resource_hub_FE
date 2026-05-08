@@ -27,7 +27,7 @@
         <tui-icon icon="@tui.plus"></tui-icon>&nbsp;Thêm lẻ
       </button>
 
-      <button tuiButton appearance="primary" size="s" (click)="showBatchModal.set(true)" type="button">
+      <button tuiButton appearance="primary" size="s" (click)="openBatchModal()" type="button">
         <tui-icon icon="@tui.package-plus"></tui-icon>&nbsp;Nhập hàng loạt
       </button>
       
@@ -104,24 +104,13 @@
         <!-- Cột phải: Form thông tin chi tiết -->
         <div class="form-fields-section">
           <!-- Mẫu thiết bị -->
-          <div class="form-grid">
+          <div class="form-grid single-col">
             <div class="form-item">
               <span class="filter-label">Mẫu thiết bị *</span>
               <app-irh-select 
                 [options]="getTemplateOptions()" 
                 formControlName="templateId" 
                 placeholder="-- Chọn mẫu --">
-              </app-irh-select>
-            </div>
-
-            <!-- Đơn vị quản lý -->
-            <div class="form-item">
-              <span class="filter-label">Đơn vị quản lý *</span>
-              <app-irh-select 
-                [options]="getUnitOptions()" 
-                formControlName="unitId" 
-                placeholder="-- Chọn đơn vị --"
-                [disabled]="isManager()">
               </app-irh-select>
             </div>
           </div>
@@ -320,64 +309,4 @@
     </div>
   </ng-template>
 
-  <!-- DIALOG: Nhập kho hàng loạt -->
-  <ng-template
-    [tuiDialogOptions]="{ label: 'Nhập kho thiết bị hàng loạt', size: 'l' }"
-    [tuiDialog]="showBatchModal()"
-    (tuiDialogChange)="showBatchModal.set($event)"
-  >
-    <form [formGroup]="batchForm" (ngSubmit)="submitBatchForm()" tuiForm>
-      <div class="dialog-split-layout">
-        <!-- Cột trái: Left card with instructions or image placeholder -->
-        <div class="batch-info-card">
-          <div class="info-item">
-            <tui-icon icon="@tui.info"></tui-icon>
-            <div>
-              <h3>Nhập hàng loạt</h3>
-              <p>Mỗi mã serial trên một dòng. Hệ thống sẽ tự động ghép với mẫu thiết bị đã chọn.</p>
-            </div>
-          </div>
-          <div class="batch-preview-placeholder">
-             <tui-icon icon="@tui.package-plus"></tui-icon>
-          </div>
-        </div>
-
-        <!-- Cột phải: Thông tin nhập/Sử dụng lại item detail style -->
-        <div class="form-fields-section">
-          <div class="form-grid">
-            <div class="form-item">
-              <span class="filter-label">Mẫu thiết bị *</span>
-              <app-irh-select [options]="getTemplateOptions()" formControlName="templateId" placeholder="-- Chọn mẫu thiết bị --"></app-irh-select>
-            </div>
-            <div class="form-item">
-              <span class="filter-label">Đơn vị quản lý *</span>
-              <app-irh-select [options]="getUnitOptions()" formControlName="unitId" placeholder="-- Chọn đơn vị --" [disabled]="isManager()"></app-irh-select>
-            </div>
-          </div>
-
-          <div class="form-grid">
-            <div class="form-item">
-              <span class="filter-label">Tình trạng chung</span>
-              <app-irh-select [options]="conditionOptions" formControlName="conditionStatus"></app-irh-select>
-            </div>
-            <div class="form-item">
-              <span class="filter-label">Trạng thái ban đầu</span>
-              <app-irh-select [options]="statusOptions" formControlName="status"></app-irh-select>
-            </div>
-          </div>
-
-          <div class="form-item-full">
-            <span class="filter-label">Danh sách mã Serial (Mỗi mã 1 dòng)</span>
-            <textarea formControlName="serialNumbersText" rows="8" placeholder="PC-001&#10;PC-002&#10;PC-003..." 
-                      class="input-field py-4 font-mono"></textarea>
-          </div>
-        </div>
-      </div>
-
-      <footer class="dialog-footer">
-        <button tuiButton appearance="secondary" size="m" (click)="showBatchModal.set(false)" type="button">Hủy</button>
-        <button tuiButton appearance="primary" size="m" [disabled]="batchForm.invalid" type="submit">Xác nhận nhập kho</button>
-      </footer>
-    </form>
-  </ng-template>
 </div>

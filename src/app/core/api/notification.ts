@@ -20,7 +20,11 @@ export class NotificationService {
     this.openSnackBar(message, 'info');
   }
 
-  private openSnackBar(message: string, type: 'success' | 'error' | 'info') {
+  showWarning(message: string) {
+    this.openSnackBar(message, 'warning');
+  }
+
+  private openSnackBar(message: string, type: 'success' | 'error' | 'info' | 'warning') {
     this.snackBar.openFromComponent(NotificationComponent, {
       data: { message, type },
       duration: 3000,

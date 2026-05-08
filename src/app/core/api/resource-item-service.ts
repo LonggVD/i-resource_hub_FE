@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { HttpClient, HttpParams } from '@angular/common/http';
+import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../../../environments/environment';
 import {
@@ -20,15 +20,6 @@ export class ResourceItemService {
   /** Lấy tất cả tài nguyên đang hoạt động */
   getAllActive(): Observable<ResourceItemResponse[]> {
     return this.http.get<ResourceItemResponse[]>(this.apiUrl);
-  }
-
-  /** Lọc tài nguyên theo tình trạng và trạng thái */
-  filter(conditionStatus?: string, status?: string): Observable<ResourceItemResponse[]> {
-    let params = new HttpParams();
-    if (conditionStatus) params = params.set('conditionStatus', conditionStatus);
-    if (status) params = params.set('status', status);
-    
-    return this.http.get<ResourceItemResponse[]>(`${this.apiUrl}/filter`, { params });
   }
 
   /** Lấy chi tiết tài nguyên theo id */

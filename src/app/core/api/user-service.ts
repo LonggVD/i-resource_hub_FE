@@ -30,6 +30,16 @@ export class UserService {
     return this.http.get<PagedResponse<UserResponse>>(this.apiUrl, { params: httpParams });
   }
 
+  getStudents(params: { keyword?: string; size?: number; page?: number } = {}): Observable<PagedResponse<UserResponse>> {
+    let httpParams = new HttpParams();
+    Object.entries(params).forEach(([key, value]) => {
+      if (value !== undefined && value !== null) {
+        httpParams = httpParams.set(key, String(value));
+      }
+    });
+    return this.http.get<PagedResponse<UserResponse>>(`${this.apiUrl}/students`, { params: httpParams });
+  }
+
   getUserById(id: string): Observable<UserResponse> {
     return this.http.get<UserResponse>(`${this.apiUrl}/${id}`);
   }

@@ -1,0 +1,71 @@
+<form [formGroup]="form" (ngSubmit)="submit()" class="dialog-form">
+  <!-- Hiển thị khi được gọi từ Kanban (có sẵn dữ liệu đơn mượn) -->
+  <div class="info-card" *ngIf="groupData">
+    <div class="info-row">
+      <span class="info-label">Sinh viên vi phạm:</span>
+      <span class="info-value font-medium">{{ groupData?.borrowerName }} ({{ groupData?.borrowerId }})</span>
+    </div>
+    <div class="info-row">
+      <span class="info-label">Thời gian mượn:</span>
+      <span class="info-value">{{ groupData?.bookingDate | date:'dd/MM/yyyy' }} - {{ groupData?.slotName }}</span>
+    </div>
+  </div>
+
+  <!-- Hiển thị khi được gọi từ Quản lý Xử phạt (Tạo mới tự do) -->
+  <div class="form-row" *ngIf="!groupData">
+    <irh-select
+      formControlName="userId"
+      [options]="userOptions"
+      label="Chọn sinh viên vi phạm"
+      searchPlaceholder="Tìm tên hoặc mã SV..."
+    ></irh-select>
+    <div *ngIf="form.get('userId')?.invalid && form.get('userId')?.touched" class="error-text">Vui lòng chọn sinh viên</div>
+  </div>
+
+  <div class="form-row">
+    <irh-select
+      formControlName="penaltyType"
+      [options]="penaltyTypeOptions"
+      label="Loại vi phạm"
+    ></irh-select>
+    <div *ngIf="form.get('penaltyType')?.invalid && form.get('penaltyType')?.touched" class="error-text">Vui lòng chọn loại vi phạm</div>
+  </div>
+
+  <div class="form-row">
+    <label class="tui-text_body-s" style="font-weight: 500;">Điểm trừ tín nhiệm</label>
+    <tui-textfield>
+      <input tuiTextfield type="number" formControlName="penaltyPoint" class="input-field" />
+    </tui-textfield>
+    <div class="tui-text_body-s helper-text">Sinh viên sẽ bị khóa tài khoản nếu điểm tín nhiệm <= 0.</div>
+    <div *ngIf="form.get('penaltyPoint')?.invalid && form.get('penaltyPoint')?.touched" class="error-text">Điểm trừ phải từ 1 đến 100</div>
+  </div>
+
+  <div class="form-row">
+    <label class="tui-text_body-s" style="font-weight: 500;">Mô tả chi tiết vi phạm</label>
+    <textarea formControlName="description" rows="3" class="input-field" style="padding: 12px; width: 100%; box-sizing: border-box; border: 1px solid var(--tui-border-normal); border-radius: var(--tui-radius-m);"></textarea>
+    <div *ngIf="form.get('description')?.invalid && form.get('description')?.touched" class="error-text">Vui lòng nhập mô tả chi tiết</div>
+  </div>
+
+  <div class="form-row">
+    <label class="tui-text_body-s" style="font-weight: 500;">Số tiền phạt (nếu có)</label>
+    <tui-textfield>
+      <input tuiTextfield type="number" formControlName="fineAmount" class="input-field" placeholder="Nhập số tiền..." />
+      <span tuiTextfieldPostfix>VNĐ</span>
+    </tui-textfield>
+    <div *ngIf="form.get('fineAmount')?.invalid && form.get('fineAmount')?.touched" class="error-text">Số tiền không hợp lệ</div>
+  </div>
+
+  <div class="form-row" style="flex-direction: row; align-items: center; gap: 8px;">
+    <input type="checkbox" formControlName="requiresReview" id="requiresReview" style="width: 20px; height: 20px; cursor: pointer;" />
+    <label for="requiresReview" style="cursor: pointer; font-weight: 500;">Yêu cầu viết bản kiểm điểm</label>
+  </div>
+
+  <div class="dialog-actions">
+    <button tuiButton type="button" size="m" appearance="outline" (click)="cancel()">
+      Hủy
+    </button>
+    <button tuiButton type="submit" size="m" appearance="primary" [disabled]="form.invalid">
+      Lưu án phạt
+    </button>
+  </div>
+</form>

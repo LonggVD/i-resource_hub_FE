@@ -56,7 +56,16 @@ export class BookingService {
     return this.http.post(`${this.apiUrl}/bulk`, request, { responseType: 'text' });
   }
 
-  // Phê duyệt / Từ chối
+  // Kiểm tra số lượng khả dụng
+  getAvailability(templateId: string, date: string, slotId: string): Observable<number> {
+    const params = new HttpParams()
+      .set('templateId', templateId)
+      .set('date', date)
+      .set('slotId', slotId);
+    return this.http.get<number>(`${this.apiUrl}/availability`, { params });
+  }
+
+  // Phê duyệt / Từ chối (Đơn lẻ)
   processAction(
     bookingId: string,
     action: 'APPROVE' | 'REJECT',
@@ -66,6 +75,20 @@ export class BookingService {
       `${this.apiUrl}/${bookingId}/process`,
       { action, reason },
       { responseType: 'text' },
+    );
+  }
+
+  // Phê duyệt / Từ chối hàng loạt
+  processBulkAction(
+    bookingIds: string[],
+    action: 'APPROVE' | 'REJECT',
+    reason?: string,
+  ): Observable<string> {
+    const params = new HttpParams().set('ids', bookingIds.join(','));
+    return this.http.put(
+      `${this.apiUrl}/process-bulk`,
+      { action, reason },
+      { params, responseType: 'text' },
     );
   }
 
@@ -82,20 +105,44 @@ export class BookingService {
   }
 
   // Bàn giao (Check-in qua QR)
-  checkIn(token: string): Observable<string> {
+  checkIn(token: string, newSerialNumber?: string): Observable<string> {
+    let params = new HttpParams().set('token', token);
+    if (newSerialNumber) {
+      params = params.set('newSerialNumber', newSerialNumber);
+    }
     return this.http.post(
       `${this.apiUrl}/check-in`,
       {},
       {
-        params: new HttpParams().set('token', token),
+        params,
         responseType: 'text',
       },
     );
   }
 
+  // Bàn giao hàng loạt (Tự động)
+  checkInBulkAuto(bookingIds: string[]): Observable<string> {
+    return this.http.post(`${this.apiUrl}/check-in/bulk-auto`, bookingIds, { responseType: 'text' });
+  }
+
+  // Bàn giao hàng loạt (Thủ công)
+  checkInBulkManual(request: { items: Array<{ bookingId: string, serialNumber: string }> }): Observable<string> {
+    return this.http.post(`${this.apiUrl}/check-in/bulk-manual`, request, { responseType: 'text' });
+  }
+
   // Trả đồ (Check-out)
   checkOut(request: any): Observable<string> {
     return this.http.post(`${this.apiUrl}/check-out`, request, { responseType: 'text' });
+  }
+
+  // Lấy lô đơn mượn bằng mã QR (Dùng khi trả đồ)
+  getBatchByQrToken(token: string): Observable<Booking[]> {
+    return this.http.get<Booking[]>(`${this.apiUrl}/by-token/${token}/batch`);
+  }
+
+  // Trả đồ hàng loạt
+  checkOutBulk(request: any): Observable<string> {
+    return this.http.post(`${this.apiUrl}/return-bulk`, request, { responseType: 'text' });
   }
 
   // Thêm minh chứng bổ sung (Rule bổ sung: Add Evidence)

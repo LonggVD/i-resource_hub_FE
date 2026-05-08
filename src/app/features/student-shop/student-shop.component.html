@@ -1,0 +1,151 @@
+<div class="shop-container">
+  <!-- Hero Section -->
+  <section class="hero-section">
+    <tui-carousel
+      [(index)]="index"
+      [draggable]="true"
+      class="banner-carousel"
+    >
+      <ng-container *ngFor="let banner of banners">
+        <div *tuiItem class="banner-item" [style.background-color]="banner.color">
+          <div class="banner-content">
+            <h1 class="tui-text_h1">{{ banner.title }}</h1>
+            <p class="tui-text_body-xl">{{ banner.desc }}</p>
+            <button tuiButton size="m" appearance="white-label" class="mt-4">Khám phá ngay</button>
+          </div>
+        </div>
+      </ng-container>
+    </tui-carousel>
+    <tui-pagination
+      size="s"
+      class="banner-pagination"
+      [length]="banners.length"
+      [(index)]="index"
+    ></tui-pagination>
+  </section>
+
+  <div class="shop-content">
+    <!-- Sidebar Filters -->
+    <aside class="shop-sidebar">
+      <div class="filter-group">
+        <h3 class="filter-title">Danh mục</h3>
+        <tui-scrollbar class="filter-list">
+          <div class="filter-item" [class.active]="selectedCategoryIds().size === 0" (click)="setCategory(null)">Tất cả thiết bị</div>
+          <ng-container *ngTemplateOutlet="treeTemplate; context: { $implicit: categoryTree(), label: 'categoryName', type: 'category' }"></ng-container>
+        </tui-scrollbar>
+      </div>
+
+      <div class="filter-group mt-6">
+        <h3 class="filter-title">Khoa / Đơn vị</h3>
+        <tui-scrollbar class="filter-list">
+          <div class="filter-item" [class.active]="selectedUnitIds().size === 0" (click)="setUnit(null)">Tất cả đơn vị</div>
+          <ng-container *ngTemplateOutlet="treeTemplate; context: { $implicit: unitTree(), label: 'unitName', type: 'unit' }"></ng-container>
+        </tui-scrollbar>
+      </div>
+    </aside>
+
+    <!-- Recursive Tree Template -->
+    <ng-template #treeTemplate let-items let-label="label" let-level="level" let-type="type">
+      <div *ngFor="let item of items" class="tree-node">
+        <div class="filter-item" 
+             [class.active]="type === 'category' ? selectedCategoryIds().has(item.id) : selectedUnitIds().has(item.id)"
+             [style.padding-left.px]="(level || 0) * 16 + 12"
+             (click)="type === 'category' ? setCategory(item.id) : setUnit(item.id)">
+          <tui-icon 
+            *ngIf="item.children?.length" 
+            [icon]="isExpanded(item.id) ? '@tui.chevron-down' : '@tui.chevron-right'" 
+            class="tree-icon"
+            (click)="toggleNode(item.id, $event)"
+          ></tui-icon>
+          <span class="flex-1">{{ item[label] }}</span>
+          <tui-icon *ngIf="type === 'category' ? selectedCategoryIds().has(item.id) : selectedUnitIds().has(item.id)" 
+                    icon="@tui.check" class="ml-auto text-white text-xs"></tui-icon>
+        </div>
+        <div *ngIf="item.children?.length && isExpanded(item.id)" class="tree-children">
+          <ng-container *ngTemplateOutlet="treeTemplate; context: { $implicit: item.children, label: label, level: (level || 0) + 1, type: type }"></ng-container>
+        </div>
+      </div>
+    </ng-template>
+
+    <!-- Product Grid -->
+    <main class="shop-main">
+      <header class="shop-header">
+        <h2 class="tui-text_h3">Danh sách tài nguyên</h2>
+        <!-- <div class="shop-controls">
+          <div class="search-box">
+            <tui-icon icon="@tui.search" class="search-icon"></tui-icon>
+            <input type="text" placeholder="Tìm kiếm thiết bị..." (input)="onSearch($event)">
+          </div>
+        </div> -->
+      </header>
+
+      <div class="active-filters" *ngIf="selectedCategoryIds().size > 0 || selectedUnitIds().size > 0 || searchQuery()">
+        <ng-container *ngFor="let cat of selectedCategories()">
+          <tui-badge appearance="secondary" class="mr-2">
+            Danh mục: {{ cat.categoryName }}
+            <tui-icon icon="@tui.x" class="filter-remove-icon" (click)="setCategory(cat.id)"></tui-icon>
+          </tui-badge>
+        </ng-container>
+
+        <ng-container *ngFor="let unit of selectedUnits()">
+          <tui-badge appearance="secondary" class="mr-2">
+            Đơn vị: {{ unit.unitName }}
+            <tui-icon icon="@tui.x" class="filter-remove-icon" (click)="setUnit(unit.id)"></tui-icon>
+          </tui-badge>
+        </ng-container>
+
+        <button tuiButton appearance="flat" size="s" 
+                (click)="setCategory(null); setUnit(null); searchQuery.set('')">Xóa tất cả</button>
+      </div>
+
+      <tui-loader [showLoader]="isLoading()" [overlay]="true">
+        <div class="product-grid">
+          <div *ngFor="let item of filteredResources()" class="product-card">
+            <div class="product-img-wrapper">
+              <irh-image [src]="item.imageUrl ?? ''" class="product-img"></irh-image>
+              <div class="product-overlay">
+                <button tuiButton size="s" appearance="white-label" (click)="viewDetail(item.id)">Chi tiết</button>
+              </div>
+            </div>
+            <div class="product-info">
+              <div class="product-tags mb-2">
+                <tui-badge appearance="secondary" size="s" class="mr-1">{{ item.category?.categoryName }}</tui-badge>
+                <tui-badge appearance="accent" size="s">{{ item.unit?.unitName }}</tui-badge>
+              </div>
+              <h4 class="product-name">{{ item.name }}</h4>
+              <div class="product-footer">
+                <span class="stock-status" [class.out]="(item.availableQuantity ?? 0) === 0">
+                  {{ (item.availableQuantity ?? 0) > 0 ? 'Sẵn sàng: ' + item.availableQuantity : 'Đã hết đồ' }}
+                </span>
+                <button tuiButton size="s" appearance="primary" class="borrow-btn" [disabled]="(item.availableQuantity ?? 0) === 0" (click)="onAddToCart(item, $event)">
+                  Mượn ngay
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Pagination -->
+        <div class="pagination-wrapper" *ngIf="totalPages() > 1">
+          <tui-pagination
+            [length]="totalPages()"
+            [index]="currentPage()"
+            (indexChange)="currentPage.set($event)"
+          ></tui-pagination>
+        </div>
+
+        <!-- No Results -->
+        <div class="no-results" *ngIf="filteredResources().length === 0">
+          <tui-icon icon="@tui.search-x" class="no-results-icon"></tui-icon>
+          <p>Không tìm thấy thiết bị nào phù hợp với bộ lọc của bạn.</p>
+        </div>
+      </tui-loader>
+    </main>
+  </div>
+
+  <!-- Floating Cart Button -->
+  <div class="floating-cart" *ngIf="cartCount() > 0" (click)="goCart()">
+    <tui-icon icon="@tui.shopping-cart" class="cart-icon"></tui-icon>
+    <span class="cart-badge">{{ cartCount() }}</span>
+  </div>
+</div>

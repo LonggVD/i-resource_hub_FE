@@ -21,7 +21,9 @@ import {
   inject,
   OnInit,
   signal,
+  OnDestroy,
 } from '@angular/core';
+import { Subject, takeUntil, combineLatest, startWith, filter } from 'rxjs';
 
 @Component({
   selector: 'app-booking-request-dialog',
@@ -50,6 +52,10 @@ export class BookingRequestDialogComponent implements OnInit {
   readonly isLoadingSlots = signal(false);
   readonly isSubmitting = signal(false);
   readonly timeSlots = signal<TimeSlot[]>([]);
+  readonly availableQty = signal<number | null>(null);
+  readonly isCheckingAvailability = signal(false);
+
+  private readonly destroy$ = new Subject<void>();
 
   // Rule 3: min date = today
   readonly minDate = TuiDay.currentLocal();
@@ -102,6 +108,55 @@ export class BookingRequestDialogComponent implements OnInit {
 
   ngOnInit() {
     this.loadTimeSlots();
+    this.watchAvailabilityChanges();
+  }
+
+  ngOnDestroy() {
+    this.destroy$.next();
+    this.destroy$.complete();
+  }
+
+  private watchAvailabilityChanges() {
+    combineLatest([
+      this.bookingForm.get('bookingDate')!.valueChanges.pipe(startWith(this.bookingForm.get('bookingDate')!.value)),
+      this.bookingForm.get('slot')!.valueChanges.pipe(startWith(this.bookingForm.get('slot')!.value))
+    ]).pipe(
+      takeUntil(this.destroy$),
+      filter(([date, slot]) => !!date && !!slot)
+    ).subscribe(([dateValue, slot]) => {
+      let dateStr = '';
+      if (typeof dateValue === 'string') {
+        dateStr = dateValue;
+      } else if (dateValue instanceof TuiDay) {
+        dateStr = `${dateValue.year}-${String(dateValue.month + 1).padStart(2, '0')}-${String(dateValue.day).padStart(2, '0')}`;
+      }
+
+      if (dateStr && slot) {
+        this.checkAvailability(dateStr, slot.id);
+      }
+    });
+  }
+
+  private checkAvailability(date: string, slotId: string) {
+    this.isCheckingAvailability.set(true);
+    this.availableQty.set(null);
+    
+    this.bookingService.getAvailability(this.resource.id, date, slotId).subscribe({
+      next: (qty) => {
+        this.availableQty.set(qty);
+        this.isCheckingAvailability.set(false);
+        
+        // Tự động validate lại quantity nếu nó vượt quá số lượng khả dụng
+        const currentQty = this.bookingForm.get('quantity')?.value || 0;
+        if (qty < currentQty) {
+          this.bookingForm.get('quantity')?.setValue(qty > 0 ? qty : 1);
+        }
+      },
+      error: () => {
+        this.isCheckingAvailability.set(false);
+        this.availableQty.set(null);
+      }
+    });
   }
 
   loadTimeSlots() {

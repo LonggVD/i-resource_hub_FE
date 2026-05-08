@@ -1,0 +1,78 @@
+<div class="dialog-content">
+  <!-- Thông tin chung -->
+  <div class="info-section">
+    <h3 class="section-title"><tui-icon icon="@tui.info" /> Thông tin mượn</h3>
+    
+    <div class="info-grid">
+      <div class="info-item">
+        <span class="info-label">Người mượn:</span>
+        <span class="info-value font-medium">{{ group.borrowerName }}</span>
+      </div>
+      <div class="info-item">
+        <span class="info-label">Mục đích:</span>
+        <span class="info-value">{{ group.purpose || 'Không có' }}</span>
+      </div>
+      <div class="info-item">
+        <span class="info-label">Thời gian:</span>
+        <span class="info-value">{{ group.slotName }} ({{ group.startTime?.substring(0,5) }} - {{ group.endTime?.substring(0,5) }})</span>
+      </div>
+      <div class="info-item">
+        <span class="info-label">Ngày mượn:</span>
+        <span class="info-value">{{ group.bookingDate | date:'dd/MM/yyyy' }}</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Danh sách thiết bị -->
+  <div class="device-section">
+    <h3 class="section-title"><tui-icon icon="@tui.monitor" /> Thiết bị yêu cầu ({{ group.items.length }})</h3>
+    
+    <tui-loader [showLoader]="isLoadingEvidences()">
+      <div class="device-list">
+        <div class="device-item" *ngFor="let item of group.items">
+          <div class="device-details">
+            <div class="device-header">
+              <span class="device-name">{{ item.deviceName }}</span>
+              <tui-badge *ngIf="item.status === 'RETURNED'" appearance="success" size="s">Đã trả</tui-badge>
+              <tui-badge *ngIf="item.status === 'BORROWED'" appearance="info" size="s">Đang mượn</tui-badge>
+            </div>
+            
+            <div class="device-meta">
+              <span class="serial">Serial: {{ item.serialNumber }}</span>
+            </div>
+
+            <div *ngIf="item.hasDamage" class="damage-alert">
+              <tui-icon icon="@tui.triangle-alert" class="alert-icon" />
+              <div class="alert-content">
+                <strong>Sự cố:</strong> {{ item.damageDescription || 'Không có mô tả chi tiết.' }}
+              </div>
+            </div>
+
+            <!-- Evidences -->
+            <div *ngIf="getEvidencesForBooking(item.id).length > 0" class="evidence-gallery tui-space_top-2">
+              <div class="tui-text_body-s" style="margin-bottom: 4px; font-weight: 500; color: #64748b;">Ảnh minh chứng:</div>
+              <div class="evidence-images">
+                <ng-container *ngFor="let ev of getEvidencesForBooking(item.id)">
+                  <div *ngFor="let url of splitUrls(ev.imageUrl)" class="evidence-card">
+                    <irh-image 
+                      [src]="getEvidenceUrl(url)" 
+                      alt="Minh chứng"
+                      height="80px"
+                      width="80px"
+                    ></irh-image>
+                    <span class="evidence-type-badge">{{ ev.evidenceType === 'DAMAGE' ? 'Sự cố' : (ev.evidenceType === 'CHECK_IN' ? 'Bàn giao' : 'Trả đồ') }}</span>
+                  </div>
+                </ng-container>
+              </div>
+            </div>
+            
+          </div>
+        </div>
+      </div>
+    </tui-loader>
+  </div>
+
+  <div class="dialog-actions">
+    <button tuiButton type="button" size="m" appearance="outline" (click)="close()">Đóng</button>
+  </div>
+</div>

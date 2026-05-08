@@ -1,0 +1,128 @@
+<div class="dashboard-container" *ngIf="!isLoading()">
+  
+  <div class="header">
+    <div class="header-title">
+      <h1 class="tui-text_h3">Tổng quan Hệ thống</h1>
+      <span class="tui-text_body-s date-label">Cập nhật lúc: {{ stats()?.bookingsChart?.labels?.[6] || 'Hôm nay' }}</span>
+    </div>
+    <button tuiButton type="button" size="s" appearance="secondary" iconLeft="@tui.printer" (click)="exportReport()" class="no-print">
+      Xuất báo cáo PDF
+    </button>
+  </div>
+
+  <!-- SUMMARY CARDS -->
+  <div class="summary-grid">
+    <div class="stat-card clickable" (click)="navigateTo('/admin/resource-items')">
+      <div class="stat-icon equipment">
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 16V7a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v9m16 0H4m16 0 1.28 2.55a1 1 0 0 1-.9 1.45H3.62a1 1 0 0 1-.9-1.45L4 16"/></svg>
+      </div>
+      <div class="stat-content">
+        <div class="stat-value">{{ stats()?.totalEquipment }}</div>
+        <div class="stat-label">Tổng Thiết Bị</div>
+      </div>
+    </div>
+
+    <div class="stat-card clickable" (click)="navigateTo('/admin/resource-items')">
+      <div class="stat-icon available">
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+      </div>
+      <div class="stat-content">
+        <div class="stat-value">{{ stats()?.availableEquipment }}</div>
+        <div class="stat-label">Sẵn Sàng</div>
+      </div>
+    </div>
+
+    <div class="stat-card clickable" (click)="navigateTo('/admin/bookings')">
+      <div class="stat-icon in-use">
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+      </div>
+      <div class="stat-content">
+        <div class="stat-value">{{ stats()?.inUseEquipment }}</div>
+        <div class="stat-label">Đang Sử Dụng</div>
+      </div>
+    </div>
+
+    <div class="stat-card clickable" (click)="navigateTo('/admin/bookings')">
+      <div class="stat-icon pending">
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+      </div>
+      <div class="stat-content">
+        <div class="stat-value">{{ stats()?.pendingBookings }}</div>
+        <div class="stat-label">Đơn Chờ Duyệt</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- CHARTS SECTION -->
+  <div class="charts-grid">
+    <!-- Line Chart -->
+    <div class="chart-card line-chart">
+      <h3 class="chart-title">Lượt mượn 7 ngày qua</h3>
+      <div echarts [options]="lineChartOption" class="echart-container"></div>
+    </div>
+
+    <!-- Donut Chart -->
+    <div class="chart-card donut-chart">
+      <h3 class="chart-title">Sức khỏe kho thiết bị</h3>
+      <div echarts [options]="donutChartOption" class="echart-container"></div>
+    </div>
+  </div>
+
+  <!-- BOTTOM SECTION -->
+  <div class="bottom-grid">
+    <!-- Top 5 Equipment -->
+    <div class="data-card">
+      <div class="card-header">
+        <h3 class="chart-title">Top 5 thiết bị được săn đón</h3>
+      </div>
+      <div class="list-container">
+        <div class="list-item" *ngFor="let eq of stats()?.topEquipments; let i = index">
+          <div class="rank" [class.top-3]="i < 3">#{{i + 1}}</div>
+          <div class="item-name">{{ eq.templateName }}</div>
+          <div class="item-count">{{ eq.borrowCount }} lượt</div>
+        </div>
+        <div *ngIf="!stats()?.topEquipments?.length" class="empty-state">
+          Chưa có dữ liệu mượn.
+        </div>
+      </div>
+    </div>
+
+    <!-- Overdue Bookings -->
+    <div class="data-card overdue-card">
+      <div class="card-header">
+        <h3 class="chart-title error-text">
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+          Cảnh báo quá hạn ({{ stats()?.overdueBookings?.length || 0 }})
+        </h3>
+      </div>
+      <div class="list-container overdue-list">
+        <div class="list-item overdue-item" *ngFor="let over of stats()?.overdueBookings">
+          <div class="overdue-info">
+            <div class="student-name">{{ over.studentName }} ({{ over.studentCode }})</div>
+            <div class="device-name">{{ over.deviceName }} - {{ over.serialNumber }}</div>
+            <div class="overdue-days">Trễ {{ over.overdueDays }} ngày</div>
+          </div>
+          <div class="overdue-actions no-print" *hasRole="['ROLE_ADMIN', 'ROLE_MANAGER']">
+            <button tuiButton type="button" appearance="outline" size="xs" iconLeft="@tui.mail" (click)="sendWarning(over, $event)" title="Nhắc nhở">
+              Nhắc
+            </button>
+            <button tuiButton type="button" appearance="secondary-destructive" size="xs" iconLeft="@tui.shield-alert" (click)="penalizeStudent(over, $event)" title="Khóa mượn">
+              Phạt
+            </button>
+          </div>
+        </div>
+        <div *ngIf="!stats()?.overdueBookings?.length" class="empty-state success">
+          <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+          Tuyệt vời! Không có thiết bị nào quá hạn.
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- LOADING STATE -->
+<div class="loading-container" *ngIf="isLoading()">
+  <div class="spinner"></div>
+  <p>Đang tải dữ liệu tổng quan...</p>
+</div>

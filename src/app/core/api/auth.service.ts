@@ -18,6 +18,15 @@ export class AuthService {
   readonly user = this.currentUser.asReadonly();
   readonly isLoggedIn = computed(() => !!this.currentUser());
   readonly username = computed(() => this.currentUser()?.username ?? '');
+  readonly roles = computed(() => this.currentUser()?.roles ?? []);
+
+  hasRole(role: string): boolean {
+    return this.roles().includes(role);
+  }
+
+  hasAnyRole(roles: string[]): boolean {
+    return roles.some((role) => this.roles().includes(role));
+  }
 
   constructor(
     private http: HttpClient,

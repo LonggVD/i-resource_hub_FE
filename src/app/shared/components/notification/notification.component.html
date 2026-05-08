@@ -6,6 +6,8 @@
       <tui-icon icon="circle-x"></tui-icon>
     } @else if (data.type === 'info') {
       <tui-icon icon="circle-alert"></tui-icon>
+    } @else if (data.type === 'warning') {
+      <tui-icon icon="triangle-alert"></tui-icon>
     }
     &nbsp; {{ data.message }}
     </span>

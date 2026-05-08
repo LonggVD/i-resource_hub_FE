@@ -6,6 +6,8 @@ export interface ResourceTemplate {
   imageUrl: string;
   category: CategorySummary | null;
   unit: OrganizationUnitSummary | null;
+  totalQuantity?: number;
+  availableQuantity?: number;
 }
 
 export interface CategorySummary {

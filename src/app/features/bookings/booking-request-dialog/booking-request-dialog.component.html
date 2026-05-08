@@ -36,6 +36,23 @@
           formControlName="slot"
           placeholder="-- Chọn khung giờ --"
         ></app-irh-select>
+        
+        <!-- Hiển thị số lượng khả dụng -->
+        <div class="availability-info mt-2" *ngIf="isCheckingAvailability() || availableQty() !== null">
+          <tui-loader [showLoader]="isCheckingAvailability()" [inheritColor]="true" size="s">
+            <div *ngIf="availableQty() !== null" class="flex items-center gap-2">
+              <tui-badge 
+                [appearance]="availableQty()! > 0 ? 'success' : 'error'" 
+                size="s"
+              >
+                {{ availableQty()! > 0 ? 'Còn trống: ' + availableQty() : 'Đã hết đồ' }}
+              </tui-badge>
+              <span class="tui-text_body-s-2 text-slate-500" *ngIf="availableQty()! > 0">
+                (Tối đa mượn {{ availableQty()! > 10 ? 10 : availableQty() }} chiếc)
+              </span>
+            </div>
+          </tui-loader>
+        </div>
       </div>
 
       <div class="form-row">

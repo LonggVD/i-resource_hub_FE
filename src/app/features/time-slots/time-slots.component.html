@@ -1,0 +1,182 @@
+<section class="time-slots-panel">
+  <!-- Header -->
+  <header class="time-slots-panel__header">
+    <div>
+      <p class="time-slots-panel__eyebrow">Quản trị hệ thống</p>
+      <h2 class="time-slots-panel__title">Quản lý Khung giờ mượn</h2>
+    </div>
+    <div>
+      <button
+        tuiButton
+        appearance="primary"
+        size="m"
+        class="time-slots-panel__add-button"
+        (click)="onOpenAddDialog()"
+      >
+        <tui-icon icon="@tui.plus"></tui-icon>
+        Thêm khung giờ
+      </button>
+    </div>
+  </header>
+
+  <!-- Grid -->
+  <tui-loader class="time-slots-loader" [showLoader]="isLoading()" [overlay]="true">
+    <irh-aggrid
+      [rowData]="timeSlots()"
+      [columnDefs]="colDefs"
+      [defaultColDef]="defaultColDef"
+    ></irh-aggrid>
+  </tui-loader>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════ -->
+<!--  DIALOG: THÊM KHUNG GIỜ                                   -->
+<!-- ═══════════════════════════════════════════════════════════ -->
+<ng-template
+    [tuiDialogOptions]="{label: 'Thêm khung giờ mới'}"
+    [(tuiDialog)]="openAddDialog"
+>
+    <form tuiForm [formGroup]="addForm" (submit.prevent)="onSubmitAdd()">
+        <!-- Tên ca -->
+        <tui-textfield>
+            <label tuiLabel>Tên ca *</label>
+            <input tuiAutoFocus tuiTextfield formControlName="slotName" placeholder="VD: Ca 1 - Sáng" />
+        </tui-textfield>
+
+        <!-- Giờ bắt đầu -->
+        <div class="form-field">
+            <label tuiLabel>Giờ bắt đầu *</label>
+            <input type="time" class="native-input" formControlName="startTime" />
+        </div>
+
+        <!-- Giờ kết thúc -->
+        <div class="form-field">
+            <label tuiLabel>Giờ kết thúc *</label>
+            <input type="time" class="native-input" formControlName="endTime" />
+        </div>
+
+        <!-- Ngày áp dụng -->
+        <div class="form-field">
+            <label tuiLabel>Ngày áp dụng</label>
+            <app-irh-select
+                [options]="dayOptions"
+                formControlName="dayOfWeek"
+                placeholder="Áp dụng tất cả các ngày"
+            ></app-irh-select>
+        </div>
+
+        @if (addError()) {
+            <small style="color: #d32f2f;">{{ addError() }}</small>
+        }
+
+        <footer style="margin-top: 24px; display: flex; justify-content: flex-end; gap: 8px;">
+            <button
+                appearance="secondary"
+                tuiButton
+                type="button"
+                [disabled]="isSubmittingAdd()"
+                (click)="onCancelAddDialog()"
+            >
+                Hủy
+            </button>
+            <button
+                tuiButton
+                type="submit"
+                [disabled]="addForm.invalid || isSubmittingAdd()"
+                (click)="onSubmitAdd()"
+            >
+                {{ isSubmittingAdd() ? 'Đang lưu...' : 'Thêm mới' }}
+            </button>
+        </footer>
+    </form>
+</ng-template>
+
+<!-- ═══════════════════════════════════════════════════════════ -->
+<!--  DIALOG: CHỈNH SỬA KHUNG GIỜ                              -->
+<!-- ═══════════════════════════════════════════════════════════ -->
+<ng-template
+    [tuiDialogOptions]="{label: 'Chỉnh sửa khung giờ'}"
+    [(tuiDialog)]="openEditDialog"
+>
+    <form tuiForm [formGroup]="editForm" (submit.prevent)="onSubmitEdit()">
+        <tui-textfield>
+            <label tuiLabel>Tên ca *</label>
+            <input tuiAutoFocus tuiTextfield formControlName="slotName" />
+        </tui-textfield>
+
+        <div class="form-field">
+            <label tuiLabel>Giờ bắt đầu *</label>
+            <input type="time" class="native-input" formControlName="startTime" />
+        </div>
+
+        <div class="form-field">
+            <label tuiLabel>Giờ kết thúc *</label>
+            <input type="time" class="native-input" formControlName="endTime" />
+        </div>
+
+        <div class="form-field">
+            <label tuiLabel>Ngày áp dụng</label>
+            <app-irh-select
+                [options]="dayOptions"
+                formControlName="dayOfWeek"
+                placeholder="Áp dụng tất cả các ngày"
+            ></app-irh-select>
+        </div>
+
+        @if (editError()) {
+            <small style="color: #d32f2f;">{{ editError() }}</small>
+        }
+
+        <footer style="margin-top: 24px; display: flex; justify-content: flex-end; gap: 8px;">
+            <button
+                appearance="secondary"
+                tuiButton
+                type="button"
+                [disabled]="isSubmittingEdit()"
+                (click)="onCancelEditDialog()"
+            >
+                Hủy
+            </button>
+            <button
+                tuiButton
+                type="submit"
+                [disabled]="editForm.invalid || isSubmittingEdit()"
+                (click)="onSubmitEdit()"
+            >
+                {{ isSubmittingEdit() ? 'Đang lưu...' : 'Cập nhật' }}
+            </button>
+        </footer>
+    </form>
+</ng-template>
+
+<!-- ═══════════════════════════════════════════════════════════ -->
+<!--  DIALOG: XÁC NHẬN XÓA                                      -->
+<!-- ═══════════════════════════════════════════════════════════ -->
+<ng-template
+    [tuiDialogOptions]="{label: 'Xác nhận xoá'}"
+    [(tuiDialog)]="openDialogConfirmDelete"
+>
+    <p>Bạn có chắc chắn muốn xóa khung giờ
+        <strong>{{ selectedDeleteSlot()?.slotName }}</strong>
+        ({{ selectedDeleteSlot()?.startTime }} — {{ selectedDeleteSlot()?.endTime }})?
+    </p>
+    <footer style="margin-top: 24px; display: flex; justify-content: flex-end; gap: 8px;">
+        <button
+            appearance="secondary"
+            tuiButton
+            type="button"
+            (click)="onCancelDeleteDialog()"
+        >
+            Hủy
+        </button>
+        <button
+            tuiButton
+            appearance="destructive"
+            type="button"
+            [disabled]="isSubmittingDelete()"
+            (click)="onConfirmDelete()"
+        >
+            {{ isSubmittingDelete() ? 'Đang xoá...' : 'Xoá' }}
+        </button>
+    </footer>
+</ng-template>

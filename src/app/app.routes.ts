@@ -1,5 +1,6 @@
 import { Routes } from '@angular/router';
 import { loginGuard, authGuard } from './core/guards/auth.guard';
+import { roleGuard } from './core/guards/role.guard';
 import { AdminLayout } from './layouts/admin-layout/admin-layout';
 
 export const routes: Routes = [
@@ -45,12 +46,34 @@ export const routes: Routes = [
           import('./features/resources/resources.component').then((m) => m.ResourcesComponent),
       },
       {
+        path: 'student-shop',
+        loadComponent: () =>
+          import('./features/student-shop/student-shop.component').then((m) => m.StudentShopComponent),
+        title: 'Thử nghiệm Shop',
+      },
+      {
+        path: 'resources/:id',
+        loadComponent: () =>
+          import('./features/resource-detail/resource-detail.component').then((m) => m.ResourceDetailComponent),
+        title: 'Chi tiết thiết bị',
+      },
+      {
+        path: 'cart',
+        loadComponent: () =>
+          import('./features/cart-page/cart-page.component').then((m) => m.CartPageComponent),
+        title: 'Giỏ hàng của tôi',
+      },
+      {
         path: 'admin/categories',
+        canActivate: [roleGuard],
+        data: { roles: ['ROLE_ADMIN'] },
         loadComponent: () =>
           import('./features/categories/categories.component').then((m) => m.CategoriesComponent),
       },
       {
         path: 'admin/organization-units',
+        canActivate: [roleGuard],
+        data: { roles: ['ROLE_ADMIN'] },
         loadComponent: () =>
           import('./features/organization-units/organization-units.component').then(
             (m) => m.OrganizationUnitsComponent,
@@ -58,6 +81,8 @@ export const routes: Routes = [
       },
       {
         path: 'admin/resource-items',
+        canActivate: [roleGuard],
+        data: { roles: ['ROLE_ADMIN', 'ROLE_MANAGER'] },
         loadComponent: () =>
           import('./features/resource-items/resource-item.component').then(
             (m) => m.ResourceItemComponent,
@@ -65,9 +90,20 @@ export const routes: Routes = [
       },
       {
         path: 'admin/bookings',
+        canActivate: [roleGuard],
+        data: { roles: ['ROLE_MANAGER'] },
         loadComponent: () =>
           import('./features/bookings/booking-board/booking-board.component').then(
             (m) => m.BookingBoardComponent,
+          ),
+      },
+      {
+        path: 'admin/time-slots',
+        canActivate: [roleGuard],
+        data: { roles: ['ROLE_ADMIN'] },
+        loadComponent: () =>
+          import('./features/time-slots/time-slots.component').then(
+            (m) => m.TimeSlotsComponent,
           ),
       },
       {
@@ -78,9 +114,39 @@ export const routes: Routes = [
           ),
       },
       {
+        path: 'my-penalties',
+        loadComponent: () =>
+          import('./features/penalties/my-penalties/my-penalties.component').then(
+            (m) => m.MyPenaltiesComponent,
+          ),
+      },
+      {
         path: 'admin/users',
+        canActivate: [roleGuard],
+        data: { roles: ['ROLE_ADMIN'] },
         loadComponent: () =>
           import('./features/user/user.component').then((m) => m.UserComponent),
+      },
+      {
+        path: 'admin/penalties',
+        canActivate: [roleGuard],
+        data: { roles: ['ROLE_MANAGER'] },
+        loadComponent: () =>
+          import('./features/penalties/penalties.component').then((m) => m.PenaltiesComponent),
+      },
+      {
+        path: 'payment/success',
+        loadComponent: () =>
+          import('./features/payment/payment-success/payment-success.component').then(
+            (m) => m.PaymentSuccessComponent
+          ),
+      },
+      {
+        path: 'payment/cancel',
+        loadComponent: () =>
+          import('./features/payment/payment-cancel/payment-cancel.component').then(
+            (m) => m.PaymentCancelComponent
+          ),
       },
     ],
   },
