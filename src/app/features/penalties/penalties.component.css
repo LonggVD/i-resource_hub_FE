@@ -1,53 +1,204 @@
 .penalties-container {
-  padding: 24px;
-  height: 100%;
-  display: flex;
-  flex-direction: column;
+  padding: 1.5rem 2rem;
+  max-width: 1600px;
+  margin: 0 auto;
 }
 
-.header {
+/* ═══════════════ PAGE HEADER ═══════════════ */
+.page-header {
   display: flex;
   justify-content: space-between;
-  align-items: center;
-  margin-bottom: 24px;
+  align-items: flex-start;
+  margin-bottom: 1rem;
+  gap: 1rem;
+  flex-wrap: wrap;
 }
 
-.header-title {
-  display: flex;
-  flex-direction: column;
-}
-
-.tui-text_h3 {
-  margin: 0;
-  color: #1e293b;
+.page-title {
+  font-size: 1.5rem;
   font-weight: 700;
+  color: #0f172a;
+  margin: 0;
 }
 
-.tui-text_body-s {
+.page-subtitle {
   color: #64748b;
-  margin-top: 4px;
+  margin: 0.25rem 0 0 0;
+  font-size: 0.9rem;
 }
 
-.grid-container {
-  flex: 1;
-  background: white;
-  border-radius: 12px;
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-  padding: 16px;
-  overflow: hidden;
+/* ═══════════════ STATS BAR (1 hàng) ═══════════════ */
+.stats-bar {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+  flex-wrap: wrap;
 }
 
-/* Tui badge custom styles */
-::ng-deep .tui-badge {
-  border-radius: 6px;
+.stat-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 6px 14px;
+  border-radius: 999px;
+  background: #fff;
+  border: 1px solid #e2e8f0;
+  font-size: 0.85rem;
   font-weight: 600;
-  padding: 4px 8px;
+  color: #475569;
+  white-space: nowrap;
+  transition: box-shadow 0.15s;
 }
-::ng-deep .tui-badge_status_error {
-  background-color: #fef2f2;
-  color: #ef4444;
+
+.stat-chip tui-icon {
+  font-size: 1.05rem;
 }
-::ng-deep .tui-badge_status_success {
-  background-color: #ecfdf5;
+
+.stat-chip.stat-total  { color: #2563eb; border-color: #bfdbfe; background: #eff6ff; }
+.stat-chip.stat-active { color: #dc2626; border-color: #fecaca; background: #fef2f2; }
+.stat-chip.stat-locked { color: #be185d; border-color: #fbcfe8; background: #fdf2f8; }
+.stat-chip.stat-money  { color: #ca8a04; border-color: #fde68a; background: #fefce8; }
+
+.stat-chip .stat-value {
+  font-weight: 800;
+  font-size: 0.95rem;
+}
+
+.stat-chip .stat-label {
+  font-weight: 500;
+  opacity: 0.85;
+}
+
+.stats-spacer { flex: 1; }
+
+/* ─── Filter tabs ─── */
+.filter-tabs {
+  display: flex;
+  gap: 0.25rem;
+  background: #f1f5f9;
+  padding: 3px;
+  border-radius: 10px;
+}
+
+.filter-tabs .tab {
+  background: none;
+  border: none;
+  padding: 5px 12px;
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: #64748b;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  border-radius: 7px;
+  transition: background 0.15s, color 0.15s;
+}
+
+.filter-tabs .tab:hover {
+  color: #0f172a;
+}
+
+.filter-tabs .tab.active {
+  background: #fff;
+  color: #0f172a;
+  box-shadow: 0 1px 3px rgb(0 0 0 / 0.08);
+}
+
+.tab-count {
+  background: #e2e8f0;
+  color: #475569;
+  font-size: 0.68rem;
+  font-weight: 700;
+  padding: 1px 7px;
+  border-radius: 999px;
+  line-height: 1.5;
+}
+
+.tab-count-danger { background: #fee2e2; color: #dc2626; }
+
+/* ─── Search box ─── */
+.search-box {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.search-icon {
+  position: absolute;
+  left: 10px;
+  color: #94a3b8;
+  pointer-events: none;
+}
+
+.search-input {
+  padding: 7px 28px 7px 32px;
+  border-radius: 8px;
+  border: 1px solid #cbd5e1;
+  width: 240px;
+  font-size: 0.85rem;
+  background: #fff;
+  transition: border-color 0.15s, box-shadow 0.15s;
+}
+
+.search-input:focus {
+  outline: none;
+  border-color: #6366f1;
+  box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.15);
+}
+
+.search-clear {
+  position: absolute;
+  right: 6px;
+  background: none;
+  border: none;
+  color: #94a3b8;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  padding: 2px;
+  border-radius: 4px;
+}
+
+.search-clear:hover { color: #475569; background: #f1f5f9; }
+
+/* ═══════════════ AG-GRID WRAPPER ═══════════════ */
+.grid-wrap {
+  background: #fff;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 1px 3px rgb(0 0 0 / 0.04);
+}
+
+/* ═══════════════ EMPTY STATE ═══════════════ */
+.empty-state {
+  text-align: center;
+  padding: 3.5rem 2rem;
+  background: white;
+  border-radius: 16px;
+  border: 1.5px dashed #e2e8f0;
+}
+
+.empty-icon {
+  font-size: 3.5rem;
   color: #10b981;
+  margin-bottom: 1rem;
+}
+
+.empty-state h3 {
+  font-size: 1.25rem;
+  margin: 0 0 0.5rem 0;
+  color: #0f172a;
+}
+
+.empty-state p {
+  color: #64748b;
+  margin: 0;
+}
+
+/* ═══════════════ RESPONSIVE ═══════════════ */
+@media (max-width: 768px) {
+  .penalties-container { padding: 1rem; }
+  .search-input { width: 180px; }
 }

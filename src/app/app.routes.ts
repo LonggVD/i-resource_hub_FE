@@ -140,6 +140,14 @@ export const routes: Routes = [
           import('./features/penalties/penalties.component').then((m) => m.PenaltiesComponent),
       },
       {
+        path: 'admin/reports',
+        canActivate: [roleGuard],
+        data: { roles: ['ROLE_ADMIN', 'ROLE_MANAGER'] },
+        loadComponent: () =>
+          import('./features/reports/reports.component').then((m) => m.ReportsComponent),
+        title: 'Báo cáo & Xuất file',
+      },
+      {
         path: 'payment/success',
         loadComponent: () =>
           import('./features/payment/payment-success/payment-success.component').then(

@@ -119,6 +119,12 @@ export class SidebarService {
         route: '/admin/penalties',
         roles: ['ROLE_MANAGER'],
       },
+      {
+        label: 'Báo cáo & Xuất file',
+        icon: '@tui.file-spreadsheet',
+        route: '/admin/reports',
+        roles: ['ROLE_ADMIN', 'ROLE_MANAGER'],
+      },
     ];
 
     return allItems.filter(

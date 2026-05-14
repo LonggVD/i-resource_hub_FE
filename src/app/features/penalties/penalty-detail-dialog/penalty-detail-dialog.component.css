@@ -16,11 +16,11 @@
   display: block;
 }
 
-/* ===== Layout 2 cột ===== */
+/* ===== Layout 2 cột — giảm left từ 460px → 380px, để right có chỗ thở ===== */
 .dialog-layout {
   display: grid;
-  grid-template-columns: 460px 1fr;
-  gap: 24px;
+  grid-template-columns: minmax(320px, 380px) minmax(360px, 1fr);
+  gap: 20px;
   width: 100%;
   /* Khung cố định để cột phải scroll trong giới hạn */
   height: 520px;
@@ -425,12 +425,30 @@
   background: #94a3b8;
 }
 
-/* ===== Responsive ===== */
-@media (max-width: 900px) {
+/* ===== Responsive — stack 2 cột khi dialog < 800px ===== */
+@media (max-width: 800px) {
   .dialog-layout {
     grid-template-columns: 1fr;
+    height: auto;
+    max-height: none;
   }
   .left-column {
     max-height: 50vh;
   }
+  .right-column {
+    overflow-y: visible;
+  }
+}
+
+/* Đảm bảo info-row không bị vỡ ký tự khi cột phải hẹp */
+.info-row .label,
+.info-row .value {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.info-row .value {
+  max-width: 60%;
+  text-align: right;
 }

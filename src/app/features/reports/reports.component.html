@@ -1,0 +1,106 @@
+<div class="reports-container">
+  <header class="page-header">
+    <h1 class="page-title">Báo cáo & Xuất file</h1>
+    <p class="page-subtitle">Xuất danh sách đơn mượn theo khoảng thời gian ra Excel hoặc PDF</p>
+  </header>
+
+  <section class="report-card">
+    <div class="card-header">
+      <tui-icon icon="@tui.file-spreadsheet" class="card-icon" />
+      <div class="card-title-block">
+        <h2 class="card-title">Báo cáo đơn mượn</h2>
+        <p class="card-desc">
+          Bao gồm thông tin: sinh viên, thiết bị, ngày + khung giờ mượn,
+          đơn vị quản lý, trạng thái và thời gian tạo đơn.
+        </p>
+      </div>
+    </div>
+
+    <!-- Quick range chips -->
+    <div class="quick-range">
+      <span class="quick-label">Khoảng nhanh:</span>
+      <button class="chip" (click)="setQuickRange(7)">7 ngày</button>
+      <button class="chip" (click)="setQuickRange(30)">30 ngày</button>
+      <button class="chip" (click)="setQuickRange(90)">90 ngày</button>
+      <button class="chip" (click)="setCurrentMonth()">Tháng này</button>
+    </div>
+
+    <!-- Date filters -->
+    <div class="filter-row">
+      <div class="filter-field">
+        <label for="fromDate">Từ ngày</label>
+        <input
+          id="fromDate"
+          type="date"
+          class="date-input"
+          [max]="today"
+          [(ngModel)]="fromDate"
+        />
+      </div>
+      <div class="filter-field">
+        <label for="toDate">Đến ngày</label>
+        <input
+          id="toDate"
+          type="date"
+          class="date-input"
+          [max]="today"
+          [(ngModel)]="toDate"
+        />
+      </div>
+    </div>
+
+    <p class="validation-msg" *ngIf="!isValidRange()">
+      <tui-icon icon="@tui.alert-circle" />
+      Ngày bắt đầu phải nhỏ hơn hoặc bằng ngày kết thúc.
+    </p>
+
+    <!-- Action buttons -->
+    <div class="action-row">
+      <button
+        tuiButton
+        appearance="secondary"
+        size="l"
+        class="export-btn export-excel"
+        [disabled]="!isValidRange() || isLoading() !== null"
+        (click)="exportExcel()"
+      >
+        <tui-loader [showLoader]="isLoading() === 'excel'" [inheritColor]="true">
+          <span class="btn-content">
+            <tui-icon icon="@tui.file-spreadsheet" />
+            <span>Xuất Excel (.xlsx)</span>
+          </span>
+        </tui-loader>
+      </button>
+
+      <button
+        tuiButton
+        appearance="primary"
+        size="l"
+        class="export-btn export-pdf"
+        [disabled]="!isValidRange() || isLoading() !== null"
+        (click)="exportPdf()"
+      >
+        <tui-loader [showLoader]="isLoading() === 'pdf'" [inheritColor]="true">
+          <span class="btn-content">
+            <tui-icon icon="@tui.file-text" />
+            <span>Xuất PDF</span>
+          </span>
+        </tui-loader>
+      </button>
+    </div>
+  </section>
+
+  <!-- Hint section -->
+  <aside class="hint-card">
+    <tui-icon icon="@tui.info" class="hint-icon" />
+    <div class="hint-content">
+      <h3 class="hint-title">Lưu ý khi xuất báo cáo</h3>
+      <ul class="hint-list">
+        <li>File được tạo theo chuẩn <strong>Office Open XML (.xlsx)</strong> hoặc <strong>PDF/A</strong>, mở được trên mọi trình đọc phổ biến.</li>
+        <li>Tên file tự động theo định dạng: <code>bookings-YYYYMMDD-YYYYMMDD.xlsx</code> hoặc <code>.pdf</code>.</li>
+        <li>Báo cáo bao gồm tất cả đơn mượn có <em>ngày mượn</em> nằm trong khoảng đã chọn (không phụ thuộc trạng thái).</li>
+        <li>Khoảng thời gian quá rộng (vd: 1 năm) có thể mất vài giây — đừng tắt tab khi loader đang chạy.</li>
+      </ul>
+    </div>
+  </aside>
+</div>

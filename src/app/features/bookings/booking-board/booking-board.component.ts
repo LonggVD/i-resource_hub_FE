@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, OnInit, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, OnInit, computed, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import {
   CdkDrag,
@@ -8,9 +8,8 @@ import {
   CdkDropList,
   CdkDropListGroup,
   moveItemInArray,
-  transferArrayItem,
 } from '@angular/cdk/drag-drop';
-import { TuiDialogService, TuiLoader, TuiIcon } from '@taiga-ui/core';
+import { TuiDialogService, TuiLoader, TuiIcon, TuiButton } from '@taiga-ui/core';
 import { PolymorpheusComponent } from '@taiga-ui/polymorpheus';
 import { Booking, BookingStatus, GroupedBooking } from '../../../core/models/booking.model';
 import { BookingService } from '../../../core/api/booking.service';
@@ -19,7 +18,6 @@ import { NotificationService } from '../../../core/api/notification';
 // Dialog Components
 import { RejectReasonDialogComponent } from '../reject-reason-dialog/reject-reason-dialog.component';
 import { HandoverDialogComponent } from '../handover-dialog/handover-dialog.component';
-import { EvidenceDialogComponent } from '../evidence-dialog/evidence-dialog.component';
 import { ReturnDialogComponent } from '../return-dialog/return-dialog.component';
 import { PenaltyDialogComponent } from '../../penalties/penalty-dialog/penalty-dialog.component';
 import { BookingDetailDialogComponent } from '../booking-detail-dialog/booking-detail-dialog.component';
@@ -34,6 +32,7 @@ import { TuiBadge } from '@taiga-ui/kit';
   imports: [
     TuiLoader,
     TuiIcon,
+    TuiButton,
     CdkDropListGroup,
     CdkDropList,
     CdkDrag,
@@ -44,12 +43,27 @@ import { TuiBadge } from '@taiga-ui/kit';
   ],
 })
 export class BookingBoardComponent implements OnInit {
-  // Signals for Grouped View
-  readonly pendingGroups = signal<GroupedBooking[]>([]);
-  readonly approvedGroups = signal<GroupedBooking[]>([]);
-  readonly borrowedGroups = signal<GroupedBooking[]>([]);
-  readonly returnedGroups = signal<GroupedBooking[]>([]);
+  // ── State raw ─────────────────────────────────────────
+  private readonly allGroups = signal<GroupedBooking[]>([]);
   readonly isProcessing = signal(false);
+
+  // ── Filter signals ────────────────────────────────────
+  readonly searchQuery = signal('');
+  readonly dateFilter = signal('');
+
+  // ── Computed columns sau khi áp dụng filter ───────────
+  readonly pendingGroups = computed(() =>
+    this.applyFilter(this.allGroups().filter((g) => g.displayStatus === 'PENDING')),
+  );
+  readonly approvedGroups = computed(() =>
+    this.applyFilter(this.allGroups().filter((g) => g.displayStatus === 'APPROVED')),
+  );
+  readonly borrowedGroups = computed(() =>
+    this.applyFilter(this.allGroups().filter((g) => g.displayStatus === 'BORROWED')),
+  );
+  readonly returnedGroups = computed(() =>
+    this.applyFilter(this.allGroups().filter((g) => g.displayStatus === 'RETURNED')),
+  );
 
   constructor(
     private readonly bookingService: BookingService,
@@ -65,19 +79,57 @@ export class BookingBoardComponent implements OnInit {
     this.bookingService.getKanbanBookings().subscribe({
       next: (bookings) => {
         const grouped = this.groupBookings(bookings);
-        this.pendingGroups.set(grouped.filter((g) => g.displayStatus === 'PENDING'));
-        this.approvedGroups.set(grouped.filter((g) => g.displayStatus === 'APPROVED'));
-        this.borrowedGroups.set(grouped.filter((g) => g.displayStatus === 'BORROWED'));
-        this.returnedGroups.set(grouped.filter((g) => g.displayStatus === 'RETURNED'));
+        this.allGroups.set(grouped);
       },
       error: (err) => console.error('Lỗi khi tải dữ liệu board:', err),
     });
   }
 
+  // ═══════════════════════════════════════════════════════════
+  //  FILTERING
+  // ═══════════════════════════════════════════════════════════
+  private applyFilter(groups: GroupedBooking[]): GroupedBooking[] {
+    const q = this.searchQuery().trim().toLowerCase();
+    const date = this.dateFilter();
+    if (!q && !date) return groups;
+
+    return groups.filter((g) => {
+      // search theo tên SV / mã SV / tên thiết bị
+      if (q) {
+        const inBorrower = (g.borrowerName || '').toLowerCase().includes(q);
+        const inBorrowerId = (g.borrowerId || '').toLowerCase().includes(q);
+        const inDevice = g.items.some((i) => (i.deviceName || '').toLowerCase().includes(q));
+        const inSerial = g.items.some((i) => (i.serialNumber || '').toLowerCase().includes(q));
+        if (!inBorrower && !inBorrowerId && !inDevice && !inSerial) return false;
+      }
+      // filter ngày: bookingDate khớp đúng
+      if (date && g.bookingDate !== date) return false;
+      return true;
+    });
+  }
+
+  onSearchChange(value: string): void {
+    this.searchQuery.set(value);
+  }
+
+  onDateChange(value: string): void {
+    this.dateFilter.set(value);
+  }
+
+  clearFilters(): void {
+    this.searchQuery.set('');
+    this.dateFilter.set('');
+  }
+
+  hasActiveFilters = computed(() => !!this.searchQuery() || !!this.dateFilter());
+
+  // ═══════════════════════════════════════════════════════════
+  //  GROUPING (giữ nguyên logic cũ)
+  // ═══════════════════════════════════════════════════════════
   private groupBookings(data: Booking[]): GroupedBooking[] {
     const map = new Map<string, GroupedBooking>();
     data.forEach((b) => {
-      const key = `${b.batchToken || b.id}_${b.deviceName}`; // Group by batch and device type
+      const key = `${b.batchToken || b.id}_${b.deviceName}`;
       if (!map.has(key)) {
         map.set(key, {
           batchToken: b.batchToken || b.id,
@@ -113,7 +165,6 @@ export class BookingBoardComponent implements OnInit {
       });
     });
 
-    // Tính toán lại displayStatus chính xác cho cả lô
     map.forEach((group) => {
       const statuses = group.items.map((i) => i.status);
       if (statuses.every((s) => s === 'RETURNED')) {
@@ -132,6 +183,9 @@ export class BookingBoardComponent implements OnInit {
     return Array.from(map.values());
   }
 
+  // ═══════════════════════════════════════════════════════════
+  //  DRAG & DROP
+  // ═══════════════════════════════════════════════════════════
   drop(event: CdkDragDrop<GroupedBooking[]>): void {
     const draggedGroup = event.previousContainer.data[event.previousIndex];
     const targetColumnId = event.container.id as BookingStatus;
@@ -143,15 +197,38 @@ export class BookingBoardComponent implements OnInit {
         this.quickApprove(draggedGroup);
         return;
       }
-      // ... (Các flow khác tương tự)
       this.updateBookingStatus(draggedGroup, targetColumnId);
     }
   }
 
+  // ═══════════════════════════════════════════════════════════
+  //  HELPERS HIỂN THỊ
+  // ═══════════════════════════════════════════════════════════
   protected getReturnedCount(group: GroupedBooking): number {
     return group.items.filter((i) => i.status === 'RETURNED').length;
   }
 
+  protected getReturnedProgress(group: GroupedBooking): number {
+    const total = group.items.length;
+    if (total === 0) return 0;
+    return Math.round((this.getReturnedCount(group) / total) * 100);
+  }
+
+  /** Trả về class priority cho card: high (đỏ) / medium (vàng) / done (xám) / normal */
+  protected getCardPriority(group: GroupedBooking): string {
+    if (group.expired || group.hasDamage) return 'priority-high';
+    if (group.isPenalized) return 'priority-medium';
+    if (group.displayStatus === 'RETURNED') return 'priority-done';
+    return '';
+  }
+
+  protected getBatchSizeLabel(group: GroupedBooking): string {
+    return group.items.length > 1 ? `Lô ${group.items.length} thiết bị` : '';
+  }
+
+  // ═══════════════════════════════════════════════════════════
+  //  ACTION HANDLERS
+  // ═══════════════════════════════════════════════════════════
   protected quickApprove(group: GroupedBooking): void {
     this.isProcessing.set(true);
     const ids = group.items.map((i) => i.id);
@@ -192,7 +269,7 @@ export class BookingBoardComponent implements OnInit {
             },
           });
         } else {
-          this.refreshBoard(); // Reset UI state if cancelled
+          this.refreshBoard();
         }
       });
   }
@@ -257,17 +334,8 @@ export class BookingBoardComponent implements OnInit {
       .subscribe();
   }
 
-  private updateBookingStatus(group: GroupedBooking, status: BookingStatus): void {
+  private updateBookingStatus(_group: GroupedBooking, _status: BookingStatus): void {
     this.refreshBoard();
-  }
-
-  public getBatchProgress(group: GroupedBooking): { text: string; isFull: boolean } {
-    const returned = this.getReturnedCount(group);
-    const total = group.items.length;
-    return {
-      text: returned > 0 ? `Đã trả: ${returned}/${total}` : `Số lượng: ${total}`,
-      isFull: returned === total,
-    };
   }
 
   protected openPenaltyDialog(group: GroupedBooking): void {

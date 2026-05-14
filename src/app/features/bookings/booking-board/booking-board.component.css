@@ -1,4 +1,4 @@
-/* ===== Kanban Layout: Pro Dashboard Style ===== */
+/* ═══════════════ Layout ═══════════════ */
 .kanban-wrapper {
   padding: 16px 24px;
   background-color: #f1f5f9;
@@ -27,9 +27,10 @@
 .kanban-subtitle {
   color: #64748b;
   font-size: 0.875rem;
+  margin: 0;
 }
 
-/* ===== Toolbar: Compact & Functional ===== */
+/* ═══════════════ Toolbar ═══════════════ */
 .kanban-toolbar {
   display: flex;
   gap: 8px;
@@ -46,22 +47,38 @@
   position: absolute;
   left: 10px;
   color: #94a3b8;
+  pointer-events: none;
 }
 
 .search-input {
-  padding: 8px 12px 8px 34px;
+  padding: 8px 32px 8px 34px;
   border-radius: 8px;
   border: 1px solid #cbd5e1;
   width: 240px;
   font-size: 0.875rem;
-  transition: all 0.2s;
+  transition: border-color 0.15s, box-shadow 0.15s;
+  background: #fff;
 }
 
 .search-input:focus {
   outline: none;
   border-color: #6366f1;
-  box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.1);
+  box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.15);
 }
+
+.search-clear {
+  position: absolute;
+  right: 6px;
+  background: none;
+  border: none;
+  color: #94a3b8;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  padding: 2px;
+  border-radius: 4px;
+}
+.search-clear:hover { color: #475569; background: #f1f5f9; }
 
 .date-filter {
   padding: 7px 10px;
@@ -69,9 +86,23 @@
   border: 1px solid #cbd5e1;
   font-size: 0.875rem;
   color: #475569;
+  background: #fff;
 }
 
-/* ===== Kanban Board: Fixed Height & Scrollable Columns ===== */
+.clear-filters-btn {
+  padding: 7px 14px;
+  border-radius: 8px;
+  border: 1px solid #fecaca;
+  background: #fef2f2;
+  color: #dc2626;
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+.clear-filters-btn:hover { background: #fee2e2; }
+
+/* ═══════════════ Board ═══════════════ */
 .kanban-board {
   display: flex;
   gap: 16px;
@@ -95,7 +126,7 @@
   display: flex;
   align-items: center;
   gap: 8px;
-  border-bottom: 2px solid rgba(0,0,0,0.05);
+  border-bottom: 2px solid rgba(0, 0, 0, 0.05);
 }
 
 .column-dot {
@@ -104,7 +135,7 @@
   border-radius: 50%;
 }
 
-.pending .column-dot { background-color: #f59e0b; }
+.pending  .column-dot { background-color: #f59e0b; }
 .approved .column-dot { background-color: #10b981; }
 .borrowed .column-dot { background-color: #6366f1; }
 .returned .column-dot { background-color: #94a3b8; }
@@ -127,7 +158,6 @@
   border-radius: 99px;
 }
 
-/* ===== List Scroll Area ===== */
 .kanban-list {
   flex: 1;
   overflow-y: auto;
@@ -136,98 +166,185 @@
   flex-direction: column;
   gap: 10px;
 }
-
-.device-count-tag {
-  background: #eef2ff;
-  color: #6366f1;
-  font-size: 10px;
-  font-weight: 800;
-  padding: 1px 6px;
-  border-radius: 4px;
-  border: 1px solid #c7d2fe;
-}
-
-/* Custom Scrollbar for columns */
 .kanban-list::-webkit-scrollbar { width: 5px; }
 .kanban-list::-webkit-scrollbar-track { background: transparent; }
 .kanban-list::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
 
-/* ===== Compact Card Design ===== */
+/* ═══════════════ Card ═══════════════ */
 .booking-card {
   background: white;
   border-radius: 10px;
-  padding: 12px;
-  border: 1px solid #cbd5e1;
+  padding: 10px 12px 12px 12px;
+  border: 1px solid #e2e8f0;
+  border-left: 4px solid #cbd5e1; /* default = xám nhạt */
   cursor: grab;
-  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: transform 0.15s, box-shadow 0.15s, border-color 0.15s;
   position: relative;
-  box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
 }
 
 .booking-card:hover {
   transform: translateY(-2px);
-  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
-  border-color: #6366f1;
+  box-shadow: 0 8px 14px -3px rgba(0, 0, 0, 0.08);
 }
 
-.card-badges {
+.booking-card:active { cursor: grabbing; }
+
+/* Priority left border */
+.booking-card.priority-high   { border-left-color: #ef4444; }
+.booking-card.priority-medium { border-left-color: #f59e0b; }
+.booking-card.priority-done   { opacity: 0.85; border-left-color: #94a3b8; }
+
+/* ─── Top bar: drag handle + flags ─── */
+.card-top-bar {
   display: flex;
-  gap: 6px;
-  margin-bottom: 8px;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 6px;
+  min-height: 18px;
+}
+
+.drag-handle {
+  display: inline-flex;
+  align-items: center;
+  color: #cbd5e1;
+  cursor: grab;
+  font-size: 14px;
+  margin-left: -4px;
+  padding: 2px 0;
+}
+.drag-handle:hover { color: #6366f1; }
+
+.card-flags {
+  display: flex;
+  gap: 4px;
   flex-wrap: wrap;
 }
 
+.flag {
+  display: inline-flex;
+  align-items: center;
+  font-size: 0.65rem;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  padding: 2px 7px;
+  border-radius: 4px;
+  white-space: nowrap;
+}
+
+.flag tui-icon { font-size: 11px; }
+
+.flag-expired   { background: #fee2e2; color: #b91c1c; }
+.flag-damage    { background: #ffedd5; color: #c2410c; }
+.flag-penalized { background: #f1f5f9; color: #475569; }
+
+/* ─── Device ─── */
 .card-device {
   display: flex;
   align-items: center;
-  gap: 8px;
-  margin-bottom: 6px;
+  gap: 6px;
+  margin-bottom: 4px;
+  flex-wrap: wrap;
 }
 
-.device-icon {
-  font-size: 16px;
-  color: #64748b;
-}
+.device-icon { font-size: 16px; color: #64748b; }
 
 .device-name {
   font-size: 13px;
   font-weight: 700;
-  color: #1e293b;
-  display: flex;
-  align-items: center;
-  gap: 6px;
+  color: #0f172a;
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
+.batch-tag {
+  background: #eef2ff;
+  color: #4f46e5;
+  font-size: 10px;
+  font-weight: 700;
+  padding: 2px 6px;
+  border-radius: 4px;
+  border: 1px solid #c7d2fe;
+  white-space: nowrap;
+}
+
+/* ─── Borrower ─── */
 .card-borrower {
   display: flex;
   align-items: center;
-  gap: 8px;
-  margin-bottom: 8px;
+  gap: 6px;
+  margin-bottom: 4px;
   font-size: 12px;
+  color: #475569;
+}
+
+.borrower-icon { font-size: 14px; opacity: 0.7; }
+
+.borrower-name { font-weight: 600; color: #334155; }
+
+.borrower-id {
+  background: #f1f5f9;
   color: #64748b;
+  font-size: 10px;
+  font-weight: 600;
+  padding: 1px 6px;
+  border-radius: 3px;
+  margin-left: 2px;
 }
 
-.borrower-icon { font-size: 14px; }
-
-.card-footer {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-top: 4px;
-}
-
-.time-tag {
+/* ─── Time ─── */
+.card-time {
   display: flex;
   align-items: center;
   gap: 4px;
   font-size: 11px;
   color: #94a3b8;
   font-weight: 500;
+  margin-bottom: 6px;
 }
-
 .time-icon { font-size: 12px; }
 
-/* ===== Action Buttons: Compact & Dynamic ===== */
+/* ─── Progress bar ─── */
+.progress-block {
+  margin-top: 8px;
+  padding-top: 8px;
+  border-top: 1px dashed #e2e8f0;
+}
+
+.progress-info {
+  display: flex;
+  justify-content: space-between;
+  font-size: 10px;
+  color: #64748b;
+  font-weight: 600;
+  margin-bottom: 4px;
+}
+
+.progress-percent { color: #4f46e5; }
+
+.progress-bar {
+  background: #f1f5f9;
+  border-radius: 99px;
+  height: 5px;
+  overflow: hidden;
+}
+
+.progress-fill {
+  background: linear-gradient(90deg, #6366f1 0%, #8b5cf6 100%);
+  height: 100%;
+  border-radius: 99px;
+  transition: width 0.3s ease;
+}
+
+.progress-fill.full {
+  background: linear-gradient(90deg, #10b981 0%, #34d399 100%);
+}
+
+/* ═══════════════ Action buttons ═══════════════ */
 .card-actions {
   margin-top: 10px;
   padding-top: 10px;
@@ -236,48 +353,51 @@
   gap: 6px;
 }
 
-.card-actions button {
+.btn {
   flex: 1;
-  border: none;
+  border: 1px solid transparent;
   border-radius: 6px;
-  padding: 6px;
+  padding: 6px 8px;
   font-size: 11px;
   font-weight: 700;
   cursor: pointer;
-  display: flex;
+  display: inline-flex;
   align-items: center;
   justify-content: center;
   gap: 4px;
-  transition: all 0.2s;
+  transition: background 0.15s, color 0.15s, border-color 0.15s;
+  white-space: nowrap;
 }
 
-.btn-approve { background: #f0fdf4; color: #16a34a; border: 1px solid #bbf7d0 !important; }
-.btn-approve:hover { background: #16a34a; color: white; }
+.btn:disabled { opacity: 0.5; cursor: not-allowed; }
 
-.btn-reject { background: #fef2f2; color: #dc2626; border: 1px solid #fee2e2 !important; }
-.btn-reject:hover { background: #dc2626; color: white; }
+.btn-block { flex: 1 0 100%; }
 
-.btn-handover { background: #6366f1; color: white; }
-.btn-handover:hover { background: #4f46e5; }
+.btn-approve         { background: #16a34a; color: #fff; border-color: #16a34a; }
+.btn-approve:hover:not(:disabled) { background: #15803d; border-color: #15803d; }
 
-.btn-return { 
-  background: #10b981; 
-  color: white; 
-  box-shadow: 0 4px 6px -1px rgba(16, 185, 129, 0.2);
+.btn-reject          { background: #ef4444; color: #fff; border-color: #ef4444; }
+.btn-reject:hover    { background: #dc2626; border-color: #dc2626; }
+
+.btn-handover        { background: #6366f1; color: #fff; border-color: #6366f1; }
+.btn-handover:hover:not(:disabled) { background: #4f46e5; border-color: #4f46e5; }
+
+.btn-return          { background: #10b981; color: #fff; border-color: #10b981; }
+.btn-return:hover    { background: #059669; border-color: #059669; }
+
+/* Phạt: dùng màu cam-đỏ (warning) — KHÔNG xanh lá */
+.btn-penalize        { background: #ef4444; color: #fff; border-color: #ef4444; }
+.btn-penalize:hover  { background: #dc2626; border-color: #dc2626; }
+
+/* Đã phạt: trạng thái neutral (xám) — không phải màu thành công */
+.btn-penalized-done  {
+  background: #f1f5f9;
+  color: #64748b;
+  border-color: #e2e8f0;
+  cursor: default;
 }
-.btn-return:hover { background: #059669; }
 
-/* Overlays & Empty States */
-.expired-overlay {
-  margin-top: 8px;
-  text-align: center;
-}
-
-.booking-card.expired {
-  background: #f8fafc;
-  opacity: 0.8;
-}
-
+/* ═══════════════ Empty state & DnD visuals ═══════════════ */
 .empty-column {
   flex: 1;
   display: flex;
@@ -286,22 +406,21 @@
   justify-content: center;
   color: #94a3b8;
   padding: 40px 0;
+  text-align: center;
 }
 
 .empty-icon { font-size: 32px; margin-bottom: 8px; opacity: 0.5; }
-.empty-column p { font-size: 12px; font-weight: 600; }
+.empty-column p { font-size: 12px; font-weight: 600; margin: 0; }
 
-/* Drag & Drop Visuals */
 .cdk-drag-preview {
-  box-shadow: 0 15px 30px rgba(0,0,0,0.15);
+  box-shadow: 0 15px 30px rgba(0, 0, 0, 0.18);
   cursor: grabbing;
 }
 
 .card-placeholder {
-  background: rgba(0,0,0,0.05);
-  border: 2px dashed rgba(0,0,0,0.1);
+  background: rgba(99, 102, 241, 0.05);
+  border: 2px dashed rgba(99, 102, 241, 0.25);
   border-radius: 10px;
-  height: 60px;
+  height: 70px;
   margin-bottom: 10px;
 }
-

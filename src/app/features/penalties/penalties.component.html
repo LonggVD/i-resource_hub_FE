@@ -1,18 +1,103 @@
 <div class="penalties-container">
-  <div class="header">
+  <!-- ═══════════ HEADER ═══════════ -->
+  <header class="page-header">
     <div class="header-title">
-      <h1 class="tui-text_h3">Quản lý Xử Phạt</h1>
-      <span class="tui-text_body-s">Theo dõi và quản lý các án phạt của sinh viên</span>
+      <h1 class="page-title">Quản lý Xử Phạt</h1>
+      <p class="page-subtitle">Theo dõi và quản lý các án phạt của sinh viên</p>
     </div>
-    <button tuiButton type="button" size="m" iconLeft="@tui.shield-alert" (click)="openCreateDialog()">
+    <button tuiButton type="button" size="m" iconStart="@tui.shield-alert" (click)="openCreateDialog()">
       Ghi nhận vi phạm
     </button>
-  </div>
+  </header>
 
-  <div class="grid-container" *ngIf="!isLoading()">
-    <irh-aggrid
-      [rowData]="penalties()"
-      [columnDefs]="colDefs"
-    ></irh-aggrid>
-  </div>
+  <tui-loader [showLoader]="isLoading()" [overlay]="true">
+
+    <!-- ═══════════ SUMMARY KPI + FILTER + SEARCH (1 hàng) ═══════════ -->
+    @if (penalties().length > 0) {
+      <section class="stats-bar">
+        <div class="stat-chip stat-total">
+          <tui-icon icon="@tui.list" />
+          <span class="stat-value">{{ summary().total }}</span>
+          <span class="stat-label">Tổng</span>
+        </div>
+        <div class="stat-chip stat-active">
+          <tui-icon icon="@tui.alert-triangle" />
+          <span class="stat-value">{{ summary().active }}</span>
+          <span class="stat-label">Hiệu lực</span>
+        </div>
+        <div class="stat-chip stat-locked">
+          <tui-icon icon="@tui.lock" />
+          <span class="stat-value">{{ summary().lockedUsers }}</span>
+          <span class="stat-label">SV bị khoá</span>
+        </div>
+        @if (summary().totalFines > 0) {
+          <div class="stat-chip stat-money">
+            <tui-icon icon="@tui.wallet" />
+            <span class="stat-value">{{ summary().totalFines | currency: 'VND':'symbol':'1.0-0' }}</span>
+            <span class="stat-label">Chưa thu</span>
+          </div>
+        }
+
+        <div class="stats-spacer"></div>
+
+        <div class="filter-tabs">
+          <button class="tab" [class.active]="filterStatus() === 'all'" (click)="setFilter('all')">
+            Tất cả <span class="tab-count">{{ summary().total }}</span>
+          </button>
+          <button class="tab" [class.active]="filterStatus() === 'active'" (click)="setFilter('active')">
+            Hiệu lực <span class="tab-count tab-count-danger">{{ summary().active }}</span>
+          </button>
+          <button class="tab" [class.active]="filterStatus() === 'revoked'" (click)="setFilter('revoked')">
+            Đã ân xá <span class="tab-count">{{ summary().revoked }}</span>
+          </button>
+        </div>
+
+        <div class="search-box">
+          <tui-icon icon="@tui.search" class="search-icon" />
+          <input
+            type="text"
+            placeholder="Tìm tên / mã SV..."
+            class="search-input"
+            [value]="searchQuery()"
+            (input)="onSearchInput($any($event.target).value)"
+          />
+          @if (searchQuery()) {
+            <button type="button" class="search-clear" (click)="onSearchInput('')">
+              <tui-icon icon="@tui.x" />
+            </button>
+          }
+        </div>
+      </section>
+    }
+
+    <!-- ═══════════ AG-GRID TABLE ═══════════ -->
+    @if (filteredPenalties().length > 0) {
+      <div class="grid-wrap">
+        <irh-aggrid
+          [rowData]="filteredPenalties()"
+          [columnDefs]="colDefs"
+          [defaultColDef]="defaultColDef"
+          [pagination]="true"
+          [paginationPageSize]="10"
+          [rowHeight]="56"
+          [headerHeight]="42"
+          [autoHeight]="true"
+        ></irh-aggrid>
+      </div>
+    } @else {
+      <!-- ═══════════ EMPTY STATE ═══════════ -->
+      <div class="empty-state">
+        <tui-icon icon="@tui.shield-check" class="empty-icon"></tui-icon>
+        <h3>
+          {{ penalties().length === 0 ? 'Chưa có vi phạm nào trong hệ thống' : 'Không có kết quả phù hợp' }}
+        </h3>
+        @if (penalties().length === 0) {
+          <p>Sinh viên đều tuân thủ tốt — hoặc bạn có thể tạo phiếu phạt mới.</p>
+        } @else {
+          <p>Thử thay đổi filter hoặc xoá từ khoá tìm kiếm.</p>
+        }
+      </div>
+    }
+
+  </tui-loader>
 </div>

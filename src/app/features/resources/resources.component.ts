@@ -617,20 +617,24 @@ export class ResourcesComponent implements OnInit {
   // ═══════════════════════════════════════════════════════════
   public onFileSelected(event: any, formType: 'add' | 'edit'): void {
     const file = event.target.files?.[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        const base64 = e.target?.result as string;
-        if (formType === 'add') {
-          this.addForm.patchValue({ imageUrl: base64 });
-        } else {
-          this.editForm.patchValue({ imageUrl: base64 });
-        }
-        this.cdr.detectChanges();
-      };
-      reader.readAsDataURL(file);
-      this.notificationService.showSuccess(`Đã chọn ảnh: ${file.name}`);
+    if (!file) return;
+
+    if (!file.type.startsWith('image/')) {
+      this.notificationService.showError('Chỉ chấp nhận file ảnh (jpg, png, webp...)');
+      return;
     }
+
+    const url = `/assets/images/${file.name}`;
+    if (formType === 'add') {
+      this.addForm.patchValue({ imageUrl: url });
+    } else {
+      this.editForm.patchValue({ imageUrl: url });
+    }
+    this.cdr.detectChanges();
+
+    this.notificationService.showSuccess(
+      `Đã chọn: ${file.name}. Đảm bảo file đã có trong src/assets/images/`,
+    );
   }
 
   // ═══════════════════════════════════════════════════════════
