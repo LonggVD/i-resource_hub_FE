@@ -290,7 +290,7 @@ export class PenaltiesComponent implements OnInit {
   openCreateDialog() {
     this.dialogs
       .open<boolean>(new PolymorpheusComponent(PenaltyDialogComponent), {
-        size: 'm',
+        size: 'l',
         closeable: true,
         dismissible: false,
         label: 'Tạo phiếu phạt mới',

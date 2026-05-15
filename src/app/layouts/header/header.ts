@@ -47,7 +47,9 @@ export class Header implements OnInit, OnDestroy {
     const user = this.authService.user();
     if (!user) return '';
     if (user.roles.includes('ROLE_ADMIN')) return 'Quản trị viên';
-    return 'Sinh viên';
+    if (user.roles.includes('ROLE_MANAGER')) return 'Quản lý';
+    if (user.roles.includes('ROLE_STUDENT')) return 'Sinh viên';
+    return '';
   });
 
   constructor(

@@ -1,5 +1,5 @@
 <form [formGroup]="form" (ngSubmit)="submit()" class="dialog-form">
-  <!-- Hiển thị khi được gọi từ Kanban (có sẵn dữ liệu đơn mượn) -->
+  <!-- Khi được gọi từ Kanban (có sẵn dữ liệu đơn mượn) -->
   <div class="info-card" *ngIf="groupData">
     <div class="info-row">
       <span class="info-label">Sinh viên vi phạm:</span>
@@ -11,7 +11,7 @@
     </div>
   </div>
 
-  <!-- Hiển thị khi được gọi từ Quản lý Xử phạt (Tạo mới tự do) -->
+  <!-- Khi được gọi từ Quản lý Xử phạt (Tạo mới tự do) -->
   <div class="form-row" *ngIf="!groupData">
     <irh-select
       formControlName="userId"
@@ -22,50 +22,100 @@
     <div *ngIf="form.get('userId')?.invalid && form.get('userId')?.touched" class="error-text">Vui lòng chọn sinh viên</div>
   </div>
 
-  <div class="form-row">
-    <irh-select
-      formControlName="penaltyType"
-      [options]="penaltyTypeOptions"
-      label="Loại vi phạm"
-    ></irh-select>
-    <div *ngIf="form.get('penaltyType')?.invalid && form.get('penaltyType')?.touched" class="error-text">Vui lòng chọn loại vi phạm</div>
+  <!-- Hàng 2 cột: Loại vi phạm + Điểm trừ -->
+  <div class="form-grid-2">
+    <div class="form-row">
+      <irh-select
+        formControlName="penaltyType"
+        [options]="penaltyTypeOptions"
+        label="Loại vi phạm"
+      ></irh-select>
+      <div *ngIf="form.get('penaltyType')?.invalid && form.get('penaltyType')?.touched" class="error-text">Vui lòng chọn loại vi phạm</div>
+    </div>
+
+    <div class="form-row">
+      <label class="field-label">Điểm trừ tín nhiệm</label>
+      <tui-textfield>
+        <input tuiTextfield type="number" formControlName="penaltyPoint" class="input-field" />
+      </tui-textfield>
+      <div class="helper-text">Sinh viên sẽ bị khóa tài khoản nếu điểm tín nhiệm &lt;= 0.</div>
+      <div *ngIf="form.get('penaltyPoint')?.invalid && form.get('penaltyPoint')?.touched" class="error-text">Điểm trừ phải từ 1 đến 100</div>
+    </div>
   </div>
 
+  <!-- Mô tả -->
   <div class="form-row">
-    <label class="tui-text_body-s" style="font-weight: 500;">Điểm trừ tín nhiệm</label>
-    <tui-textfield>
-      <input tuiTextfield type="number" formControlName="penaltyPoint" class="input-field" />
-    </tui-textfield>
-    <div class="tui-text_body-s helper-text">Sinh viên sẽ bị khóa tài khoản nếu điểm tín nhiệm <= 0.</div>
-    <div *ngIf="form.get('penaltyPoint')?.invalid && form.get('penaltyPoint')?.touched" class="error-text">Điểm trừ phải từ 1 đến 100</div>
-  </div>
-
-  <div class="form-row">
-    <label class="tui-text_body-s" style="font-weight: 500;">Mô tả chi tiết vi phạm</label>
-    <textarea formControlName="description" rows="3" class="input-field" style="padding: 12px; width: 100%; box-sizing: border-box; border: 1px solid var(--tui-border-normal); border-radius: var(--tui-radius-m);"></textarea>
+    <label class="field-label">Mô tả chi tiết vi phạm</label>
+    <textarea formControlName="description" rows="3" class="input-field textarea"></textarea>
     <div *ngIf="form.get('description')?.invalid && form.get('description')?.touched" class="error-text">Vui lòng nhập mô tả chi tiết</div>
   </div>
 
-  <div class="form-row">
-    <label class="tui-text_body-s" style="font-weight: 500;">Số tiền phạt (nếu có)</label>
-    <tui-textfield>
-      <input tuiTextfield type="number" formControlName="fineAmount" class="input-field" placeholder="Nhập số tiền..." />
-      <span tuiTextfieldPostfix>VNĐ</span>
-    </tui-textfield>
-    <div *ngIf="form.get('fineAmount')?.invalid && form.get('fineAmount')?.touched" class="error-text">Số tiền không hợp lệ</div>
+  <!-- Hàng 2 cột: Tiền phạt + Yêu cầu kiểm điểm -->
+  <div class="form-grid-2">
+    <div class="form-row">
+      <label class="field-label">Số tiền phạt (nếu có)</label>
+      <tui-textfield>
+        <input tuiTextfield type="number" formControlName="fineAmount" class="input-field" placeholder="Nhập số tiền..." />
+        <span tuiTextfieldPostfix>VNĐ</span>
+      </tui-textfield>
+      <div *ngIf="form.get('fineAmount')?.invalid && form.get('fineAmount')?.touched" class="error-text">Số tiền không hợp lệ</div>
+    </div>
+
+    <div class="form-row review-row">
+      <label class="field-label">Tùy chọn xử lý</label>
+      <div class="checkbox-wrap">
+        <input type="checkbox" formControlName="requiresReview" id="requiresReview" class="checkbox-input" />
+        <label for="requiresReview" class="checkbox-label">Yêu cầu viết bản kiểm điểm</label>
+      </div>
+    </div>
   </div>
 
-  <div class="form-row" style="flex-direction: row; align-items: center; gap: 8px;">
-    <input type="checkbox" formControlName="requiresReview" id="requiresReview" style="width: 20px; height: 20px; cursor: pointer;" />
-    <label for="requiresReview" style="cursor: pointer; font-weight: 500;">Yêu cầu viết bản kiểm điểm</label>
+  <!-- Upload ảnh minh chứng -->
+  <div class="form-row">
+    <label class="field-label">Ảnh minh chứng (tuỳ chọn)</label>
+
+    <label class="upload-zone" [class.has-files]="selectedFiles.length > 0">
+      <input
+        type="file"
+        accept="image/*"
+        multiple
+        hidden
+        (change)="onFilesChange($event)"
+      />
+      <tui-icon icon="@tui.image-plus" class="upload-icon"></tui-icon>
+      <span class="upload-title">
+        Kéo thả hoặc <span class="upload-link">chọn ảnh từ máy</span>
+      </span>
+      <span class="upload-hint">JPG, PNG, WEBP &middot; Tối đa 10 MB/ảnh</span>
+    </label>
+
+    <div *ngIf="previewUrls().length > 0" class="preview-grid">
+      <div *ngFor="let url of previewUrls(); let i = index" class="preview-item">
+        <img [src]="url" [alt]="'Ảnh ' + (i + 1)" class="preview-img" />
+        <button
+          type="button"
+          class="preview-remove"
+          (click)="removeFile(i)"
+          title="Xoá ảnh này"
+          aria-label="Xoá ảnh"
+        >
+          <tui-icon icon="@tui.x"></tui-icon>
+        </button>
+      </div>
+    </div>
+
+    <div *ngIf="isUploading()" class="uploading-row">
+      <tui-loader size="s"></tui-loader>
+      <span>Đang tải ảnh lên server...</span>
+    </div>
   </div>
 
   <div class="dialog-actions">
-    <button tuiButton type="button" size="m" appearance="outline" (click)="cancel()">
+    <button tuiButton type="button" size="m" appearance="outline" (click)="cancel()" [disabled]="isUploading()">
       Hủy
     </button>
-    <button tuiButton type="submit" size="m" appearance="primary" [disabled]="form.invalid">
-      Lưu án phạt
+    <button tuiButton type="submit" size="m" appearance="primary" [disabled]="form.invalid || isUploading()">
+      {{ isUploading() ? 'Đang lưu...' : 'Lưu án phạt' }}
     </button>
   </div>
 </form>

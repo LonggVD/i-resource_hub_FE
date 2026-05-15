@@ -166,6 +166,10 @@ export class BookingBoardComponent implements OnInit {
       const group = map.get(key)!;
       if (b.hasDamage) group.hasDamage = true;
       if (b.isPenalized) group.isPenalized = true;
+      // Lấy giờ trả mới nhất trong batch (mỗi item có thể được trả ở thời điểm khác nhau).
+      if (b.actualEndTime && (!group.actualEndTime || b.actualEndTime > group.actualEndTime)) {
+        group.actualEndTime = b.actualEndTime;
+      }
 
       group.items.push({
         id: b.id,
@@ -246,9 +250,12 @@ export class BookingBoardComponent implements OnInit {
   /** Lấy datetime tham chiếu của 1 đơn theo trạng thái cột:
    *  - PENDING/APPROVED: slotStart (sắp tới slot → cần duyệt/bàn giao gấp)
    *  - BORROWED: slotEnd (sắp tới hạn trả)
-   *  - RETURNED: slotEnd (chỉ để sort thứ tự lịch sử)
+   *  - RETURNED: actualEndTime nếu có (giờ trả thực tế), fallback slotEnd cho dữ liệu cũ.
    */
   private getReferenceDate(group: GroupedBooking, columnId: BookingStatus | string): Date {
+    if (columnId === 'RETURNED' && group.actualEndTime) {
+      return new Date(group.actualEndTime);
+    }
     const useEnd = columnId === 'BORROWED' || columnId === 'RETURNED';
     const time = useEnd ? group.endTime : group.startTime;
     // bookingDate dạng "YYYY-MM-DD", time dạng "HH:mm" hoặc "HH:mm:ss"
@@ -427,7 +434,7 @@ export class BookingBoardComponent implements OnInit {
     this.dialogService
       .open<void>(new PolymorpheusComponent(BookingDetailDialogComponent), {
         label: `Chi tiết thẻ mượn`,
-        size: 'm',
+        size: 'l',
         data: group,
         dismissible: true,
       })
@@ -442,7 +449,7 @@ export class BookingBoardComponent implements OnInit {
     this.dialogService
       .open<boolean>(new PolymorpheusComponent(PenaltyDialogComponent), {
         label: 'Ghi nhận vi phạm',
-        size: 'm',
+        size: 'l',
         data: group,
         dismissible: true,
       })

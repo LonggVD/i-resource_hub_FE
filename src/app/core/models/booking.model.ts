@@ -59,6 +59,8 @@ export interface GroupedBooking {
   endTime: string;
   status: BookingStatus;
   purpose: string;
+  /** Giờ trả thực tế mới nhất trong batch (ISO string, tính theo timezone backend). */
+  actualEndTime?: string;
   borrowerName?: string;
   borrowerId?: string;
   userId?: string;

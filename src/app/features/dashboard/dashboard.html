@@ -89,14 +89,45 @@
 
     <!-- Overdue Bookings -->
     <div class="data-card overdue-card">
-      <div class="card-header">
+      <div class="card-header overdue-header">
         <h3 class="chart-title error-text">
           <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
           Cảnh báo quá hạn ({{ stats()?.overdueBookings?.length || 0 }})
         </h3>
+        <label class="select-all-label no-print"
+          *ngIf="stats()?.overdueBookings?.length && (authService.user()?.roles?.includes('ROLE_ADMIN') || authService.user()?.roles?.includes('ROLE_MANAGER'))">
+          <input type="checkbox"
+            class="overdue-checkbox"
+            [checked]="allSelected()"
+            [indeterminate]="someSelected()"
+            (change)="toggleAll()" />
+          <span>Chọn tất cả</span>
+        </label>
       </div>
+
+      <!-- Bulk action bar -->
+      <div class="bulk-action-bar no-print" *ngIf="selectedCount() > 0">
+        <span class="bulk-count">Đã chọn {{ selectedCount() }}</span>
+        <div class="bulk-actions">
+          <button tuiButton type="button" appearance="outline" size="xs" iconLeft="@tui.mail" (click)="sendBulkWarning()">
+            Nhắc tất cả đã chọn
+          </button>
+          <button tuiButton type="button" appearance="flat" size="xs" (click)="clearSelection()">
+            Bỏ chọn
+          </button>
+        </div>
+      </div>
+
       <div class="list-container overdue-list">
-        <div class="list-item overdue-item" *ngFor="let over of stats()?.overdueBookings">
+        <div class="list-item overdue-item"
+          *ngFor="let over of stats()?.overdueBookings"
+          [class.selected]="isSelected(over.bookingId)">
+          <input type="checkbox"
+            class="overdue-checkbox no-print"
+            *hasRole="['ROLE_ADMIN', 'ROLE_MANAGER']"
+            [checked]="isSelected(over.bookingId)"
+            (change)="toggleSelection(over.bookingId, $event)"
+            (click)="$event.stopPropagation()" />
           <div class="overdue-info">
             <div class="student-name">{{ over.studentName }} ({{ over.studentCode }})</div>
             <div class="device-name">{{ over.deviceName }} - {{ over.serialNumber }}</div>

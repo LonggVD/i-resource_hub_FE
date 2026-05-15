@@ -1,4 +1,4 @@
-import { Component, OnInit, inject, signal } from '@angular/core';
+import { Component, OnInit, computed, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { NgxEchartsDirective } from 'ngx-echarts';
@@ -32,6 +32,18 @@ export class DashboardComponent implements OnInit {
   stats = signal<DashboardResponse | null>(null);
   isLoading = signal<boolean>(true);
   isStudent = signal<boolean>(false);
+
+  protected readonly selectedIds = signal<Set<string>>(new Set());
+  protected readonly selectedCount = computed(() => this.selectedIds().size);
+  protected readonly allSelected = computed(() => {
+    const total = this.stats()?.overdueBookings?.length ?? 0;
+    return total > 0 && this.selectedIds().size === total;
+  });
+  protected readonly someSelected = computed(() => {
+    const count = this.selectedIds().size;
+    const total = this.stats()?.overdueBookings?.length ?? 0;
+    return count > 0 && count < total;
+  });
 
   // ECharts Options
   lineChartOption: EChartsOption = {};
@@ -71,13 +83,49 @@ export class DashboardComponent implements OnInit {
     );
   }
 
+  protected isSelected(id: string): boolean {
+    return this.selectedIds().has(id);
+  }
+
+  protected toggleSelection(id: string, event: Event): void {
+    event.stopPropagation();
+    const next = new Set(this.selectedIds());
+    if (next.has(id)) next.delete(id);
+    else next.add(id);
+    this.selectedIds.set(next);
+  }
+
+  protected toggleAll(): void {
+    const items = this.stats()?.overdueBookings ?? [];
+    if (this.allSelected()) {
+      this.selectedIds.set(new Set());
+    } else {
+      this.selectedIds.set(new Set(items.map((b) => b.bookingId)));
+    }
+  }
+
+  protected clearSelection(): void {
+    this.selectedIds.set(new Set());
+  }
+
+  protected sendBulkWarning(): void {
+    const items = this.stats()?.overdueBookings ?? [];
+    const selected = items.filter((b) => this.selectedIds().has(b.bookingId));
+    if (selected.length === 0) return;
+    // Dummy action — backend chưa có endpoint gửi nhắc nhở, khớp hành vi sendWarning
+    this.notificationService.showSuccess(
+      `Đã gửi email nhắc nhở tới ${selected.length} sinh viên.`,
+    );
+    this.clearSelection();
+  }
+
   // Phạt sinh viên
   penalizeStudent(booking: OverdueBooking, event: Event): void {
     event.stopPropagation();
     this.dialogs
       .open<boolean>(new PolymorpheusComponent(PenaltyDialogComponent), {
         label: 'Ghi nhận vi phạm quá hạn',
-        size: 'm',
+        size: 'l',
         data: {
           ...booking,
           expired: true,
@@ -93,6 +141,7 @@ export class DashboardComponent implements OnInit {
 
   loadData(): void {
     this.isLoading.set(true);
+    this.clearSelection();
     this.dashboardService.getDashboardStats().subscribe({
       next: (res) => {
         this.stats.set(res);

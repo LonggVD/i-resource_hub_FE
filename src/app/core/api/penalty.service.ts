@@ -12,6 +12,7 @@ export interface PenaltyRequest {
   description: string;
   fineAmount?: number;
   requiresReview?: boolean;
+  evidenceUrls?: string[];
 }
 
 export interface PenaltyResponse {
