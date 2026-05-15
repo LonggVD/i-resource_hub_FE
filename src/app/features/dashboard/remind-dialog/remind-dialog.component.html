@@ -1,0 +1,41 @@
+<div class="remind-dialog">
+  <p class="dialog-intro">
+    Hệ thống sẽ gửi email nhắc nhở trả thiết bị tới
+    <strong>{{ items.length }} sinh viên</strong> dưới đây:
+  </p>
+
+  <div class="remind-list">
+    <div class="remind-row header-row">
+      <span class="col-idx">#</span>
+      <span class="col-student">Sinh viên</span>
+      <span class="col-device">Thiết bị</span>
+      <span class="col-slot">Ca mượn</span>
+      <span class="col-return">Hạn trả</span>
+    </div>
+    <div class="remind-row" *ngFor="let it of items; let i = index">
+      <span class="col-idx">{{ i + 1 }}</span>
+      <span class="col-student">
+        <strong>{{ it.studentName }}</strong>
+        <span class="muted">{{ it.studentCode }}</span>
+      </span>
+      <span class="col-device">
+        {{ it.deviceName }}
+        <span class="muted">{{ it.serialNumber }}</span>
+      </span>
+      <span class="col-slot">{{ it.slotName || '—' }}</span>
+      <span class="col-return">
+        {{ it.expectedReturnTime }}
+        <span class="overdue-tag">Trễ {{ it.overdueDays }} ngày</span>
+      </span>
+    </div>
+  </div>
+
+  <div class="dialog-actions">
+    <button tuiButton type="button" appearance="flat" size="m" (click)="cancel()">
+      Hủy
+    </button>
+    <button tuiButton type="button" appearance="primary" size="m" iconLeft="@tui.mail" (click)="confirm()">
+      Gửi nhắc nhở
+    </button>
+  </div>
+</div>

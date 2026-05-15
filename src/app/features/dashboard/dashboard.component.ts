@@ -13,6 +13,7 @@ import { NotificationService } from '../../core/api/notification';
 import { HasRoleDirective } from '../../core/directives/has-role.directive';
 import { PolymorpheusComponent } from '@taiga-ui/polymorpheus';
 import { PenaltyDialogComponent } from '../penalties/penalty-dialog/penalty-dialog.component';
+import { RemindDialogComponent, RemindDialogData } from './remind-dialog/remind-dialog.component';
 import { AuthService } from '../../core/api/auth.service';
 
 @Component({
@@ -74,13 +75,49 @@ export class DashboardComponent implements OnInit {
     window.print();
   }
 
-  // Gửi nhắc nhở
+  // Gửi nhắc nhở (single) — mở dialog xác nhận trước khi gửi
   sendWarning(booking: OverdueBooking, event: Event): void {
     event.stopPropagation();
-    // Dummy action: hiển thị thông báo thành công
-    this.notificationService.showSuccess(
-      `Đã gửi email nhắc nhở trả thiết bị "${booking.deviceName}" tới sinh viên ${booking.studentName}!`,
-    );
+    this.openRemindDialog([booking]);
+  }
+
+  private openRemindDialog(items: OverdueBooking[]): void {
+    if (items.length === 0) return;
+    this.dialogs
+      .open<boolean>(new PolymorpheusComponent(RemindDialogComponent), {
+        label: `Xác nhận nhắc nhở (${items.length})`,
+        size: 'l',
+        data: { items } as RemindDialogData,
+        dismissible: true,
+      })
+      .subscribe((confirmed) => {
+        if (!confirmed) return;
+        const bookingIds = items.map((b) => b.bookingId);
+        this.dashboardService.remindOverdue(bookingIds).subscribe({
+          next: (res) => {
+            if (res.sent > 0) {
+              this.notificationService.showSuccess(
+                `Đã gửi email nhắc nhở tới ${res.sent}/${res.requested} sinh viên.`,
+              );
+            }
+            const issues = res.skippedBookingIds.length + res.failedBookingIds.length;
+            if (issues > 0) {
+              this.notificationService.showWarning(
+                `${res.skippedBookingIds.length} bị bỏ qua (thiếu email/không quá hạn), ${res.failedBookingIds.length} gửi lỗi.`,
+              );
+            }
+            if (res.sent === 0 && issues === 0) {
+              this.notificationService.showInfo('Không có sinh viên nào được nhắc.');
+            }
+            if (items.length > 1) this.clearSelection();
+          },
+          error: (err) => {
+            this.notificationService.showError(
+              err.error?.message || 'Gửi email nhắc nhở thất bại.',
+            );
+          },
+        });
+      });
   }
 
   protected isSelected(id: string): boolean {
@@ -111,12 +148,7 @@ export class DashboardComponent implements OnInit {
   protected sendBulkWarning(): void {
     const items = this.stats()?.overdueBookings ?? [];
     const selected = items.filter((b) => this.selectedIds().has(b.bookingId));
-    if (selected.length === 0) return;
-    // Dummy action — backend chưa có endpoint gửi nhắc nhở, khớp hành vi sendWarning
-    this.notificationService.showSuccess(
-      `Đã gửi email nhắc nhở tới ${selected.length} sinh viên.`,
-    );
-    this.clearSelection();
+    this.openRemindDialog(selected);
   }
 
   // Phạt sinh viên

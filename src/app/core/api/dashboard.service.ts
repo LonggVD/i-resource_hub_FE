@@ -39,8 +39,16 @@ export interface OverdueBooking {
   studentName: string;
   deviceName: string;
   serialNumber: string;
+  slotName?: string;
   expectedReturnTime: string;
   overdueDays: number;
+}
+
+export interface OverdueRemindResponse {
+  requested: number;
+  sent: number;
+  skippedBookingIds: string[];
+  failedBookingIds: string[];
 }
 
 @Injectable({
@@ -52,5 +60,9 @@ export class DashboardService {
 
   getDashboardStats(): Observable<DashboardResponse> {
     return this.http.get<DashboardResponse>(`${this.apiUrl}/stats`);
+  }
+
+  remindOverdue(bookingIds: string[]): Observable<OverdueRemindResponse> {
+    return this.http.post<OverdueRemindResponse>(`${this.apiUrl}/remind-overdue`, { bookingIds });
   }
 }
