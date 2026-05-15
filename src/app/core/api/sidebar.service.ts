@@ -58,12 +58,6 @@ export class SidebarService {
         roles: ['ROLE_STUDENT'],
       },
       {
-        label: 'Đặt lịch mượn',
-        icon: '@tui.calendar-plus',
-        route: '/bookings/create',
-        roles: ['ROLE_STUDENT'],
-      },
-      {
         label: 'Lịch của tôi',
         icon: '@tui.calendar-check',
         route: '/my-bookings',

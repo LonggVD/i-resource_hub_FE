@@ -1,13 +1,1 @@
-
-.success {
-  --mdc-snackbar-container-color: #4caf50;
-  --mdc-snackbar-supporting-text-color: rgb(17, 49, 32);
-}
-.error {
-  --mdc-snackbar-container-color: #af4c4c;
-  --mdc-snackbar-supporting-text-color: rgb(48, 17, 17);
-}
-.info {
-  --mdc-snackbar-container-color: #2196f3;
-  --mdc-snackbar-supporting-text-color: rgb(17, 49, 32);
-}
+/* Snackbar styles đã chuyển sang styles.css (global tokens). */

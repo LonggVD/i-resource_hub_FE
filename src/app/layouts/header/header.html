@@ -17,15 +17,13 @@
   <div class="header__right">
     <!-- Notifications -->
     <div class="header__notif-wrapper">
-      <button class="header__action-btn" title="Thông báo" (click)="toggleNotifPanel()">
-        <tui-badged-content>
-          @if (notificationCount() > 0) {
-            <tui-badge tuiBadge tuiSlot="bottom" appearance="error" size="s">
-              {{ notificationCount() > 99 ? '99+' : notificationCount() }}
-            </tui-badge>
-          }
-          <tui-icon icon="@tui.bell" />
-        </tui-badged-content>
+      <button class="header__action-btn header__action-btn--notif" title="Thông báo" (click)="toggleNotifPanel()">
+        <tui-icon icon="@tui.bell" class="header__action-icon" />
+        @if (notificationCount() > 0) {
+          <span class="header__action-badge">
+            {{ notificationCount() > 99 ? '99+' : notificationCount() }}
+          </span>
+        }
       </button>
 
       @if (showNotifPanel()) {

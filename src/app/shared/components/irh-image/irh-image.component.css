@@ -8,17 +8,16 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background: #f8fafc;
-  border: 1px solid #e2e8f0;
-  border-radius: 8px;
+  background: var(--color-surface-alt);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
   overflow: hidden;
   cursor: pointer;
-  transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: border-color 0.15s ease;
 }
 
 .irh-image-wrapper:hover {
-  transform: translateY(-2px);
-  border-color: #6366f1;
+  border-color: var(--color-primary);
 }
 
 .irh-image-content {
@@ -30,15 +29,15 @@
 .hover-overlay {
   position: absolute;
   inset: 0;
-  background: rgba(15, 23, 42, 0.5);
+  background: rgba(17, 24, 39, 0.5);
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 8px;
-  color: white;
+  gap: var(--space-2);
+  color: #ffffff;
   opacity: 0;
-  transition: opacity 0.3s ease;
+  transition: opacity 0.15s ease;
   z-index: 2;
 }
 
@@ -47,44 +46,44 @@
 }
 
 .hover-overlay tui-icon {
-  font-size: 24px;
+  font-size: 22px;
 }
 
 .hover-overlay span {
-  font-size: 11px;
+  font-size: var(--font-size-xs);
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.05em;
 }
 
-/* ── Lightbox Dialog Styles ───────────────────────────────── */
+/* ── Lightbox Dialog ───────────────────────────────────────── */
 .lightbox-container {
   display: flex;
   flex-direction: column;
   width: 90vw;
   height: 90vh;
   max-width: 1200px;
-  background: white;
-  border-radius: 24px;
+  background: var(--color-surface);
+  border-radius: var(--radius-xl);
   overflow: hidden;
-  box-shadow: 0 50px 100px -20px rgba(0,0,0,0.25);
+  box-shadow: var(--shadow-lg);
   position: relative;
 }
 
 .lightbox-header {
-  padding: 16px 24px;
+  padding: var(--space-3) var(--space-6);
   display: flex;
   justify-content: space-between;
   align-items: center;
-  border-bottom: 1px solid #f1f5f9;
+  border-bottom: 1px solid var(--color-border);
   flex-shrink: 0;
 }
 
 .lightbox-header h3 {
   margin: 0;
-  font-size: 16px;
-  font-weight: 700;
-  color: #1e293b;
+  font-size: var(--font-size-md);
+  font-weight: 600;
+  color: var(--color-text);
 }
 
 .image-viewport {
@@ -94,10 +93,9 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background: #fdfdfd;
-  background-image: radial-gradient(#e2e8f0 1.5px, transparent 1.5px);
+  background: var(--color-bg);
+  background-image: radial-gradient(var(--color-border) 1.5px, transparent 1.5px);
   background-size: 32px 32px;
-  padding: 0;
   user-select: none;
 }
 
@@ -113,56 +111,45 @@
   max-height: 70vh;
   object-fit: contain;
   display: block;
-  box-shadow: 0 10px 40px rgba(0,0,0,0.15);
-  border-radius: 4px;
+  box-shadow: var(--shadow-lg);
+  border-radius: var(--radius-sm);
 }
 
-/* ── Toolbar (Glassmorphism Floating) ─────────────────────── */
+/* ── Toolbar ───────────────────────────────────────────────── */
 .lightbox-toolbar {
   position: absolute;
-  bottom: 32px;
+  bottom: var(--space-8);
   left: 50%;
   transform: translateX(-50%);
   display: flex;
   align-items: center;
-  gap: 12px;
-  padding: 8px 16px;
-  background: rgba(255, 255, 255, 0.85);
-  backdrop-filter: blur(12px) saturate(180%);
-  border: 1px solid rgba(255, 255, 255, 0.3);
-  border-radius: 40px;
-  box-shadow: 
-    0 4px 6px -1px rgba(0, 0, 0, 0.1), 
-    0 10px 15px -3px rgba(0, 0, 0, 0.1),
-    inset 0 0 0 1px rgba(255, 255, 255, 0.5);
+  gap: var(--space-3);
+  padding: var(--space-2) var(--space-4);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-full);
+  box-shadow: var(--shadow-lg);
   z-index: 100;
-  transition: all 0.3s ease;
-}
-
-.lightbox-toolbar:hover {
-  background: rgba(255, 255, 255, 0.95);
-  box-shadow: 0 20px 40px -10px rgba(0,0,0,0.15);
-  transform: translateX(-50%) translateY(-4px);
 }
 
 .toolbar-group {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: var(--space-2);
 }
 
 .zoom-value {
-  font-size: 13px;
+  font-size: var(--font-size-sm);
   font-weight: 700;
-  color: #1e293b;
+  color: var(--color-text);
   min-width: 48px;
   text-align: center;
 }
 
 .divider {
   width: 1px;
-  height: 24px;
-  background: #cbd5e1;
+  height: 22px;
+  background: var(--color-border-strong);
   margin: 0 4px;
 }
 
@@ -173,7 +160,6 @@
   --tui-width: 100vw;
 }
 
-/* ── Responsive ────────────────────────────────────────────── */
 @media (max-width: 768px) {
   .lightbox-container {
     width: 100vw;

@@ -1,66 +1,106 @@
 /* ============================================
- * Global design tokens — Indigo + Slate palette
+ * Global design tokens — University Blue & Stone
+ * Tinh thần: Quiet UI — trang trọng, học thuật, thông tin trước trang trí sau.
  * ============================================ */
 :root {
-  /* Brand */
-  --color-primary: #4f46e5;          /* indigo-600 */
-  --color-primary-hover: #4338ca;    /* indigo-700 */
-  --color-primary-active: #3730a3;   /* indigo-800 */
-  --color-primary-soft: #eef2ff;     /* indigo-50  */
-  --color-primary-soft-2: #e0e7ff;   /* indigo-100 */
-  --color-primary-border: #c7d2fe;   /* indigo-200 */
+  /* Brand — Xanh navy đại học (blue-700) */
+  --color-primary: #1d4ed8;
+  --color-primary-hover: #1e40af;        /* blue-800 */
+  --color-primary-active: #1e3a8a;       /* blue-900 */
+  --color-primary-soft: #eff6ff;         /* blue-50  — nền badge/hover nhẹ */
+  --color-primary-soft-2: #dbeafe;       /* blue-100 */
+  --color-primary-border: #bfdbfe;       /* blue-200 */
 
-  /* Accent */
-  --color-accent: #06b6d4;           /* cyan-500 */
-  --color-accent-hover: #0891b2;     /* cyan-600 */
-  --color-accent-soft: #ecfeff;      /* cyan-50 */
+  /* Text — gray scale trung tính */
+  --color-text: #111827;                 /* gray-900 */
+  --color-text-strong: #1f2937;          /* gray-800 */
+  --color-text-muted: #4b5563;           /* gray-600 */
+  --color-text-subtle: #9ca3af;          /* gray-400 */
+  --color-text-faint: #d1d5db;           /* gray-300 */
 
-  /* Text & surface (slate) */
-  --color-text: #0f172a;             /* slate-900 */
-  --color-text-strong: #1e293b;      /* slate-800 */
-  --color-text-muted: #475569;       /* slate-600 */
-  --color-text-subtle: #94a3b8;      /* slate-400 */
-  --color-text-faint: #cbd5e1;       /* slate-300 */
-
-  --color-bg: #f8fafc;               /* slate-50 */
+  /* Surface — Stone, ấm hơn slate, đỡ "tech" */
+  --color-bg: #fafaf9;                   /* stone-50 */
   --color-surface: #ffffff;
-  --color-surface-alt: #f1f5f9;      /* slate-100 */
-  --color-border: #e2e8f0;           /* slate-200 */
-  --color-border-strong: #cbd5e1;    /* slate-300 */
+  --color-surface-alt: #f5f5f4;          /* stone-100 */
+  --color-border: #e5e7eb;               /* gray-200 */
+  --color-border-strong: #d1d5db;        /* gray-300 */
 
-  /* Semantic */
-  --color-success: #10b981;          /* emerald-500 */
-  --color-success-soft: #ecfdf5;     /* emerald-50  */
-  --color-warning: #f59e0b;          /* amber-500 */
-  --color-warning-soft: #fffbeb;     /* amber-50  */
-  --color-danger: #ef4444;           /* red-500 */
-  --color-danger-soft: #fef2f2;      /* red-50  */
-  --color-info: #0ea5e9;             /* sky-500 */
-  --color-info-soft: #f0f9ff;        /* sky-50  */
+  /* Semantic — đậm, ít bão hòa, không neon */
+  --color-success: #15803d;              /* green-700 */
+  --color-success-soft: #f0fdf4;         /* green-50  */
+  --color-warning: #b45309;              /* amber-700 */
+  --color-warning-soft: #fffbeb;         /* amber-50  */
+  --color-danger: #b91c1c;               /* red-700 */
+  --color-danger-soft: #fef2f2;          /* red-50  */
+  --color-info: #0369a1;                 /* sky-700 */
+  --color-info-soft: #f0f9ff;            /* sky-50  */
 
-  /* Gradients */
-  --gradient-primary: linear-gradient(135deg, #4f46e5 0%, #6366f1 50%, #06b6d4 100%);
-  --gradient-primary-soft: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%);
-  --gradient-success: linear-gradient(135deg, #10b981 0%, #059669 100%);
-  --gradient-warning: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
-  --gradient-info: linear-gradient(135deg, #0ea5e9 0%, #0284c7 100%);
+  /* Shadows — đen trung tính, không màu thương hiệu */
+  --shadow-sm: 0 1px 2px rgba(17, 24, 39, 0.05);
+  --shadow-md: 0 2px 6px rgba(17, 24, 39, 0.06), 0 1px 2px rgba(17, 24, 39, 0.04);
+  --shadow-lg: 0 8px 24px -8px rgba(17, 24, 39, 0.12);
 
-  /* Shadows */
-  --shadow-sm: 0 1px 2px rgba(15, 23, 42, 0.04);
-  --shadow-md: 0 4px 12px -2px rgba(15, 23, 42, 0.08);
-  --shadow-lg: 0 12px 24px -8px rgba(15, 23, 42, 0.12);
-  --shadow-primary: 0 8px 20px -6px rgba(79, 70, 229, 0.4);
-
-  /* Radii */
-  --radius-sm: 6px;
-  --radius-md: 10px;
-  --radius-lg: 14px;
-  --radius-xl: 20px;
+  /* Radii — chỉ tới 12px cho container, full cho avatar */
+  --radius-sm: 4px;
+  --radius-md: 8px;
+  --radius-lg: 10px;
+  --radius-xl: 12px;
   --radius-full: 999px;
 
   /* Typography */
-  --font-sans: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial,
-    sans-serif;
+  --font-sans: 'Be Vietnam Pro', system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue',
+    Arial, sans-serif;
+  --font-mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+
+  --font-size-xs: 12px;     /* caption, badge */
+  --font-size-sm: 13px;     /* secondary, hint */
+  --font-size-base: 14px;   /* body mặc định */
+  --font-size-md: 15px;     /* form input */
+  --font-size-lg: 18px;     /* card title */
+  --font-size-xl: 22px;     /* section heading */
+  --font-size-2xl: 28px;    /* page title */
+
+  /* Spacing — thang 4-base */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-6: 24px;
+  --space-8: 32px;
+
+  /* ============================================
+   * Shorthand aliases — phải define ở :root để
+   * Taiga dialog portal (render ngoài DOM tree
+   * của host component) resolve được trong các
+   * rule CSS scoped của template-based modal.
+   * ============================================ */
+  --cs: var(--color-surface);
+  --csa: var(--color-surface-alt);
+  --cb: var(--color-border);
+  --cbs: var(--color-border-strong);
+  --cts: var(--color-text-strong);
+  --ctm: var(--color-text-muted);
+  --ctsu: var(--color-text-subtle);
+  --cp: var(--color-primary);
+  --cps: var(--color-primary-soft);
+  --cd: var(--color-danger);
+  --cds: var(--color-danger-soft);
+  --rm: var(--radius-md);
+  --rxl: var(--radius-xl);
+  --fxs: var(--font-size-xs);
+  --fs: var(--font-size-sm);
+  --fb: var(--font-size-base);
+  --fmd: var(--font-size-md);
+  --flg: var(--font-size-lg);
+  --fxl: var(--font-size-xl);
+  --s1: var(--space-1);
+  --s2: var(--space-2);
+  --s3: var(--space-3);
+  --s4: var(--space-4);
+  --s6: var(--space-6);
+  --s8: var(--space-8);
+  --fm: var(--font-mono);
+  --ss: var(--shadow-sm);
 }
 
 /* ============================================
@@ -69,20 +109,36 @@
 html,
 body {
   font-family: var(--font-sans);
+  font-size: var(--font-size-base);
   color: var(--color-text);
   background-color: var(--color-bg);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   text-rendering: optimizeLegibility;
-  font-feature-settings: 'cv11', 'ss01', 'ss03';
 }
 
-/* Apply Inter to all Taiga UI components */
 * {
   font-family: var(--font-sans);
 }
 
-/* Snackbar (giữ ý nghĩa cũ, đồng bộ vào palette) */
+code,
+kbd,
+samp,
+pre {
+  font-family: var(--font-mono);
+}
+
+/* ============================================
+ * Focus ring — accessibility chuẩn
+ * ============================================ */
+:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+}
+
+/* ============================================
+ * Snackbar (Angular Material)
+ * ============================================ */
 .success {
   --mdc-snackbar-container-color: var(--color-success);
   --mdc-snackbar-supporting-text-color: #ffffff;

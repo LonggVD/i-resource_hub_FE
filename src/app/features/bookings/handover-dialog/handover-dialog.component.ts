@@ -43,14 +43,14 @@ export interface HandoverResult {
   template: `
     <div class="handover-dialog">
       <div class="batch-info" *ngIf="group">
-        <h3>Bàn giao lô: {{ group.items[0].deviceName }} (x{{ group.items.length }})</h3>
+        <h3 class="batch-title">Bàn giao lô: {{ group.items[0].deviceName }} (x{{ group.items.length }})</h3>
         <p class="borrower-info">Người mượn: <strong>{{ group.borrowerName || 'Sinh viên' }}</strong></p>
       </div>
 
       <!-- Quick Actions -->
       <div class="quick-actions">
-        <button tuiButton appearance="secondary" size="m" class="w-full" (click)="handoverAllAuto()">
-          <tui-icon icon="@tui.zap" /> Bàn giao nhanh tất cả (Auto)
+        <button tuiButton appearance="primary" size="m" class="w-full" (click)="handoverAllAuto()">
+          <tui-icon icon="@tui.zap"></tui-icon> Bàn giao nhanh tất cả (Auto)
         </button>
       </div>
 
@@ -95,7 +95,7 @@ export interface HandoverResult {
       </div>
 
       <div class="dialog-footer">
-        <button tuiButton appearance="flat" size="m" (click)="close()">Hủy</button>
+        <button tuiButton appearance="secondary" size="m" (click)="close()">Hủy</button>
         <button tuiButton appearance="primary" size="m" (click)="submitManual()" [disabled]="!canSubmitManual()">
           Hoàn tất bàn giao
         </button>
@@ -103,23 +103,145 @@ export interface HandoverResult {
     </div>
   `,
   styles: [`
-    .handover-dialog { display: flex; flex-direction: column; gap: 1rem; max-height: 80vh; overflow-y: auto; padding-right: 10px; }
-    .batch-info h3 { margin: 0; color: #1e293b; }
-    .borrower-info { margin: 4px 0; font-size: 0.9rem; color: #64748b; }
-    .quick-actions { padding: 10px 0; }
-    .divider { display: flex; align-items: center; text-align: center; color: #94a3b8; font-size: 0.7rem; font-weight: bold; }
-    .divider::before, .divider::after { content: ''; flex: 1; border-bottom: 1px solid #e2e8f0; }
-    .divider::before { margin-right: 1rem; } .divider::after { margin-left: 1rem; }
-    .handover-list { display: flex; flex-direction: column; gap: 0.75rem; }
-    .handover-item { padding: 12px; background: #f8fafc; border-radius: 12px; border: 1px solid #e2e8f0; transition: all 0.2s; }
-    .handover-item.scanned { border-color: #22c55e; background: #f0fdf4; }
-    .item-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; font-size: 0.8rem; }
-    .item-index { font-weight: bold; color: #6366f1; }
-    .qr-scanner-container { width: 100%; height: 200px; background: #000; border-radius: 12px; overflow: hidden; position: relative; }
-    .scanner-window { position: relative; width: 100%; height: 100%; }
-    ngx-scanner-qrcode { width: 100%; height: 100%; object-fit: cover; }
-    .scanner-placeholder { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; color: #94a3b8; }
-    .dialog-footer { display: flex; justify-content: flex-end; gap: 1rem; margin-top: 1rem; }
+    :host { display: block; box-sizing: border-box; width: 100%; }
+    :host *, :host *::before, :host *::after { box-sizing: border-box; }
+
+    .handover-dialog {
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-4);
+      max-height: 80vh;
+      overflow-y: auto;
+      min-width: 0;
+      width: 100%;
+    }
+    .batch-info {
+      min-width: 0;
+    }
+    .batch-title {
+      margin: 0;
+      color: var(--color-text);
+      font-size: var(--font-size-lg);
+      font-weight: 700;
+      word-break: break-word;
+    }
+    .borrower-info {
+      margin: var(--space-1) 0 0;
+      font-size: var(--font-size-sm);
+      color: var(--color-text-muted);
+      word-break: break-word;
+    }
+    .quick-actions {
+      padding: var(--space-2) 0;
+      min-width: 0;
+    }
+    .divider {
+      display: flex;
+      align-items: center;
+      text-align: center;
+      color: var(--color-text-subtle);
+      font-size: var(--font-size-xs);
+      font-weight: 600;
+      letter-spacing: 0.04em;
+    }
+    .divider::before,
+    .divider::after {
+      content: '';
+      flex: 1;
+      border-bottom: 1px solid var(--color-border);
+    }
+    .divider::before { margin-right: var(--space-3); }
+    .divider::after { margin-left: var(--space-3); }
+    .handover-list {
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-3);
+      min-width: 0;
+    }
+    .handover-item {
+      padding: var(--space-3);
+      background: var(--color-surface-alt);
+      border-radius: var(--radius-lg);
+      border: 1px solid var(--color-border);
+      transition: border-color 0.15s ease, background 0.15s ease;
+      min-width: 0;
+    }
+    .handover-item.scanned {
+      border-color: var(--color-success);
+      background: var(--color-success-soft);
+    }
+    .item-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: var(--space-2);
+      margin-bottom: var(--space-2);
+      font-size: var(--font-size-xs);
+      min-width: 0;
+      flex-wrap: wrap;
+    }
+    .item-index {
+      font-weight: 700;
+      color: var(--color-primary);
+    }
+    .item-serial-assigned {
+      color: var(--color-text-muted);
+      min-width: 0;
+      word-break: break-word;
+      flex: 1;
+    }
+    .item-input {
+      min-width: 0;
+    }
+    .item-input tui-textfield {
+      width: 100%;
+    }
+    .qr-scanner-container {
+      width: 100%;
+      height: 200px;
+      background: var(--color-text);
+      border-radius: var(--radius-lg);
+      overflow: hidden;
+      position: relative;
+      min-width: 0;
+    }
+    .scanner-window {
+      position: relative;
+      width: 100%;
+      height: 100%;
+    }
+    ngx-scanner-qrcode {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+    .scanner-placeholder {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: var(--space-2);
+      color: var(--color-text-faint);
+      text-align: center;
+    }
+    .placeholder-icon {
+      font-size: var(--font-size-2xl);
+    }
+    .scanner-controls {
+      display: flex;
+      justify-content: center;
+    }
+    .dialog-footer {
+      display: flex;
+      justify-content: flex-end;
+      gap: var(--space-3);
+      margin-top: var(--space-3);
+      padding-top: var(--space-3);
+      border-top: 1px solid var(--color-border);
+      flex-wrap: wrap;
+    }
     .w-full { width: 100%; }
   `],
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -182,12 +304,12 @@ export class HandoverDialogComponent implements OnInit, OnDestroy {
       // Khớp token với item trong danh sách
       const items = this.groupItems();
       const targetIndex = items.findIndex(i => i.qrCodeToken === scannedToken && !i.scanned);
-      
+
       if (targetIndex !== -1) {
         items[targetIndex].scanned = true;
         this.groupItems.set([...items]);
         this.cdr.detectChanges();
-        
+
         // Nếu đã quét hết thì có thể tự động hoàn tất hoặc chờ manager bấm nút
         if (items.every(i => i.scanned)) {
            // Có thể tự động submit ở đây

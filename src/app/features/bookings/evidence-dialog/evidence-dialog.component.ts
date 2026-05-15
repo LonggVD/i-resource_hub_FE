@@ -86,7 +86,7 @@ export interface EvidenceDialogData {
             <span class="upload-title">
               Kéo thả hoặc <span class="upload-link">chọn ảnh từ máy</span>
             </span>
-            <span class="upload-hint">JPG, PNG, WEBP · Tối đa 10 MB/ảnh</span>
+            <span class="upload-hint">JPG, PNG, WEBP &middot; Tối đa 10 MB/ảnh</span>
           </label>
 
           <!-- Preview Grid -->
@@ -101,7 +101,10 @@ export interface EvidenceDialogData {
                 class="preview-remove"
                 (click)="removeFile(i)"
                 title="Xóa ảnh này"
-              >✕</button>
+                aria-label="Xóa ảnh"
+              >
+                <tui-icon icon="@tui.x"></tui-icon>
+              </button>
             </div>
           </div>
 
@@ -131,63 +134,76 @@ export interface EvidenceDialogData {
     </div>
   `,
   styles: [`
+    :host { display: block; box-sizing: border-box; width: 100%; }
+    :host *, :host *::before, :host *::after { box-sizing: border-box; }
+
     .evidence-dialog {
       display: flex;
       flex-direction: column;
-      gap: 1.5rem;
+      gap: var(--space-6);
+      min-width: 0;
+      width: 100%;
     }
 
     /* Header */
     .booking-context {
-      background: linear-gradient(135deg, #f8fafc 0%, #eef2ff 100%);
-      padding: 1rem 1.25rem;
-      border-radius: 12px;
-      border-left: 4px solid #6366f1;
+      background: var(--color-primary-soft);
+      padding: var(--space-3) var(--space-4);
+      border-radius: var(--radius-lg);
+      border-left: 3px solid var(--color-primary);
+      min-width: 0;
     }
     .context-title {
       margin: 0;
       font-weight: 700;
-      font-size: 1.125rem;
-      color: #1e293b;
+      font-size: var(--font-size-lg);
+      color: var(--color-text);
+      word-break: break-word;
     }
     .context-desc {
-      margin: 0.25rem 0 0;
-      font-size: 0.875rem;
-      color: #64748b;
+      margin: var(--space-1) 0 0;
+      font-size: var(--font-size-sm);
+      color: var(--color-text-muted);
+      word-break: break-word;
     }
 
     /* Form */
     .evidence-form {
       display: flex;
       flex-direction: column;
-      gap: 1.25rem;
+      gap: var(--space-4);
+      min-width: 0;
     }
     .form-item {
       display: flex;
       flex-direction: column;
-      gap: 0.5rem;
+      gap: var(--space-2);
+      min-width: 0;
     }
     .filter-label {
-      font-size: 0.875rem;
+      font-size: var(--font-size-sm);
       font-weight: 600;
-      color: #475569;
+      color: var(--color-text-strong);
     }
     .input-field {
       width: 100%;
-      background: #fff;
-      border: 1.5px solid #cbd5e1;
-      border-radius: 10px;
-      padding: 0.75rem 1rem;
-      font-size: 0.9375rem;
+      min-width: 0;
+      background: var(--color-surface);
+      border: 1px solid var(--color-border-strong);
+      border-radius: var(--radius-md);
+      padding: var(--space-3) var(--space-4);
+      font-size: var(--font-size-base);
+      color: var(--color-text);
       font-family: inherit;
-      transition: border-color 0.2s, box-shadow 0.2s;
+      transition: border-color 0.15s ease, box-shadow 0.15s ease;
       resize: vertical;
-      box-sizing: border-box;
+      word-break: break-word;
+      overflow-wrap: break-word;
     }
     .input-field:focus {
       outline: none;
-      border-color: #6366f1;
-      box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.12);
+      border-color: var(--color-primary);
+      box-shadow: 0 0 0 3px var(--color-primary-soft-2);
     }
 
     /* Upload zone */
@@ -195,55 +211,58 @@ export interface EvidenceDialogData {
       display: flex;
       flex-direction: column;
       align-items: center;
-      gap: 0.4rem;
-      padding: 2rem 1rem;
-      border: 2px dashed #cbd5e1;
-      border-radius: 14px;
-      background: #f8fafc;
+      gap: var(--space-2);
+      padding: var(--space-6) var(--space-4);
+      border: 2px dashed var(--color-border-strong);
+      border-radius: var(--radius-xl);
+      background: var(--color-surface-alt);
       cursor: pointer;
-      transition: border-color 0.2s, background 0.2s;
+      transition: border-color 0.15s ease, background 0.15s ease;
       text-align: center;
       user-select: none;
+      min-width: 0;
     }
     .upload-zone:hover,
     .upload-zone.has-files {
-      border-color: #6366f1;
-      background: #eef2ff;
+      border-color: var(--color-primary);
+      background: var(--color-primary-soft);
     }
     .upload-icon {
-      font-size: 2.5rem;
-      color: #6366f1;
-      opacity: 0.75;
+      font-size: var(--font-size-2xl);
+      color: var(--color-primary);
     }
     .upload-title {
-      font-size: 0.9375rem;
-      color: #334155;
+      font-size: var(--font-size-base);
+      color: var(--color-text-strong);
       font-weight: 500;
+      word-break: break-word;
     }
     .upload-link {
-      color: #6366f1;
-      font-weight: 700;
+      color: var(--color-primary);
+      font-weight: 600;
       text-decoration: underline;
       text-underline-offset: 3px;
     }
     .upload-hint {
-      font-size: 0.75rem;
-      color: #94a3b8;
+      font-size: var(--font-size-xs);
+      color: var(--color-text-subtle);
     }
 
     /* Preview grid */
     .preview-grid {
       display: grid;
       grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
-      gap: 0.6rem;
+      gap: var(--space-2);
+      min-width: 0;
     }
     .preview-item {
       position: relative;
-      border-radius: 10px;
+      border-radius: var(--radius-md);
       overflow: hidden;
       aspect-ratio: 1;
-      border: 2px solid #e2e8f0;
-      box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+      border: 1px solid var(--color-border);
+      box-shadow: var(--shadow-sm);
+      min-width: 0;
     }
     .preview-img {
       width: 100%;
@@ -257,27 +276,29 @@ export interface EvidenceDialogData {
       right: 4px;
       width: 22px;
       height: 22px;
-      background: rgba(239, 68, 68, 0.88);
-      color: #fff;
+      background: var(--color-danger);
+      color: #ffffff;
       border: none;
-      border-radius: 50%;
-      font-size: 11px;
-      font-weight: 700;
+      border-radius: var(--radius-full);
+      font-size: var(--font-size-xs);
       cursor: pointer;
       display: flex;
       align-items: center;
       justify-content: center;
-      transition: background 0.15s;
+      transition: background 0.15s ease;
     }
-    .preview-remove:hover { background: #dc2626; }
+    .preview-remove tui-icon {
+      font-size: 14px;
+    }
+    .preview-remove:hover { background: var(--color-text); }
 
     /* Uploading */
     .uploading-row {
       display: flex;
       align-items: center;
-      gap: 0.625rem;
-      font-size: 0.875rem;
-      color: #6366f1;
+      gap: var(--space-2);
+      font-size: var(--font-size-sm);
+      color: var(--color-primary);
       font-weight: 500;
     }
 
@@ -285,9 +306,10 @@ export interface EvidenceDialogData {
     .dialog-footer {
       display: flex;
       justify-content: flex-end;
-      gap: 0.75rem;
-      padding-top: 0.75rem;
-      border-top: 1px solid #f1f5f9;
+      gap: var(--space-3);
+      padding-top: var(--space-3);
+      border-top: 1px solid var(--color-border);
+      flex-wrap: wrap;
     }
   `],
   changeDetection: ChangeDetectionStrategy.OnPush,

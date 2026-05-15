@@ -11,7 +11,6 @@ import {
 import { CommonModule, DatePipe } from '@angular/common';
 import { Router, RouterLink } from '@angular/router';
 import { TuiIcon } from '@taiga-ui/core';
-import { TuiBadgedContent, TuiBadge } from '@taiga-ui/kit';
 import { AuthService } from '../../core/api/auth.service';
 import { SidebarService } from '../../core/api/sidebar.service';
 import {
@@ -22,7 +21,7 @@ import {
 @Component({
   selector: 'app-header',
   standalone: true,
-  imports: [CommonModule, DatePipe, RouterLink, TuiIcon, TuiBadgedContent, TuiBadge],
+  imports: [CommonModule, DatePipe, RouterLink, TuiIcon],
   templateUrl: './header.html',
   styleUrl: './header.css',
   changeDetection: ChangeDetectionStrategy.OnPush,

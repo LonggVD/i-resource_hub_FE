@@ -10,14 +10,16 @@ import { POLYMORPHEUS_CONTEXT } from '@taiga-ui/polymorpheus';
   imports: [CommonModule, ReactiveFormsModule, TuiButton],
   template: `
     <div class="reject-dialog">
-      <p class="tui-text_body-m">Bạn đang từ chối đơn mượn của sinh viên. Vui lòng nhập lý do cụ thể.</p>
+      <p class="reject-intro">
+        Bạn đang từ chối đơn mượn của sinh viên. Vui lòng nhập lý do cụ thể.
+      </p>
 
       <form [formGroup]="form" (ngSubmit)="submit()" class="reject-form">
         <div class="form-item">
           <label class="filter-label">Lý do từ chối *</label>
           <textarea
             formControlName="reason"
-            class="input-field py-3"
+            class="input-field"
             rows="4"
             placeholder="Ví dụ: Thiết bị đang trong quá trình bảo trì đột xuất..."
           ></textarea>
@@ -47,45 +49,68 @@ import { POLYMORPHEUS_CONTEXT } from '@taiga-ui/polymorpheus';
     </div>
   `,
   styles: [`
+    :host { display: block; box-sizing: border-box; width: 100%; }
+    :host *, :host *::before, :host *::after { box-sizing: border-box; }
+
     .reject-dialog {
-      padding-top: 0.5rem;
-    }
-    .reject-form {
-      margin-top: 1.5rem;
       display: flex;
       flex-direction: column;
-      gap: 1.5rem;
+      gap: var(--space-4);
+      padding-top: var(--space-2);
+      min-width: 0;
+      width: 100%;
+    }
+    .reject-intro {
+      margin: 0;
+      font-size: var(--font-size-base);
+      color: var(--color-text-muted);
+      line-height: 1.5;
+    }
+    .reject-form {
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-4);
+      min-width: 0;
+    }
+    .form-item {
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-2);
+      min-width: 0;
     }
     .filter-label {
       display: block;
-      margin-bottom: 0.5rem;
-      font-size: 0.875rem;
-      font-weight: 500;
-      color: #64748b;
+      font-size: var(--font-size-sm);
+      font-weight: 600;
+      color: var(--color-text-strong);
     }
     .input-field {
       width: 100%;
-      background: #f8fafc;
-      border: 1px solid #e2e8f0;
-      border-radius: 12px;
-      padding-left: 1rem;
-      padding-right: 1rem;
-      font-size: 0.9375rem;
-      color: #1e293b;
-      transition: all 0.2s ease;
+      min-width: 0;
+      background: var(--color-surface);
+      border: 1px solid var(--color-border-strong);
+      border-radius: var(--radius-md);
+      padding: var(--space-3) var(--space-4);
+      font-size: var(--font-size-base);
+      color: var(--color-text);
       font-family: inherit;
+      transition: border-color 0.15s ease, box-shadow 0.15s ease;
+      resize: vertical;
+      word-break: break-word;
+      overflow-wrap: break-word;
     }
     .input-field:focus {
       outline: none;
-      border-color: #6366f1;
-      background: #fff;
-      box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.1);
+      border-color: var(--color-primary);
+      background: var(--color-surface);
+      box-shadow: 0 0 0 3px var(--color-primary-soft-2);
     }
     .dialog-footer {
       display: flex;
       justify-content: flex-end;
-      gap: 0.75rem;
-      margin-top: 0.5rem;
+      gap: var(--space-3);
+      margin-top: var(--space-2);
+      flex-wrap: wrap;
     }
   `],
   changeDetection: ChangeDetectionStrategy.OnPush,

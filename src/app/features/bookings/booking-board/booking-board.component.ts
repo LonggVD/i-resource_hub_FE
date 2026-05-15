@@ -52,17 +52,30 @@ export class BookingBoardComponent implements OnInit {
   readonly dateFilter = signal('');
 
   // ── Computed columns sau khi áp dụng filter ───────────
+  // Sort FIFO theo slot datetime tăng dần: slot sớm nhất / quá hạn lâu nhất lên đầu
   readonly pendingGroups = computed(() =>
-    this.applyFilter(this.allGroups().filter((g) => g.displayStatus === 'PENDING')),
+    this.sortByUrgency(
+      this.applyFilter(this.allGroups().filter((g) => g.displayStatus === 'PENDING')),
+      'PENDING',
+    ),
   );
   readonly approvedGroups = computed(() =>
-    this.applyFilter(this.allGroups().filter((g) => g.displayStatus === 'APPROVED')),
+    this.sortByUrgency(
+      this.applyFilter(this.allGroups().filter((g) => g.displayStatus === 'APPROVED')),
+      'APPROVED',
+    ),
   );
   readonly borrowedGroups = computed(() =>
-    this.applyFilter(this.allGroups().filter((g) => g.displayStatus === 'BORROWED')),
+    this.sortByUrgency(
+      this.applyFilter(this.allGroups().filter((g) => g.displayStatus === 'BORROWED')),
+      'BORROWED',
+    ),
   );
   readonly returnedGroups = computed(() =>
-    this.applyFilter(this.allGroups().filter((g) => g.displayStatus === 'RETURNED')),
+    this.sortByUrgency(
+      this.applyFilter(this.allGroups().filter((g) => g.displayStatus === 'RETURNED')),
+      'RETURNED',
+    ),
   );
 
   constructor(
@@ -227,6 +240,93 @@ export class BookingBoardComponent implements OnInit {
   }
 
   // ═══════════════════════════════════════════════════════════
+  //  AGING / URGENCY — giúp admin biết đơn nào xử lý trước
+  // ═══════════════════════════════════════════════════════════
+
+  /** Lấy datetime tham chiếu của 1 đơn theo trạng thái cột:
+   *  - PENDING/APPROVED: slotStart (sắp tới slot → cần duyệt/bàn giao gấp)
+   *  - BORROWED: slotEnd (sắp tới hạn trả)
+   *  - RETURNED: slotEnd (chỉ để sort thứ tự lịch sử)
+   */
+  private getReferenceDate(group: GroupedBooking, columnId: BookingStatus | string): Date {
+    const useEnd = columnId === 'BORROWED' || columnId === 'RETURNED';
+    const time = useEnd ? group.endTime : group.startTime;
+    // bookingDate dạng "YYYY-MM-DD", time dạng "HH:mm" hoặc "HH:mm:ss"
+    return new Date(`${group.bookingDate}T${time || '00:00'}:00`);
+  }
+
+  /** Số phút từ NOW đến ref (âm = đã qua, dương = còn trong tương lai) */
+  private getMinutesUntil(refDate: Date): number {
+    return Math.round((refDate.getTime() - Date.now()) / 60000);
+  }
+
+  /** Sort: card cần xử lý GẤP NHẤT lên đầu (slot sớm nhất / đã qua lâu nhất). */
+  private sortByUrgency(
+    groups: GroupedBooking[],
+    columnId: BookingStatus | string,
+  ): GroupedBooking[] {
+    return [...groups].sort(
+      (a, b) =>
+        this.getReferenceDate(a, columnId).getTime() -
+        this.getReferenceDate(b, columnId).getTime(),
+    );
+  }
+
+  /** Aging tier: 'overdue' (đỏ, đã quá slot), 'urgent' (amber, < 60ph), 'normal' (xám) */
+  protected getAgingTier(group: GroupedBooking, columnId: string): string {
+    if (columnId === 'RETURNED') return 'aging-done';
+    const minutes = this.getMinutesUntil(this.getReferenceDate(group, columnId));
+    if (minutes < 0) return 'aging-overdue';
+    if (minutes <= 60) return 'aging-urgent';
+    return 'aging-normal';
+  }
+
+  /** Nhãn aging dễ đọc: "Còn 1h 30ph" / "Quá 2h 15ph" / "Đã trả 3h trước" */
+  protected getAgingLabel(group: GroupedBooking, columnId: string): string {
+    const minutes = this.getMinutesUntil(this.getReferenceDate(group, columnId));
+    const abs = Math.abs(minutes);
+    const formatted = this.formatDuration(abs);
+
+    if (columnId === 'RETURNED') {
+      return abs < 60 ? `Trả gần đây` : `Trả ${formatted} trước`;
+    }
+    if (minutes < 0) return `Quá hạn ${formatted}`;
+    if (minutes <= 60) return `Còn ${formatted}`;
+    // > 60 phút: hiển thị giờ slot cho thoáng
+    return `${group.startTime || ''} · ${this.formatDateShort(group.bookingDate)}`;
+  }
+
+  /** Label tổng quát ở header cột: "Sớm nhất: HH:mm DD/MM" hoặc cảnh báo quá hạn */
+  protected getColumnOldestLabel(groups: GroupedBooking[], columnId: string): string {
+    if (groups.length === 0 || columnId === 'RETURNED') return '';
+    const first = groups[0]; // đã sort theo urgency
+    const ref = this.getReferenceDate(first, columnId);
+    const minutes = this.getMinutesUntil(ref);
+    if (minutes < 0) return `Quá hạn lâu nhất: ${this.formatDuration(Math.abs(minutes))}`;
+    if (minutes <= 60) return `Cần xử lý sau: ${this.formatDuration(minutes)}`;
+    return `Sớm nhất: ${first.startTime || ''} ${this.formatDateShort(first.bookingDate)}`;
+  }
+
+  private formatDuration(totalMinutes: number): string {
+    const days = Math.floor(totalMinutes / 1440);
+    if (days >= 1) return `${days} ngày`;
+    const hours = Math.floor(totalMinutes / 60);
+    const mins = totalMinutes % 60;
+    if (hours === 0) return `${mins}ph`;
+    if (mins === 0) return `${hours}h`;
+    return `${hours}h${mins}ph`;
+  }
+
+  private formatDateShort(date: string): string {
+    if (!date) return '';
+    const d = new Date(date);
+    if (isNaN(d.getTime())) return date;
+    const dd = String(d.getDate()).padStart(2, '0');
+    const mm = String(d.getMonth() + 1).padStart(2, '0');
+    return `${dd}/${mm}`;
+  }
+
+  // ═══════════════════════════════════════════════════════════
   //  ACTION HANDLERS
   // ═══════════════════════════════════════════════════════════
   protected quickApprove(group: GroupedBooking): void {
@@ -312,7 +412,7 @@ export class BookingBoardComponent implements OnInit {
     this.dialogService
       .open<boolean>(new PolymorpheusComponent(ReturnDialogComponent), {
         label: group ? 'Xác nhận Trả đồ (Chính xác)' : 'Quét vé để trả đồ',
-        size: 'm',
+        size: 'l',
         data: group,
         dismissible: true,
       })

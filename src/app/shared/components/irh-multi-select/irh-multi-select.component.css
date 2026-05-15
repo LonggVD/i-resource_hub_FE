@@ -1,11 +1,6 @@
 :host {
   display: block;
   width: 100%;
-  font-family:
-    'Inter',
-    system-ui,
-    -apple-system,
-    sans-serif;
 }
 
 .irh-select-container {
@@ -16,201 +11,175 @@
 }
 
 .irh-select-label {
-  font-size: 13px;
+  font-size: var(--font-size-sm);
   font-weight: 600;
-  color: #475569;
+  color: var(--color-text-muted);
   margin-left: 4px;
 }
 
 .irh-select-wrapper {
   position: relative;
   width: 100%;
-  min-height: 48px;
-  background: #f8fafc;
-  border: 1.5px solid #e2e8f0;
-  border-radius: 12px;
+  min-height: 40px;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border-strong);
+  border-radius: var(--radius-md);
   cursor: pointer;
-  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
   user-select: none;
   display: flex;
   align-items: center;
 }
 
 .irh-select-wrapper:hover {
-  border-color: #cbd5e1;
-  background: #f1f5f9;
+  border-color: var(--color-text-subtle);
 }
 
 .irh-select-wrapper.is-open {
-  border-color: #6366f1;
-  box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.1);
-  background: #ffffff;
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px var(--color-primary-soft);
 }
 
-/* =========================================
-   ĐÃ SỬA: CHỐNG TRÀN VÀ CUỘN NGANG
-   ========================================= */
 .irh-select-trigger {
   width: 100%;
   min-height: 100%;
-  padding: 8px 16px;
+  padding: 6px var(--space-3);
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 12px;
-  overflow: hidden; /* Chặn không cho nội dung tràn ra khỏi viền Wrapper */
+  gap: var(--space-3);
+  overflow: hidden;
 }
 
-/* =========================================
-   TÀNG HÌNH THANH CUỘN NGANG (NHƯNG VẪN SCROLL ĐƯỢC)
-   ========================================= */
 .irh-select-selection-area {
   display: flex;
-  flex-wrap: nowrap; 
+  flex-wrap: nowrap;
   gap: 6px;
   flex: 1;
-  overflow-x: auto; 
-  overflow-y: hidden; 
+  overflow-x: auto;
+  overflow-y: hidden;
   padding-bottom: 2px;
   scroll-behavior: smooth;
-  
-  /* 1. Ẩn scrollbar trên Firefox */
-  scrollbar-width: none; 
-  /* 2. Ẩn scrollbar trên IE và Edge cũ */
-  -ms-overflow-style: none; 
+  scrollbar-width: none;
+  -ms-overflow-style: none;
 }
 
-/* 3. Ẩn scrollbar trên Chrome, Safari, Edge mới */
 .irh-select-selection-area::-webkit-scrollbar {
-  display: none; 
-}
-
-/* Làm đẹp thanh cuộn ngang (Chrome, Safari, Edge) */
-/* .irh-select-selection-area::-webkit-scrollbar {
-  height: 4px;
-} */
-.irh-select-selection-area::-webkit-scrollbar-track {
-  background: transparent;
-}
-.irh-select-selection-area::-webkit-scrollbar-thumb {
-  background: #cbd5e1;
-  border-radius: 4px;
-}
-.irh-select-selection-area::-webkit-scrollbar-thumb:hover {
-  background: #94a3b8;
+  display: none;
 }
 
 .irh-select-value.placeholder {
-  color: #94a3b8;
-  font-size: 14px;
+  color: var(--color-text-subtle);
+  font-size: var(--font-size-base);
 }
 
 .irh-chip {
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  padding: 4px 10px;
-  background: #e0e7ff;
-  color: #4338ca;
-  border-radius: 8px;
-  font-size: 13px;
+  padding: 3px var(--space-2);
+  background: var(--color-primary-soft);
+  color: var(--color-primary);
+  border-radius: var(--radius-sm);
+  font-size: var(--font-size-sm);
   font-weight: 600;
-  white-space: nowrap; /* Chống rớt chữ bên trong chip */
-  transition: all 0.2s ease;
+  white-space: nowrap;
+  transition: background 0.15s ease;
 }
 
 .irh-chip:hover {
-  background: #c7d2fe;
+  background: var(--color-primary-soft-2);
 }
 
 .chip-remove-icon {
   font-size: 14px;
   padding: 2px;
-  border-radius: 50%;
+  border-radius: var(--radius-full);
   display: flex;
   align-items: center;
   justify-content: center;
 }
 
 .chip-remove-icon:hover {
-  background: rgba(67, 56, 202, 0.1);
-  color: #312e81;
+  background: var(--color-primary-border);
+  color: var(--color-primary-hover);
 }
 
 .irh-select-arrow {
-  color: #64748b;
-  font-size: 20px;
-  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  flex-shrink: 0; /* Đảm bảo mũi tên không bị bóp méo khi khu vực chip cuộn ngang */
+  color: var(--color-text-subtle);
+  font-size: 18px;
+  transition: transform 0.2s ease;
+  flex-shrink: 0;
 }
 
 .irh-select-arrow.is-rotated {
   transform: rotate(180deg);
-  color: #6366f1;
+  color: var(--color-primary);
 }
 
-/* =========================================
-   DROPDOWN MENU 
-   ========================================= */
+/* ── Dropdown ──────────────────────────────────────────────── */
 .irh-select-dropdown {
   position: absolute;
-  top: calc(100% + 8px);
+  top: calc(100% + 6px);
   left: 0;
   width: 100%;
-  background: #ffffff;
-  border: 1px solid #e2e8f0;
-  border-radius: 12px;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
   z-index: 50;
   overflow: hidden;
-  box-shadow:
-    0 10px 15px -3px rgba(0, 0, 0, 0.1),
-    0 4px 6px -4px rgba(0, 0, 0, 0.1);
-  animation: slideDown 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  box-shadow: var(--shadow-lg);
+  animation: slideDown 0.15s ease-out;
 }
 
 @keyframes slideDown {
   from {
     opacity: 0;
-    transform: translateY(-8px) scale(0.98);
+    transform: translateY(-4px);
   }
   to {
     opacity: 1;
-    transform: translateY(0) scale(1);
+    transform: translateY(0);
   }
 }
 
 .irh-select-search-box {
-  padding: 12px;
-  border-bottom: 1px solid #f1f5f9;
+  padding: var(--space-3);
+  border-bottom: 1px solid var(--color-border);
   display: flex;
   align-items: center;
-  gap: 10px;
-  background: #f8fafc;
+  gap: var(--space-2);
+  background: var(--color-surface-alt);
 }
 
 .irh-select-search-icon {
-  color: #94a3b8;
+  color: var(--color-text-subtle);
   font-size: 18px;
 }
 
 .clear-search-icon {
-  color: #94a3b8;
+  color: var(--color-text-subtle);
   font-size: 16px;
   cursor: pointer;
   padding: 4px;
-  border-radius: 50%;
-  transition: all 0.2s;
+  border-radius: var(--radius-full);
+  transition: background 0.15s, color 0.15s;
   display: flex;
   align-items: center;
   justify-content: center;
+}
+
+.clear-search-icon:hover {
+  background: var(--color-border);
+  color: var(--color-text);
 }
 
 .irh-select-search-input {
   flex: 1;
   border: none !important;
   outline: none !important;
-  font-size: 14px;
-  color: #1e293b;
+  font-size: var(--font-size-base);
+  color: var(--color-text);
   background: transparent;
   width: 100%;
 }
@@ -228,50 +197,50 @@
 }
 
 .irh-select-options::-webkit-scrollbar-thumb {
-  background: #e2e8f0;
-  border-radius: 10px;
+  background: var(--color-border-strong);
+  border-radius: var(--radius-full);
 }
 
 .irh-select-option {
-  padding: 10px 14px;
-  border-radius: 10px;
-  font-size: 14px;
+  padding: var(--space-2) var(--space-3);
+  border-radius: var(--radius-md);
+  font-size: var(--font-size-base);
   font-weight: 500;
-  color: #475569;
+  color: var(--color-text-muted);
   display: flex;
   align-items: center;
   justify-content: space-between;
-  transition: all 0.15s ease;
+  transition: background 0.15s ease, color 0.15s ease;
   margin-bottom: 2px;
   cursor: pointer;
 }
 
 .irh-select-option:hover {
-  background: #f1f5f9;
-  color: #1e293b;
+  background: var(--color-surface-alt);
+  color: var(--color-text);
 }
 
 .irh-select-option.is-selected {
-  background: #eef2ff;
-  color: #4338ca;
+  background: var(--color-primary-soft);
+  color: var(--color-primary);
 }
 
 .irh-select-check-icon {
-  color: #6366f1;
+  color: var(--color-primary);
   font-size: 18px;
 }
 
 .irh-select-no-results {
-  padding: 24px 16px;
+  padding: var(--space-6) var(--space-4);
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 8px;
-  color: #94a3b8;
-  font-size: 14px;
+  gap: var(--space-2);
+  color: var(--color-text-subtle);
+  font-size: var(--font-size-sm);
 }
 
 .no-results-icon {
   font-size: 24px;
-  color: #cbd5e1;
+  color: var(--color-text-faint);
 }

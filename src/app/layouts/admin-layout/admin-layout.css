@@ -1,7 +1,7 @@
 :host {
   display: block;
   min-height: 100vh;
-  background: #f1f5f9;
+  background: var(--color-bg);
 }
 
 .layout {
@@ -14,8 +14,8 @@
   margin-left: 260px;
   margin-top: 0;
   min-height: calc(100vh - 64px);
-  transition: margin-left 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  background: #f1f5f9;
+  transition: margin-left 0.2s ease;
+  background: var(--color-bg);
 }
 
 .layout__content--collapsed {
@@ -23,19 +23,7 @@
 }
 
 .layout__page {
-  padding: 24px;
-  animation: pageIn 0.3s ease;
-}
-
-@keyframes pageIn {
-  from {
-    opacity: 0;
-    transform: translateY(8px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+  padding: var(--space-6);
 }
 
 /* ===== RESPONSIVE ===== */
@@ -49,6 +37,6 @@
   }
 
   .layout__page {
-    padding: 16px;
+    padding: var(--space-4);
   }
 }

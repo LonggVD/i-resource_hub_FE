@@ -36,15 +36,15 @@ import { EvidenceDialogComponent } from '../evidence-dialog/evidence-dialog.comp
     NgxScannerQrcodeComponent,
   ],
   template: `
-    <div class="return-dialog-premium">
+    <div class="return-dialog">
       <!-- Step 1: Scan Ticket (Empty State) -->
       <div class="step-view" *ngIf="!batchLoaded()">
         <div class="header-minimal">
           <div class="icon-circle">
             <tui-icon icon="@tui.qr-code"></tui-icon>
           </div>
-          <h2>Quét mã vé sinh viên</h2>
-          <p>Sử dụng camera để định danh lô hàng cần trả</p>
+          <h2 class="header-title">Quét mã vé sinh viên</h2>
+          <p class="header-desc">Sử dụng camera để định danh lô hàng cần trả</p>
         </div>
       </div>
 
@@ -53,10 +53,10 @@ import { EvidenceDialogComponent } from '../evidence-dialog/evidence-dialog.comp
         <div class="header-minimal">
           <div class="borrower-badge">
             <tui-icon icon="@tui.user"></tui-icon>
-            {{ borrowerName() }}
+            <span class="borrower-name">{{ borrowerName() }}</span>
           </div>
           <p class="batch-time">
-            {{ bookingDate() | date: 'dd/MM/yyyy' }} • {{ slotName() }}
+            {{ bookingDate() | date: 'dd/MM/yyyy' }} &middot; {{ slotName() }}
           </p>
         </div>
 
@@ -68,27 +68,27 @@ import { EvidenceDialogComponent } from '../evidence-dialog/evidence-dialog.comp
                 Đã khớp: {{ checkedCount() }}/{{ items().length }}
               </tui-badge>
             </div>
-            
+
             <div class="checklist-scroll">
-              <div *ngFor="let item of items(); let idx = index" class="modern-check-card" 
+              <div *ngFor="let item of items(); let idx = index" class="modern-check-card"
                 [class.is-checked]="item.checked"
                 [class.already-returned]="item.status === 'RETURNED'"
                 [class.is-damaged]="item.damageInfo">
                 <div class="card-indicator"></div>
                 <div class="card-main">
                   <div class="item-name">
-                    {{ item.deviceName }}
+                    <span class="item-name-text">{{ item.deviceName }}</span>
                     <span class="status-tag" *ngIf="item.status === 'RETURNED'">(Đã trả trước đó)</span>
                     <tui-badge *ngIf="item.damageInfo" appearance="destructive" size="s">HỎNG</tui-badge>
                   </div>
                   <div class="item-serial">S/N: {{ item.serialNumber }}</div>
                 </div>
-                
+
                 <div class="card-actions-inline" *ngIf="item.status !== 'RETURNED'">
-                   <button 
-                    tuiButton 
-                    appearance="flat" 
-                    size="s" 
+                   <button
+                    tuiButton
+                    appearance="flat"
+                    size="s"
                     class="damage-btn"
                     [class.active]="item.damageInfo"
                     (click)="reportDamage(idx); $event.stopPropagation()"
@@ -121,7 +121,7 @@ import { EvidenceDialogComponent } from '../evidence-dialog/evidence-dialog.comp
           <div class="corner bottom-right"></div>
         </div>
         <div class="scanner-actions">
-          <button tuiButton [appearance]="isScannerStarted() ? 'secondary-destructive' : 'secondary'" 
+          <button tuiButton [appearance]="isScannerStarted() ? 'secondary-destructive' : 'secondary'"
             size="s" (click)="toggleScanner()" class="toggle-btn">
             <tui-icon [icon]="isScannerStarted() ? '@tui.video-off' : '@tui.video'"></tui-icon>
             {{ isScannerStarted() ? 'Tắt Camera' : 'Mở Camera' }}
@@ -130,9 +130,9 @@ import { EvidenceDialogComponent } from '../evidence-dialog/evidence-dialog.comp
       </div>
 
       <div class="dialog-footer">
-        <button tuiButton appearance="flat" size="m" (click)="close()">Hủy</button>
+        <button tuiButton appearance="secondary" size="m" (click)="close()">Hủy</button>
         <tui-loader [showLoader]="isSubmitting()">
-          <button *ngIf="batchLoaded()" tuiButton [appearance]="isAllChecked() ? 'primary' : 'secondary'" 
+          <button *ngIf="batchLoaded()" tuiButton [appearance]="isAllChecked() ? 'primary' : 'secondary'"
             size="m" (click)="submitReturn()" [disabled]="newCheckedCount() === 0 || isSubmitting()">
             {{ isAllChecked() ? 'Hoàn tất trả đủ' : (newCheckedCount() > 0 ? 'Xác nhận trả thêm (' + newCheckedCount() + ')' : 'Đang chờ quét...') }}
           </button>
@@ -141,49 +141,297 @@ import { EvidenceDialogComponent } from '../evidence-dialog/evidence-dialog.comp
     </div>
   `,
   styles: [`
-    :host { display: block; width: 100%; }
-    .return-dialog-premium { display: flex; flex-direction: column; gap: 1.5rem; width: 100%; min-width: 500px; padding: 0.5rem; }
-    .header-minimal { text-align: center; margin-bottom: 0.5rem; }
-    .header-minimal h2 { margin: 12px 0 4px; color: #1e293b; font-size: 1.5rem; font-weight: 800; }
-    .header-minimal p { color: #64748b; font-size: 0.9rem; }
-    .icon-circle { width: 64px; height: 64px; background: #eef2ff; color: #6366f1; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto; font-size: 32px; }
-    .borrower-badge { display: inline-flex; align-items: center; gap: 8px; background: #6366f1; color: white; padding: 6px 16px; border-radius: 100px; font-weight: 600; font-size: 0.95rem; margin-bottom: 8px; box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3); }
-    .batch-time { font-weight: 500; color: #94a3b8; font-size: 0.85rem; }
-    .checklist-column { display: flex; flex-direction: column; gap: 1rem; }
-    .checklist-header { display: flex; justify-content: space-between; align-items: center; font-weight: 700; color: #475569; font-size: 0.9rem; padding: 0 4px; }
-    .checklist-scroll { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; max-height: 220px; overflow-y: auto; padding: 4px; }
-    .modern-check-card { display: flex; align-items: center; background: white; border: 1px solid #e2e8f0; border-radius: 12px; padding: 12px; position: relative; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
-    .modern-check-card.is-checked { border-color: #22c55e; background: #f0fdf4; transform: scale(0.98); }
-    .card-indicator { width: 4px; height: 24px; background: #cbd5e1; border-radius: 2px; margin-right: 12px; transition: background 0.3s; }
-    .is-checked .card-indicator { background: #22c55e; }
-    .card-main { flex: 1; }
-    .item-name { font-weight: 700; color: #1e293b; font-size: 0.85rem; margin-bottom: 2px; display: flex; align-items: center; gap: 6px; }
-    .status-tag { font-size: 0.7rem; color: #22c55e; font-weight: 500; }
-    .item-serial { font-size: 0.75rem; color: #64748b; font-family: monospace; }
-    .card-status-icon { font-size: 20px; color: #cbd5e1; }
-    .is-checked .card-status-icon { color: #22c55e; }
-    .already-returned { opacity: 0.7; background: #f8fafc !important; }
-    .is-damaged { border-color: #ef4444 !important; background: #fef2f2 !important; }
-    .is-damaged .card-indicator { background: #ef4444 !important; }
-    .card-actions-inline { margin-right: 8px; }
-    .damage-btn { color: #94a3b8 !important; border-radius: 8px !important; }
-    .damage-btn:hover { background: #fee2e2 !important; color: #ef4444 !important; }
-    .damage-btn.active { color: #ef4444 !important; background: #fee2e2 !important; }
-    .scanner-section { display: flex; flex-direction: column; align-items: center; gap: 1rem; }
-    .scanner-frame { position: relative; width: 100%; height: 240px; background: #0f172a; border-radius: 20px; overflow: hidden; border: 4px solid #1e293b; box-shadow: 0 10px 25px -5px rgba(0,0,0,0.2); }
-    ngx-scanner-qrcode { width: 100%; height: 100%; object-fit: cover; opacity: 0.9; }
-    .scan-line { position: absolute; width: 100%; height: 2px; background: rgba(34, 197, 94, 0.6); box-shadow: 0 0 15px #22c55e; top: 0; z-index: 10; animation: scan 2s linear infinite; }
-    @keyframes scan { 0% { top: 0; } 100% { top: 100%; } }
-    .scanner-overlay { position: absolute; inset: 0; z-index: 5; display: flex; flex-direction: column; align-items: center; justify-content: center; background: rgba(15, 23, 42, 0.7); color: #94a3b8; text-align: center; }
-    .overlay-icon { font-size: 48px; margin-bottom: 12px; opacity: 0.5; }
-    .corner { position: absolute; width: 30px; height: 30px; border: 3px solid #6366f1; z-index: 15; }
-    .top-left { top: 20px; left: 20px; border-right: 0; border-bottom: 0; border-top-left-radius: 8px; }
-    .top-right { top: 20px; right: 20px; border-left: 0; border-bottom: 0; border-top-right-radius: 8px; }
-    .bottom-left { bottom: 20px; left: 20px; border-right: 0; border-top: 0; border-bottom-left-radius: 8px; }
-    .bottom-right { bottom: 20px; right: 20px; border-left: 0; border-top: 0; border-bottom-right-radius: 8px; }
-    .scanner-actions { width: 100%; display: flex; justify-content: center; }
-    .toggle-btn { border-radius: 100px !important; }
-    .dialog-footer { display: flex; justify-content: flex-end; gap: 1rem; margin-top: 0.5rem; padding-top: 1rem; border-top: 1px solid #f1f5f9; }
+    :host { display: block; box-sizing: border-box; width: 100%; }
+    :host *, :host *::before, :host *::after { box-sizing: border-box; }
+
+    .return-dialog {
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-6);
+      width: 100%;
+      min-width: 0;
+      padding: var(--space-2);
+    }
+    .step-view { min-width: 0; }
+    .header-minimal {
+      text-align: center;
+      margin-bottom: var(--space-2);
+      min-width: 0;
+    }
+    .header-title {
+      margin: var(--space-3) 0 var(--space-1);
+      color: var(--color-text);
+      font-size: var(--font-size-xl);
+      font-weight: 700;
+    }
+    .header-desc {
+      margin: 0;
+      color: var(--color-text-muted);
+      font-size: var(--font-size-sm);
+    }
+    .icon-circle {
+      width: 64px;
+      height: 64px;
+      background: var(--color-primary-soft);
+      color: var(--color-primary);
+      border-radius: var(--radius-full);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto;
+      font-size: var(--font-size-2xl);
+    }
+    .borrower-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: var(--space-2);
+      background: var(--color-primary);
+      color: #ffffff;
+      padding: var(--space-1) var(--space-4);
+      border-radius: var(--radius-full);
+      font-weight: 600;
+      font-size: var(--font-size-base);
+      margin-bottom: var(--space-2);
+      max-width: 100%;
+      min-width: 0;
+    }
+    .borrower-name {
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      min-width: 0;
+    }
+    .batch-time {
+      margin: 0;
+      font-weight: 500;
+      color: var(--color-text-subtle);
+      font-size: var(--font-size-sm);
+    }
+    .verification-area { min-width: 0; }
+    .checklist-column {
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-3);
+      min-width: 0;
+    }
+    .checklist-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: var(--space-2);
+      font-weight: 700;
+      color: var(--color-text-strong);
+      font-size: var(--font-size-sm);
+      padding: 0 var(--space-1);
+      flex-wrap: wrap;
+      min-width: 0;
+    }
+    .checklist-scroll {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+      gap: var(--space-2);
+      max-height: 220px;
+      overflow-y: auto;
+      padding: var(--space-1);
+      min-width: 0;
+    }
+    .modern-check-card {
+      display: flex;
+      align-items: center;
+      background: var(--color-surface);
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-lg);
+      padding: var(--space-3);
+      position: relative;
+      transition: border-color 0.15s ease, background 0.15s ease;
+      min-width: 0;
+    }
+    .modern-check-card.is-checked {
+      border-color: var(--color-success);
+      background: var(--color-success-soft);
+    }
+    .card-indicator {
+      width: 4px;
+      height: 24px;
+      background: var(--color-border-strong);
+      border-radius: var(--radius-sm);
+      margin-right: var(--space-3);
+      transition: background 0.15s ease;
+      flex-shrink: 0;
+    }
+    .is-checked .card-indicator { background: var(--color-success); }
+    .card-main {
+      flex: 1;
+      min-width: 0;
+    }
+    .item-name {
+      font-weight: 700;
+      color: var(--color-text);
+      font-size: var(--font-size-sm);
+      margin-bottom: 2px;
+      display: flex;
+      align-items: center;
+      gap: var(--space-2);
+      flex-wrap: wrap;
+      min-width: 0;
+    }
+    .item-name-text {
+      overflow: hidden;
+      text-overflow: ellipsis;
+      word-break: break-word;
+      min-width: 0;
+    }
+    .status-tag {
+      font-size: var(--font-size-xs);
+      color: var(--color-success);
+      font-weight: 500;
+    }
+    .item-serial {
+      font-size: var(--font-size-xs);
+      color: var(--color-text-muted);
+      font-family: monospace;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      min-width: 0;
+    }
+    .card-status-icon {
+      font-size: var(--font-size-lg);
+      color: var(--color-text-faint);
+      flex-shrink: 0;
+    }
+    .is-checked .card-status-icon { color: var(--color-success); }
+    .already-returned {
+      opacity: 0.7;
+      background: var(--color-surface-alt) !important;
+    }
+    .is-damaged {
+      border-color: var(--color-danger) !important;
+      background: var(--color-danger-soft) !important;
+    }
+    .is-damaged .card-indicator { background: var(--color-danger) !important; }
+    .card-actions-inline {
+      margin-right: var(--space-2);
+      flex-shrink: 0;
+    }
+    .damage-btn {
+      color: var(--color-text-subtle) !important;
+      border-radius: var(--radius-md) !important;
+    }
+    .damage-btn:hover {
+      background: var(--color-danger-soft) !important;
+      color: var(--color-danger) !important;
+    }
+    .damage-btn.active {
+      color: var(--color-danger) !important;
+      background: var(--color-danger-soft) !important;
+    }
+    .scanner-section {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: var(--space-3);
+      min-width: 0;
+    }
+    .scanner-frame {
+      position: relative;
+      width: 100%;
+      height: 240px;
+      background: var(--color-text);
+      border-radius: var(--radius-xl);
+      overflow: hidden;
+      border: 2px solid var(--color-border-strong);
+      box-shadow: var(--shadow-md);
+      min-width: 0;
+    }
+    ngx-scanner-qrcode {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      opacity: 0.9;
+    }
+    .scan-line {
+      position: absolute;
+      width: 100%;
+      height: 2px;
+      background: var(--color-success);
+      top: 0;
+      z-index: 10;
+      animation: scan 2s linear infinite;
+    }
+    @keyframes scan {
+      0% { top: 0; }
+      100% { top: 100%; }
+    }
+    .scanner-overlay {
+      position: absolute;
+      inset: 0;
+      z-index: 5;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: var(--space-2);
+      background: rgba(17, 24, 39, 0.7);
+      color: var(--color-text-faint);
+      text-align: center;
+    }
+    .overlay-icon {
+      font-size: var(--font-size-2xl);
+      margin-bottom: var(--space-2);
+    }
+    .corner {
+      position: absolute;
+      width: 28px;
+      height: 28px;
+      border: 2px solid var(--color-primary);
+      z-index: 15;
+    }
+    .top-left {
+      top: 16px;
+      left: 16px;
+      border-right: 0;
+      border-bottom: 0;
+      border-top-left-radius: var(--radius-md);
+    }
+    .top-right {
+      top: 16px;
+      right: 16px;
+      border-left: 0;
+      border-bottom: 0;
+      border-top-right-radius: var(--radius-md);
+    }
+    .bottom-left {
+      bottom: 16px;
+      left: 16px;
+      border-right: 0;
+      border-top: 0;
+      border-bottom-left-radius: var(--radius-md);
+    }
+    .bottom-right {
+      bottom: 16px;
+      right: 16px;
+      border-left: 0;
+      border-top: 0;
+      border-bottom-right-radius: var(--radius-md);
+    }
+    .scanner-actions {
+      width: 100%;
+      display: flex;
+      justify-content: center;
+    }
+    .toggle-btn {
+      border-radius: var(--radius-full) !important;
+    }
+    .dialog-footer {
+      display: flex;
+      justify-content: flex-end;
+      gap: var(--space-3);
+      margin-top: var(--space-2);
+      padding-top: var(--space-3);
+      border-top: 1px solid var(--color-border);
+      flex-wrap: wrap;
+    }
   `],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
@@ -285,7 +533,7 @@ export class ReturnDialogComponent implements OnInit, OnDestroy {
 
   private verifyItem(scannedValue: string) {
     const currentItems = this.items();
-    const index = currentItems.findIndex(item => 
+    const index = currentItems.findIndex(item =>
       (item.qrCodeToken === scannedValue || item.serialNumber === scannedValue) && !item.checked
     );
 
@@ -334,7 +582,7 @@ export class ReturnDialogComponent implements OnInit, OnDestroy {
     const idsToReturn = currentItems
       .filter(i => i.checked && i.status !== 'RETURNED')
       .map(i => i.id);
-    
+
     if (idsToReturn.length === 0) return;
 
     const damages = currentItems

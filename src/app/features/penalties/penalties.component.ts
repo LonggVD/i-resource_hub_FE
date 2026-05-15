@@ -100,7 +100,7 @@ export class PenaltiesComponent implements OnInit {
         const code = params.data?.studentCode || '';
         const locked = params.data?.userStatus === 'LOCKED';
         const lockedTag = locked
-          ? `<span style="display:inline-flex;align-items:center;font-size:0.62rem;font-weight:700;text-transform:uppercase;padding:1px 5px;border-radius:4px;background:#fef2f2;color:#b91c1c;margin-left:4px;">🔒 Khoá</span>`
+          ? `<span style="display:inline-flex;align-items:center;gap:3px;font-size:0.62rem;font-weight:700;text-transform:uppercase;padding:1px 5px;border-radius:4px;background:#fef2f2;color:#b91c1c;margin-left:4px;"><svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="11" x="3" y="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>Khoá</span>`
           : '';
         return `
           <div style="display:flex;flex-direction:column;gap:2px;line-height:1.3;padding:6px 0;">
@@ -122,7 +122,7 @@ export class PenaltiesComponent implements OnInit {
       cellRenderer: (params: ICellRendererParams) => {
         const desc = params.value || '(Không có mô tả)';
         const review = params.data?.requiresReview
-          ? `<div style="display:inline-flex;align-items:center;gap:3px;font-size:0.7rem;color:#92400e;font-weight:600;margin-top:2px;">📝 Yêu cầu kiểm điểm</div>`
+          ? `<div style="display:inline-flex;align-items:center;gap:4px;font-size:0.7rem;color:#92400e;font-weight:600;margin-top:2px;"><svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" x2="8" y1="13" y2="13"/><line x1="16" x2="8" y1="17" y2="17"/><line x1="10" x2="8" y1="9" y2="9"/></svg>Yêu cầu kiểm điểm</div>`
           : '';
         return `
           <div style="display:flex;flex-direction:column;line-height:1.4;padding:6px 0;">

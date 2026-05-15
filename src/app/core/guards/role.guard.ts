@@ -12,7 +12,8 @@ export const roleGuard: CanActivateFn = (route) => {
     return true;
   }
 
-  // Redirect to dashboard or forbidden page if not authorized
-  router.navigate(['/dashboard']);
+  // Redirect về landing page phù hợp với role để tránh loop guard
+  const fallback = authService.hasAnyRole(['ROLE_STUDENT']) ? '/student-shop' : '/dashboard';
+  router.navigate([fallback]);
   return false;
 };

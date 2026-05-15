@@ -42,12 +42,16 @@ export const routes: Routes = [
       },
       {
         path: 'resources',
+        canActivate: [roleGuard],
+        data: { roles: ['ROLE_ADMIN', 'ROLE_MANAGER'] },
         loadComponent: () =>
           import('./features/resources/resources.component').then((m) => m.ResourcesComponent),
         title: 'Tra cứu tài nguyên',
       },
       {
         path: 'student-shop',
+        canActivate: [roleGuard],
+        data: { roles: ['ROLE_STUDENT'] },
         loadComponent: () =>
           import('./features/student-shop/student-shop.component').then(
             (m) => m.StudentShopComponent,
