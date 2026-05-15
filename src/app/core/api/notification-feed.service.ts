@@ -1,10 +1,11 @@
 import { Injectable, computed, inject, signal } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpContext } from '@angular/common/http';
 import { Observable, tap } from 'rxjs';
 import { Client, IMessage, StompSubscription } from '@stomp/stompjs';
 import SockJS from 'sockjs-client';
 import { environment } from '../../../environments/environment';
 import { AuthService } from './auth.service';
+import { SKIP_LOADING } from '../interceptors/loading.interceptor';
 
 export interface NotificationItem {
   id: string;
@@ -41,15 +42,19 @@ export class NotificationFeedService {
   private subscription: StompSubscription | null = null;
 
   // ===== REST =====
+  // Tất cả call notification chạy nền — không hiển thị thanh loading toàn cục
+  private silent(): { context: HttpContext } {
+    return { context: new HttpContext().set(SKIP_LOADING, true) };
+  }
 
   loadInitial(): Observable<NotificationItem[]> {
-    return this.http.get<NotificationItem[]>(`${this.apiUrl}/my`).pipe(
+    return this.http.get<NotificationItem[]>(`${this.apiUrl}/my`, this.silent()).pipe(
       tap((list) => this._items.set(list)),
     );
   }
 
   markAsRead(id: string): Observable<void> {
-    return this.http.put<void>(`${this.apiUrl}/${id}/read`, {}).pipe(
+    return this.http.put<void>(`${this.apiUrl}/${id}/read`, {}, this.silent()).pipe(
       tap(() => {
         this._items.update((arr) =>
           arr.map((n) =>
@@ -61,7 +66,7 @@ export class NotificationFeedService {
   }
 
   markAllAsRead(): Observable<{ updated: number }> {
-    return this.http.put<{ updated: number }>(`${this.apiUrl}/read-all`, {}).pipe(
+    return this.http.put<{ updated: number }>(`${this.apiUrl}/read-all`, {}, this.silent()).pipe(
       tap(() => {
         const now = new Date().toISOString();
         this._items.update((arr) => arr.map((n) => ({ ...n, read: true, readAt: now })));
@@ -70,7 +75,7 @@ export class NotificationFeedService {
   }
 
   remove(id: string): Observable<void> {
-    return this.http.delete<void>(`${this.apiUrl}/${id}`).pipe(
+    return this.http.delete<void>(`${this.apiUrl}/${id}`, this.silent()).pipe(
       tap(() => this._items.update((arr) => arr.filter((n) => n.id !== id))),
     );
   }

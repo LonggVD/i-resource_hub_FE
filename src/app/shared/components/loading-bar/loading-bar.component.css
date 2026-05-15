@@ -1,0 +1,40 @@
+.loading-bar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  z-index: 9999;
+  pointer-events: none;
+  background: transparent;
+  overflow: hidden;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+
+.loading-bar.active {
+  opacity: 1;
+}
+
+.loading-bar__indicator {
+  width: 40%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    var(--color-primary, #3b82f6) 30%,
+    var(--color-primary, #3b82f6) 70%,
+    transparent 100%
+  );
+  border-radius: 2px;
+  animation: loading-slide 1.2s ease-in-out infinite;
+}
+
+@keyframes loading-slide {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(350%);
+  }
+}
