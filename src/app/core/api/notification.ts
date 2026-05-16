@@ -8,26 +8,30 @@ import { NotificationComponent } from '../../shared/components/notification/noti
 export class NotificationService {
   constructor(private snackBar: MatSnackBar) {}
 
-  showSuccess(message: string) {
-    this.openSnackBar(message, 'success');
+  showSuccess(message: string, duration?: number) {
+    this.openSnackBar(message, 'success', duration);
   }
 
-  showError(message: string) {
-    this.openSnackBar(message, 'error');
+  showError(message: string, duration?: number) {
+    this.openSnackBar(message, 'error', duration);
   }
 
-  showInfo(message: string) {
-    this.openSnackBar(message, 'info');
+  showInfo(message: string, duration?: number) {
+    this.openSnackBar(message, 'info', duration);
   }
 
-  showWarning(message: string) {
-    this.openSnackBar(message, 'warning');
+  showWarning(message: string, duration?: number) {
+    this.openSnackBar(message, 'warning', duration);
   }
 
-  private openSnackBar(message: string, type: 'success' | 'error' | 'info' | 'warning') {
+  private openSnackBar(
+    message: string,
+    type: 'success' | 'error' | 'info' | 'warning',
+    duration = 3000,
+  ) {
     this.snackBar.openFromComponent(NotificationComponent, {
       data: { message, type },
-      duration: 3000,
+      duration,
       horizontalPosition: 'right',
       verticalPosition: 'bottom',
       panelClass: [`${type}`],

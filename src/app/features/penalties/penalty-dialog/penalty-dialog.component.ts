@@ -40,6 +40,7 @@ export class PenaltyDialogComponent {
     { label: 'QUÁ HẠN (OVERDUE)', value: 'OVERDUE' },
     { label: 'HƯ HỎNG (DAMAGE)', value: 'DAMAGE' },
     { label: 'MẤT ĐỒ (LOST)', value: 'LOST' },
+    { label: 'KHÔNG ĐẾN NHẬN (NO_SHOW)', value: 'NO_SHOW' },
   ];
 
   groupData: any;

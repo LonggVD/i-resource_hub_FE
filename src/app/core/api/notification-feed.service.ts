@@ -5,7 +5,30 @@ import { Client, IMessage, StompSubscription } from '@stomp/stompjs';
 import SockJS from 'sockjs-client';
 import { environment } from '../../../environments/environment';
 import { AuthService } from './auth.service';
+import { NotificationService } from './notification';
 import { SKIP_LOADING } from '../interceptors/loading.interceptor';
+
+type ToastVariant = 'success' | 'error' | 'info' | 'warning';
+
+/** Map type code BE → variant toast. Mặc định 'info'. */
+function variantFor(type: string): ToastVariant {
+  switch (type) {
+    case 'BOOKING_APPROVED':
+    case 'BOOKING_HANDOVER':
+    case 'BOOKING_RETURNED':
+    case 'PENALTY_REVOKED':
+      return 'success';
+    case 'BOOKING_REJECTED':
+    case 'BOOKING_DAMAGED':
+    case 'BOOKING_AUTO_CANCELLED':
+    case 'PENALTY_CREATED':
+      return 'error';
+    case 'BOOKING_CANCELLED_BY_USER':
+      return 'warning';
+    default:
+      return 'info';
+  }
+}
 
 export interface NotificationItem {
   id: string;
@@ -31,6 +54,7 @@ const TOKEN_KEY = 'auth_token';
 export class NotificationFeedService {
   private readonly http = inject(HttpClient);
   private readonly authService = inject(AuthService);
+  private readonly toast = inject(NotificationService);
   private readonly apiUrl = `${environment.apiUrl}/notifications`;
   private readonly wsUrl = environment.apiUrl.replace(/\/api$/, '') + '/ws';
 
@@ -108,6 +132,18 @@ export class NotificationFeedService {
             try {
               const item = JSON.parse(msg.body) as NotificationItem;
               this._items.update((arr) => [item, ...arr]);
+              // Pop toast tương ứng. Duration dài hơn toast thường (5s) để kịp đọc.
+              const variant = variantFor(item.type);
+              const text = item.title || item.content || 'Bạn có thông báo mới';
+              this.toast[
+                variant === 'success'
+                  ? 'showSuccess'
+                  : variant === 'error'
+                    ? 'showError'
+                    : variant === 'warning'
+                      ? 'showWarning'
+                      : 'showInfo'
+              ](text, 5000);
             } catch (e) {
               // ignore parse error
             }

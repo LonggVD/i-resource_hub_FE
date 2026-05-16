@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, OnInit, computed, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, OnDestroy, OnInit, computed, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import {
   CdkDrag,
@@ -13,6 +13,7 @@ import { TuiDialogService, TuiLoader, TuiIcon, TuiButton } from '@taiga-ui/core'
 import { PolymorpheusComponent } from '@taiga-ui/polymorpheus';
 import { Booking, BookingStatus, GroupedBooking } from '../../../core/models/booking.model';
 import { BookingService } from '../../../core/api/booking.service';
+import { BookingBoardLiveService } from '../../../core/api/booking-board-live.service';
 import { NotificationService } from '../../../core/api/notification';
 
 // Dialog Components
@@ -42,10 +43,13 @@ import { TuiBadge } from '@taiga-ui/kit';
     TuiBadge,
   ],
 })
-export class BookingBoardComponent implements OnInit {
+export class BookingBoardComponent implements OnInit, OnDestroy {
   // ── State raw ─────────────────────────────────────────
   private readonly allGroups = signal<GroupedBooking[]>([]);
   readonly isProcessing = signal(false);
+
+  private readonly boardLive = inject(BookingBoardLiveService);
+  protected readonly liveConnected = this.boardLive.connected;
 
   // ── Filter signals ────────────────────────────────────
   readonly searchQuery = signal('');
@@ -86,6 +90,13 @@ export class BookingBoardComponent implements OnInit {
 
   ngOnInit(): void {
     this.refreshBoard();
+    // Mỗi khi BE phát tín hiệu booking đã đổi, tự refetch để không cần F5.
+    // Dialog đang mở của user vẫn không bị ảnh hưởng vì ta chỉ thay allGroups().
+    this.boardLive.connect(() => this.refreshBoard());
+  }
+
+  ngOnDestroy(): void {
+    this.boardLive.disconnect();
   }
 
   refreshBoard(): void {

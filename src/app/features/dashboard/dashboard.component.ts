@@ -1,4 +1,4 @@
-import { Component, OnInit, computed, inject, signal } from '@angular/core';
+import { Component, OnDestroy, OnInit, computed, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { NgxEchartsDirective } from 'ngx-echarts';
@@ -8,6 +8,7 @@ import {
   DashboardResponse,
   OverdueBooking,
 } from '../../core/api/dashboard.service';
+import { DashboardLiveService } from '../../core/api/dashboard-live.service';
 import { TuiButton, TuiDialogService } from '@taiga-ui/core';
 import { NotificationService } from '../../core/api/notification';
 import { HasRoleDirective } from '../../core/directives/has-role.directive';
@@ -23,8 +24,9 @@ import { AuthService } from '../../core/api/auth.service';
   templateUrl: './dashboard.html',
   styleUrls: ['./dashboard.css'],
 })
-export class DashboardComponent implements OnInit {
+export class DashboardComponent implements OnInit, OnDestroy {
   private dashboardService = inject(DashboardService);
+  private dashboardLive = inject(DashboardLiveService);
   private router = inject(Router);
   private notificationService = inject(NotificationService);
   private dialogs = inject(TuiDialogService);
@@ -33,6 +35,7 @@ export class DashboardComponent implements OnInit {
   stats = signal<DashboardResponse | null>(null);
   isLoading = signal<boolean>(true);
   isStudent = signal<boolean>(false);
+  protected readonly liveConnected = this.dashboardLive.connected;
 
   protected readonly selectedIds = signal<Set<string>>(new Set());
   protected readonly selectedCount = computed(() => this.selectedIds().size);
@@ -63,6 +66,11 @@ export class DashboardComponent implements OnInit {
     }
 
     this.loadData();
+    this.dashboardLive.connect((payload) => this.applyStats(payload));
+  }
+
+  ngOnDestroy(): void {
+    this.dashboardLive.disconnect();
   }
 
   // Deep linking
@@ -176,8 +184,7 @@ export class DashboardComponent implements OnInit {
     this.clearSelection();
     this.dashboardService.getDashboardStats().subscribe({
       next: (res) => {
-        this.stats.set(res);
-        this.initCharts(res);
+        this.applyStats(res);
         this.isLoading.set(false);
       },
       error: (err) => {
@@ -185,6 +192,20 @@ export class DashboardComponent implements OnInit {
         this.isLoading.set(false);
       },
     });
+  }
+
+  private applyStats(res: DashboardResponse): void {
+    this.stats.set(res);
+    this.initCharts(res);
+    // Sau khi list overdue đổi (live push), giữ lại selection của các id còn tồn tại
+    const validIds = new Set((res.overdueBookings ?? []).map((b) => b.bookingId));
+    const pruned = new Set<string>();
+    for (const id of this.selectedIds()) {
+      if (validIds.has(id)) pruned.add(id);
+    }
+    if (pruned.size !== this.selectedIds().size) {
+      this.selectedIds.set(pruned);
+    }
   }
 
   private initCharts(data: DashboardResponse): void {
