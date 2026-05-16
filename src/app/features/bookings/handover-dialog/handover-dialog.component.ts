@@ -9,21 +9,27 @@ import {
   signal,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormControl, FormsModule, ReactiveFormsModule } from '@angular/forms';
-import { TuiButton, TuiDialogContext, TuiIcon, TuiLoader, TuiTextfield } from '@taiga-ui/core';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { TuiButton, TuiDialogContext, TuiIcon, TuiTextfield } from '@taiga-ui/core';
 import { POLYMORPHEUS_CONTEXT } from '@taiga-ui/polymorpheus';
 import {
   NgxScannerQrcodeComponent,
   ScannerQRCodeResult,
   LOAD_WASM,
 } from 'ngx-scanner-qrcode';
-import { GroupedBooking, Booking } from '../../../core/models/booking.model';
+import { GroupedBooking } from '../../../core/models/booking.model';
 import { TuiBadge } from '@taiga-ui/kit';
 
 export interface HandoverResult {
   type: 'AUTO' | 'MANUAL';
   bookingIds?: string[];
   manualItems?: { bookingId: string; serialNumber: string }[];
+}
+
+interface HandoverSlot {
+  bookingId: string;
+  scannedSerial: string; // Serial vừa quét/nhập cho slot này
+  confirmed: boolean;    // Đã chốt slot (đã quét/nhập xong)
 }
 
 @Component({
@@ -35,7 +41,6 @@ export interface HandoverResult {
     ReactiveFormsModule,
     TuiButton,
     TuiIcon,
-    TuiLoader,
     TuiTextfield,
     TuiBadge,
     NgxScannerQrcodeComponent,
@@ -45,35 +50,59 @@ export interface HandoverResult {
       <div class="batch-info" *ngIf="group">
         <h3 class="batch-title">Bàn giao lô: {{ group.items[0].deviceName }} (x{{ group.items.length }})</h3>
         <p class="borrower-info">Người mượn: <strong>{{ group.borrowerName || 'Sinh viên' }}</strong></p>
+        <p class="handover-hint">
+          Quét QR trên từng thiết bị để bind serial thực tế vào đơn — sinh viên không cần quan tâm máy nào.
+        </p>
       </div>
 
-      <!-- Quick Actions -->
-      <div class="quick-actions">
-        <button tuiButton appearance="primary" size="m" class="w-full" (click)="handoverAllAuto()">
-          <tui-icon icon="@tui.zap"></tui-icon> Bàn giao nhanh tất cả (Auto)
-        </button>
+      <!-- Tiến độ -->
+      <div class="progress-row">
+        <div class="progress-text">
+          <span class="progress-num">{{ confirmedCount() }}</span>
+          <span class="progress-total">/ {{ slots().length }} thiết bị đã chốt</span>
+        </div>
+        <div class="progress-bar">
+          <div class="progress-fill" [style.width.%]="progressPct()"></div>
+        </div>
       </div>
 
-      <div class="divider"><span>HOẶC QUÉT/NHẬP TỪNG THIẾT BỊ</span></div>
-
-      <!-- List of items to handover -->
+      <!-- N slot trống tương ứng N thiết bị cần giao -->
       <div class="handover-list">
-        <div *ngFor="let item of groupItems(); let i = index" class="handover-item" [class.scanned]="item.scanned">
+        <div
+          *ngFor="let slot of slots(); let i = index"
+          class="handover-item"
+          [class.confirmed]="slot.confirmed"
+          [class.active]="i === activeIndex() && !slot.confirmed"
+        >
           <div class="item-header">
-            <span class="item-index">#{{ i + 1 }}</span>
-            <span class="item-serial-assigned">Gán sẵn: {{ item.originalSerial }}</span>
-            <tui-badge *ngIf="item.scanned" appearance="success" size="s">Đã quét</tui-badge>
+            <span class="item-index">Thiết bị #{{ i + 1 }}</span>
+            <tui-badge *ngIf="slot.confirmed" appearance="success" size="s">
+              <tui-icon icon="@tui.check"></tui-icon>&nbsp;Đã chốt
+            </tui-badge>
+            <tui-badge *ngIf="!slot.confirmed && i === activeIndex()" appearance="warning" size="s">
+              Đang chờ quét
+            </tui-badge>
           </div>
           <div class="item-input">
             <tui-textfield size="m">
               <input
                 tuiTextfield
                 [id]="'scan-input-' + i"
-                [(ngModel)]="item.newSerial"
-                [placeholder]="'Quét QR máy thực tế #' + (i + 1)"
-                (keyup.enter)="focusNext(i)"
+                [(ngModel)]="slot.scannedSerial"
+                [placeholder]="'Quét QR hoặc nhập serial cho thiết bị #' + (i + 1)"
+                (focus)="activeIndex.set(i)"
+                (keyup.enter)="confirmSlot(i)"
               />
             </tui-textfield>
+            <button
+              tuiButton
+              appearance="secondary"
+              size="s"
+              [disabled]="!slot.scannedSerial.trim()"
+              (click)="confirmSlot(i)"
+            >
+              {{ slot.confirmed ? 'Đổi' : 'Chốt' }}
+            </button>
           </div>
         </div>
       </div>
@@ -83,7 +112,7 @@ export interface HandoverResult {
           <ngx-scanner-qrcode #scannerRef="scanner" (event)="onScannerEvent($event)"></ngx-scanner-qrcode>
           <div *ngIf="!isScannerStarted()" class="scanner-placeholder">
             <tui-icon icon="@tui.camera" class="placeholder-icon"></tui-icon>
-            <p>Mở camera để quét vé sinh viên</p>
+            <p>Bật camera để quét QR từng thiết bị</p>
           </div>
         </div>
       </div>
@@ -96,8 +125,8 @@ export interface HandoverResult {
 
       <div class="dialog-footer">
         <button tuiButton appearance="secondary" size="m" (click)="close()">Hủy</button>
-        <button tuiButton appearance="primary" size="m" (click)="submitManual()" [disabled]="!canSubmitManual()">
-          Hoàn tất bàn giao
+        <button tuiButton appearance="primary" size="m" (click)="submitManual()" [disabled]="!canSubmit()">
+          Hoàn tất bàn giao ({{ confirmedCount() }}/{{ slots().length }})
         </button>
       </div>
     </div>
@@ -131,27 +160,40 @@ export interface HandoverResult {
       color: var(--color-text-muted);
       word-break: break-word;
     }
-    .quick-actions {
+    .handover-hint {
+      margin: var(--space-2) 0 0;
+      font-size: var(--font-size-xs);
+      color: var(--color-text-subtle);
+      font-style: italic;
+    }
+    .progress-row {
+      display: flex;
+      align-items: center;
+      gap: var(--space-3);
       padding: var(--space-2) 0;
       min-width: 0;
     }
-    .divider {
-      display: flex;
-      align-items: center;
-      text-align: center;
-      color: var(--color-text-subtle);
-      font-size: var(--font-size-xs);
-      font-weight: 600;
-      letter-spacing: 0.04em;
+    .progress-text {
+      font-size: var(--font-size-sm);
+      color: var(--color-text-muted);
+      flex-shrink: 0;
     }
-    .divider::before,
-    .divider::after {
-      content: '';
+    .progress-num {
+      font-weight: 700;
+      color: var(--color-primary);
+    }
+    .progress-bar {
       flex: 1;
-      border-bottom: 1px solid var(--color-border);
+      height: 8px;
+      background: var(--color-surface-alt);
+      border-radius: var(--radius-sm);
+      overflow: hidden;
     }
-    .divider::before { margin-right: var(--space-3); }
-    .divider::after { margin-left: var(--space-3); }
+    .progress-fill {
+      height: 100%;
+      background: var(--color-primary);
+      transition: width 0.25s ease;
+    }
     .handover-list {
       display: flex;
       flex-direction: column;
@@ -166,9 +208,13 @@ export interface HandoverResult {
       transition: border-color 0.15s ease, background 0.15s ease;
       min-width: 0;
     }
-    .handover-item.scanned {
+    .handover-item.confirmed {
       border-color: var(--color-success);
       background: var(--color-success-soft);
+    }
+    .handover-item.active {
+      border-color: var(--color-primary);
+      box-shadow: 0 0 0 2px var(--color-primary-soft-2, rgba(99,102,241,0.15));
     }
     .item-header {
       display: flex;
@@ -184,17 +230,14 @@ export interface HandoverResult {
       font-weight: 700;
       color: var(--color-primary);
     }
-    .item-serial-assigned {
-      color: var(--color-text-muted);
-      min-width: 0;
-      word-break: break-word;
-      flex: 1;
-    }
     .item-input {
       min-width: 0;
+      display: flex;
+      gap: var(--space-2);
+      align-items: center;
     }
     .item-input tui-textfield {
-      width: 100%;
+      flex: 1;
     }
     .qr-scanner-container {
       width: 100%;
@@ -253,9 +296,16 @@ export class HandoverDialogComponent implements OnInit, OnDestroy {
   private readonly cdr = inject(ChangeDetectorRef);
 
   readonly group = this.context.data;
-  readonly groupItems = signal<any[]>([]);
+  /** N slot trống tương ứng N booking trong batch; thứ tự không quan trọng vì cùng template. */
+  readonly slots = signal<HandoverSlot[]>([]);
+  /** Slot đang được trỏ tới — scanner sẽ điền vào đây nếu trống. */
+  readonly activeIndex = signal(0);
   readonly isScannerStarted = signal(false);
   readonly scannerReady = signal(false);
+
+  /** Chống debounce scan trùng liên tiếp. */
+  private lastScanValue = '';
+  private lastScanAt = 0;
 
   constructor() {
     LOAD_WASM('assets/wasm/ngx-scanner-qrcode.wasm').subscribe(() => {
@@ -266,13 +316,12 @@ export class HandoverDialogComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     if (this.group) {
-      this.groupItems.set(this.group.items.map(item => ({
-        id: item.id,
-        originalSerial: item.serialNumber,
-        newSerial: '',
-        scanned: false,
-        qrCodeToken: item.qrCodeToken
+      this.slots.set(this.group.items.map((item) => ({
+        bookingId: item.id,
+        scannedSerial: '',
+        confirmed: false,
       })));
+      this.activeIndex.set(0);
     }
   }
 
@@ -280,6 +329,22 @@ export class HandoverDialogComponent implements OnInit, OnDestroy {
     this.stopScanner();
   }
 
+  // ── Tiến độ ─────────────────────────────────────────────────────
+  confirmedCount(): number {
+    return this.slots().filter((s) => s.confirmed).length;
+  }
+
+  progressPct(): number {
+    const total = this.slots().length;
+    return total === 0 ? 0 : Math.round((this.confirmedCount() / total) * 100);
+  }
+
+  canSubmit(): boolean {
+    const list = this.slots();
+    return list.length > 0 && list.every((s) => s.confirmed);
+  }
+
+  // ── Scanner ─────────────────────────────────────────────────────
   toggleScanner() {
     this.isScannerStarted() ? this.stopScanner() : this.startScanner();
   }
@@ -299,54 +364,82 @@ export class HandoverDialogComponent implements OnInit, OnDestroy {
   }
 
   onScannerEvent(results: ScannerQRCodeResult[]) {
-    if (results?.length > 0) {
-      const scannedToken = results[0].value;
-      // Khớp token với item trong danh sách
-      const items = this.groupItems();
-      const targetIndex = items.findIndex(i => i.qrCodeToken === scannedToken && !i.scanned);
+    if (!results?.length) return;
 
-      if (targetIndex !== -1) {
-        items[targetIndex].scanned = true;
-        this.groupItems.set([...items]);
-        this.cdr.detectChanges();
+    const value = (results[0].value || '').trim();
+    if (!value) return;
 
-        // Nếu đã quét hết thì có thể tự động hoàn tất hoặc chờ manager bấm nút
-        if (items.every(i => i.scanned)) {
-           // Có thể tự động submit ở đây
-        }
+    const now = Date.now();
+    // Bỏ qua nếu cùng serial được đọc lại trong vòng 1.5s (camera bắn liên tục)
+    if (value === this.lastScanValue && now - this.lastScanAt < 1500) return;
+    this.lastScanValue = value;
+    this.lastScanAt = now;
+
+    const list = [...this.slots()];
+
+    // Trùng với slot đã chốt → bỏ qua, tránh đếm 2 lần cùng 1 máy
+    if (list.some((s) => s.confirmed && s.scannedSerial === value)) {
+      return;
+    }
+
+    // Tìm slot trống đầu tiên kể từ activeIndex
+    const start = this.activeIndex();
+    let target = -1;
+    for (let i = 0; i < list.length; i++) {
+      const idx = (start + i) % list.length;
+      if (!list[idx].confirmed) {
+        target = idx;
+        break;
       }
     }
+    if (target === -1) return; // tất cả đã chốt
+
+    list[target] = { ...list[target], scannedSerial: value, confirmed: true };
+    this.slots.set(list);
+
+    // Trỏ tới slot trống kế tiếp
+    const nextEmpty = list.findIndex((s) => !s.confirmed);
+    this.activeIndex.set(nextEmpty === -1 ? target : nextEmpty);
+    this.cdr.detectChanges();
   }
 
-  focusNext(currentIndex: number) {
-    const nextIndex = currentIndex + 1;
-    const nextInput = document.getElementById(`scan-input-${nextIndex}`);
-    if (nextInput) {
-      nextInput.focus();
+  // ── Nhập tay ────────────────────────────────────────────────────
+  confirmSlot(index: number) {
+    const list = [...this.slots()];
+    const slot = list[index];
+    if (!slot) return;
+
+    const serial = (slot.scannedSerial || '').trim();
+    if (!serial) return;
+
+    // Không cho chốt nếu serial trùng với slot đã chốt khác
+    const dup = list.findIndex((s, i) => i !== index && s.confirmed && s.scannedSerial === serial);
+    if (dup !== -1) return;
+
+    list[index] = { ...slot, scannedSerial: serial, confirmed: true };
+    this.slots.set(list);
+
+    const nextEmpty = list.findIndex((s) => !s.confirmed);
+    if (nextEmpty !== -1) {
+      this.activeIndex.set(nextEmpty);
+      // Focus ô kế tiếp để giáo vụ nhập liền mạch
+      setTimeout(() => {
+        const next = document.getElementById(`scan-input-${nextEmpty}`);
+        next?.focus();
+      }, 0);
     }
-  }
-
-  handoverAllAuto() {
-    this.context.completeWith({
-      type: 'AUTO',
-      bookingIds: this.groupItems().map(i => i.id)
-    });
-  }
-
-  canSubmitManual() {
-    // Có thể cho phép submit nếu ít nhất 1 cái được nhập hoặc quét
-    // Hoặc bắt buộc tất cả. Ở đây ta cho phép nếu tất cả đều có serial (mới hoặc cũ)
-    return this.groupItems().length > 0;
+    this.cdr.detectChanges();
   }
 
   submitManual() {
-    const manualItems = this.groupItems().map(i => ({
-      bookingId: i.id,
-      serialNumber: i.newSerial.trim() || i.originalSerial
+    if (!this.canSubmit()) return;
+    const manualItems = this.slots().map((s) => ({
+      bookingId: s.bookingId,
+      serialNumber: s.scannedSerial.trim(),
     }));
     this.context.completeWith({
       type: 'MANUAL',
-      manualItems
+      manualItems,
     });
   }
 

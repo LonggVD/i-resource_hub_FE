@@ -44,6 +44,10 @@ export class UserService {
     return this.http.get<UserResponse>(`${this.apiUrl}/${id}`);
   }
 
+  getMyProfile(): Observable<UserResponse> {
+    return this.http.get<UserResponse>(`${this.apiUrl}/me`);
+  }
+
   createUser(payload: UserRequest): Observable<UserResponse> {
     return this.http.post<UserResponse>(this.apiUrl, payload);
   }

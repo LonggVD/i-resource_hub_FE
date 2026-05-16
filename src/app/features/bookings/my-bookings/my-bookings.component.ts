@@ -8,14 +8,15 @@ import { PolymorpheusComponent } from '@taiga-ui/polymorpheus';
 import { BookingService } from '../../../core/api/booking.service';
 import { Booking, BookingStatus, GroupedBooking } from '../../../core/models/booking.model';
 import { NotificationService } from '../../../core/api/notification';
-import { QRCodeModule } from 'angularx-qrcode';
 import { IrhImage } from '../../../shared/components/irh-image/irh-image.component';
 import { CancelReasonDialogComponent } from '../cancel-reason-dialog/cancel-reason-dialog.component';
+// Dùng API tạo data URL từ thư viện qrcode (peer của angularx-qrcode) để hiển thị QR qua <irh-image>
+import { toDataURL as qrToDataURL } from 'qrcode';
 
 @Component({
   selector: 'app-my-bookings',
   standalone: true,
-  imports: [CommonModule, TuiLoader, TuiButton, TuiIcon, TuiBadge, QRCodeModule, IrhImage, TuiPagination],
+  imports: [CommonModule, TuiLoader, TuiButton, TuiIcon, TuiBadge, IrhImage, TuiPagination],
   templateUrl: './my-bookings.component.html',
   styleUrl: './my-bookings.component.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -27,6 +28,8 @@ export class MyBookingsComponent implements OnInit {
 
   readonly isLoading = signal(false);
   readonly bookings = signal<GroupedBooking[]>([]);
+  /** Data URL (PNG base64) cho mã QR lô đang xem — bơm vào <irh-image>. */
+  readonly batchQrDataUrl = signal<string>('');
 
   // Pagination & Compact UI
   readonly size = 5;
@@ -238,13 +241,27 @@ export class MyBookingsComponent implements OnInit {
 
   // Rule 4: Render mã vạch điện tử (Ticket)
   showTicket(group: GroupedBooking, template: any) {
+    // Sinh sẵn data URL cho mã QR lô trước khi mở dialog
+    this.batchQrDataUrl.set('');
+    if (group.batchToken) {
+      qrToDataURL(group.batchToken, {
+        errorCorrectionLevel: 'M',
+        margin: 2,
+        width: 280,
+      })
+        .then((url: string) => this.batchQrDataUrl.set(url))
+        .catch(() => this.batchQrDataUrl.set(''));
+    }
+
     this.dialogService
       .open(template, {
         label: 'Vé mượn thiết bị điện tử',
         size: 'l',
         data: group, // Gửi cả group vào template
       })
-      .subscribe();
+      .subscribe({
+        complete: () => this.batchQrDataUrl.set(''),
+      });
   }
 
   isPending = (item: any) => item.status === 'PENDING';

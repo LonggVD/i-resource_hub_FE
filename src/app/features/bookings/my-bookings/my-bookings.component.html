@@ -57,10 +57,16 @@
             </div>
             
             <div class="device-list">
-              <div *ngFor="let item of ug.items" class="device-item-row" [class.cancelled]="item.status === 'CANCELLED'">
+              <div *ngFor="let item of ug.items; let idx = index" class="device-item-row" [class.cancelled]="item.status === 'CANCELLED'">
                 <div class="item-main">
                   <span class="item-name" [class.damaged-text]="item.hasDamage">{{ item.deviceName }}</span>
-                  <span class="item-serial">S/N: {{ item.serialNumber }}</span>
+                  <!-- Trong khi đơn chưa BORROWED, chưa chốt máy thực tế — chỉ hiển thị số thứ tự để SV không cần quan tâm S/N. -->
+                  <span class="item-serial" *ngIf="item.status === 'BORROWED' || item.status === 'RETURNED' || item.status === 'OVERDUE'; else slotIdxTpl">
+                    S/N: {{ item.serialNumber }}
+                  </span>
+                  <ng-template #slotIdxTpl>
+                    <span class="item-serial item-serial-pending">Thiết bị #{{ idx + 1 }} · sẽ gán khi nhận máy</span>
+                  </ng-template>
                 </div>
                 <div class="item-actions">
                    <button *ngIf="item.hasDamage" tuiButton appearance="flat" size="xs" class="issue-btn" (click)="viewIssue(item, issueModal); $event.stopPropagation()">
@@ -128,20 +134,27 @@
       </div>
     </div>
 
-    <div class="ticket-content-side-by-side">
-      <!-- CỘT TRÁI: MÃ LÔ -->
-      <div class="batch-side" *ngIf="data.batchToken">
+    <div class="ticket-content-single">
+      <!-- MÃ LÔ DUY NHẤT: Sinh viên đưa cho Manager quét để nhận cả lô thiết bị -->
+      <div class="batch-side full-width" *ngIf="data.batchToken">
         <div class="section-label">MÃ QUÉT NHẬN LÔ</div>
         <div class="qr-container main-qr">
-          <qrcode
-            [qrdata]="data.batchToken"
-            [width]="180"
-            [errorCorrectionLevel]="'M'"
-            [margin]="2"
-          ></qrcode>
+          <irh-image
+            *ngIf="batchQrDataUrl(); else qrLoading"
+            [src]="batchQrDataUrl()"
+            [alt]="'QR mã lô ' + (data.batchToken || '')"
+            [width]="'200px'"
+            [height]="'200px'"
+            className="batch-qr-image"
+          ></irh-image>
+          <ng-template #qrLoading>
+            <div class="qr-skeleton" aria-label="Đang tạo mã QR">
+              <tui-icon icon="@tui.loader" class="qr-skeleton-icon"></tui-icon>
+            </div>
+          </ng-template>
         </div>
         <p class="qr-hint">Dành cho Manager quét nhận lô</p>
-        
+
         <div class="ticket-meta-bottom">
           <div class="meta-row">
             <label>Ngày mượn:</label>
@@ -151,28 +164,6 @@
             <label>Thời gian:</label>
             <span>Ca {{ data.slotName }}</span>
           </div>
-        </div>
-      </div>
-
-      <!-- CỘT PHẢI: CHI TIẾT THIẾT BỊ -->
-      <div class="items-side">
-        <div class="section-label">MÃ THIẾT BỊ CHI TIẾT</div>
-        <div class="items-scroll-grid">
-          <ng-container *ngFor="let item of data.items">
-            <div *ngIf="item.status === 'APPROVED' || item.status === 'BORROWED'" class="item-qr-card-v">
-              <qrcode
-                *ngIf="item.qrCodeToken"
-                [qrdata]="item.qrCodeToken"
-                [width]="100"
-                [errorCorrectionLevel]="'M'"
-                [margin]="1"
-              ></qrcode>
-              <div class="item-info-v">
-                <span class="name">{{ item.deviceName }}</span>
-                <span class="sn">#{{ item.serialNumber }}</span>
-              </div>
-            </div>
-          </ng-container>
         </div>
       </div>
     </div>

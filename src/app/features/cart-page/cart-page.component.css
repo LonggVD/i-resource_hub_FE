@@ -47,6 +47,7 @@
 .config-date-input{height:48px;padding:0 var(--space-4);border-radius:var(--radius-sm);border:1px solid var(--color-border);background:var(--color-surface);font-size:var(--font-size-base);font-weight:500;transition:border-color .2s,box-shadow .2s;color:var(--color-text-strong);outline:none}
 .config-date-input:focus{border-color:var(--color-primary);background:var(--color-surface);box-shadow:0 0 0 3px var(--color-primary-soft-2)}
 .config-select-ui{width:100%}
+.config-hint-warn{font-size:var(--font-size-xs);color:var(--color-danger,#dc2626);margin-top:4px}
 .item-remove-btn{position:absolute;top:-10px;right:-10px;color:var(--color-text-subtle);opacity:.6;transition:opacity .2s,color .2s}
 .item-remove-btn:hover{opacity:1;color:var(--color-danger)}
 .summary-card{background:var(--color-surface);padding:var(--space-6);border-radius:var(--radius-md);border:1px solid var(--color-border);position:sticky;top:var(--space-6)}

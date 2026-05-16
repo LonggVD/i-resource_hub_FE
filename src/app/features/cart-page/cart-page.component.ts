@@ -15,7 +15,7 @@ import { CartService, CartItem } from '../../core/service/cart.service';
 import { BookingService } from '../../core/api/booking.service';
 import { NotificationService } from '../../core/api/notification';
 import { TimeSlot } from '../../core/models/booking.model';
-import { IrhSelect } from '../../shared/components/irh-select/irh-select.component';
+import { IrhSelect, IrhSelectOption } from '../../shared/components/irh-select/irh-select.component';
 import { IrhImage } from '../../shared/components/irh-image/irh-image.component';
 import { FormsModule } from '@angular/forms';
 import { TuiDay } from '@taiga-ui/cdk';
@@ -58,6 +58,9 @@ export class CartPageComponent implements OnInit {
   readonly timeSlots = signal<TimeSlot[]>([]);
   readonly isSubmitting = signal(false);
 
+  // Ngày tối thiểu cho phép chọn = hôm nay (định dạng YYYY-MM-DD cho native <input type="date">)
+  readonly todayIso = this.formatTuiDayToISO(TuiDay.currentLocal());
+
   // Lưu cấu hình mượn cho từng item trong giỏ
   // Map<cartItemId, {date: TuiDay, slotId: string}>
   readonly itemConfigs = new Map<string, { date: string; slotId: string }>();
@@ -81,11 +84,38 @@ export class CartPageComponent implements OnInit {
     this.cartService.removeFromCart(id);
   }
 
-  getSlotOptions(): any[] {
-    return this.timeSlots().map((s) => ({
-      label: `${s.slotName} (${s.startTime.substring(0, 5)}-${s.endTime.substring(0, 5)})`,
-      value: s.id,
-    }));
+  getSlotOptions(item: CartItem): IrhSelectOption[] {
+    const slots = this.timeSlots();
+    const bookingDate = item.bookingDate;
+    const today = TuiDay.currentLocal();
+
+    return slots.map((s) => {
+      const label = `${s.slotName} (${s.startTime.substring(0, 5)}-${s.endTime.substring(0, 5)})`;
+      let disabled = false;
+
+      if (bookingDate) {
+        if (bookingDate.dayBefore(today)) {
+          // Ngày đã qua → toàn bộ ca không khả dụng
+          disabled = true;
+        } else if (bookingDate.daySame(today)) {
+          // Ngày hôm nay → ẩn các ca đã kết thúc so với giờ hiện tại
+          const now = new Date();
+          const currentHours = now.getHours();
+          const currentMinutes = now.getMinutes();
+          const [endH, endM] = s.endTime.split(':').map(Number);
+          disabled =
+            endH < currentHours || (endH === currentHours && endM <= currentMinutes);
+        }
+      }
+
+      return { label, value: s.id, disabled };
+    });
+  }
+
+  /** Có ít nhất một ca khả dụng cho ngày đang chọn của item không. */
+  hasAvailableSlots(item: CartItem): boolean {
+    if (!item.bookingDate) return true;
+    return this.getSlotOptions(item).some((o) => !o.disabled);
   }
   toggleItemSelection(id: string) {
     this.cartService.toggleSelection(id);
@@ -158,8 +188,24 @@ export class CartPageComponent implements OnInit {
 
     const dateObj =
       field === 'date' ? this.parseTuiDay(value) : item.bookingDate || TuiDay.currentLocal();
-    const slotObj =
+    let slotObj =
       field === 'slotId' ? this.timeSlots().find((s) => s.id === value) || null : item.slot;
+
+    // Chặn chọn ngày trong quá khứ ngay từ FE
+    const today = TuiDay.currentLocal();
+    if (field === 'date' && dateObj.dayBefore(today)) {
+      this.notificationService.showWarning('Không thể chọn ngày trong quá khứ.');
+      return;
+    }
+
+    // Khi đổi ngày, nếu slot đang chọn đã không còn khả dụng (ngày hôm nay + ca đã qua giờ)
+    // thì tự động xoá slot để người dùng chọn lại.
+    if (field === 'date' && slotObj && this.isSlotDisabledForDate(slotObj, dateObj)) {
+      slotObj = null;
+      this.notificationService.showWarning(
+        'Khung giờ đã chọn không còn khả dụng cho ngày này, vui lòng chọn lại.',
+      );
+    }
 
     // Cập nhật thông tin cơ bản trước
     this.cartService.updateItemDetails(item.id, dateObj, slotObj);
@@ -179,6 +225,17 @@ export class CartPageComponent implements OnInit {
         },
       });
     }
+  }
+
+  private isSlotDisabledForDate(slot: TimeSlot, date: TuiDay): boolean {
+    const today = TuiDay.currentLocal();
+    if (date.dayBefore(today)) return true;
+    if (!date.daySame(today)) return false;
+    const now = new Date();
+    const [endH, endM] = slot.endTime.split(':').map(Number);
+    return (
+      endH < now.getHours() || (endH === now.getHours() && endM <= now.getMinutes())
+    );
   }
 
   formatTuiDayToISO(day: TuiDay | null): string {

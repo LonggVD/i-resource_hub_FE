@@ -116,6 +116,12 @@ export const routes: Routes = [
           ),
       },
       {
+        path: 'profile',
+        loadComponent: () =>
+          import('./features/profile/profile.component').then((m) => m.ProfileComponent),
+        title: 'Hồ sơ cá nhân',
+      },
+      {
         path: 'my-bookings',
         loadComponent: () =>
           import('./features/bookings/my-bookings/my-bookings.component').then(

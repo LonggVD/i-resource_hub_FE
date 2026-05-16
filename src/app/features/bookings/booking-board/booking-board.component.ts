@@ -384,7 +384,7 @@ export class BookingBoardComponent implements OnInit {
   protected openHandoverModal(group: GroupedBooking): void {
     this.dialogService
       .open<any>(new PolymorpheusComponent(HandoverDialogComponent), {
-        label: 'Bàn giao thiết bị (Hybrid)',
+        label: 'Bàn giao thiết bị',
         size: 'm',
         data: group,
         dismissible: true,
@@ -392,10 +392,9 @@ export class BookingBoardComponent implements OnInit {
       .subscribe((result) => {
         if (result) {
           this.isProcessing.set(true);
-          const obs =
-            result.type === 'AUTO'
-              ? this.bookingService.checkInBulkAuto(result.bookingIds)
-              : this.bookingService.checkInBulkManual({ items: result.manualItems });
+          // Sau khi đổi flow: dialog chỉ trả về kết quả MANUAL (quét/nhập serial cho từng máy).
+          // BE checkInBulkManual sẽ rebind resource_item theo serial thực tế đã quét.
+          const obs = this.bookingService.checkInBulkManual({ items: result.manualItems });
 
           obs.subscribe({
             next: () => {

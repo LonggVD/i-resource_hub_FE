@@ -1,0 +1,134 @@
+<div class="profile-page" *ngIf="profile() as p; else loadingTpl">
+  <div class="profile-header">
+    <h1 class="profile-title">Hồ sơ cá nhân</h1>
+    <span class="profile-subtitle">Thông tin tài khoản và hoạt động của bạn trên hệ thống</span>
+  </div>
+
+  <div class="profile-grid">
+    <!-- LEFT: Identity card -->
+    <aside class="identity-card">
+      <div class="avatar-wrap">
+        <div class="avatar-circle">{{ initial() }}</div>
+        <span class="status-dot" [class.locked]="p.status === 'LOCKED'" [title]="p.status"></span>
+      </div>
+
+      <div class="identity-name">{{ p.fullName || p.username }}</div>
+      <div class="identity-meta">
+        <span class="role-badge" [class]="'role-' + roleLabel().toLowerCase()">{{ roleLabel() }}</span>
+        <span class="status-badge" [class.active]="p.status === 'ACTIVE'" [class.locked]="p.status === 'LOCKED'">
+          {{ p.status === 'ACTIVE' ? 'Đang hoạt động' : (p.status === 'LOCKED' ? 'Bị khóa' : p.status) }}
+        </span>
+      </div>
+
+      <div class="credit-block">
+        <div class="credit-label">
+          <span>Điểm tín nhiệm</span>
+          <span class="credit-value" [class]="'tier-' + creditTier()">{{ p.creditScore }}/100</span>
+        </div>
+        <div class="credit-bar">
+          <div class="credit-fill" [class]="'tier-' + creditTier()" [style.width.%]="creditPercent()"></div>
+        </div>
+        <div class="credit-hint" *ngIf="creditTier() === 'locked'">
+          Tài khoản đã hết điểm tín nhiệm và bị khóa mượn.
+        </div>
+        <div class="credit-hint" *ngIf="creditTier() === 'danger'">
+          Điểm thấp — hãy trả thiết bị đúng hạn để tránh bị khóa.
+        </div>
+      </div>
+    </aside>
+
+    <!-- RIGHT: Sections -->
+    <section class="info-stack">
+      <!-- Contact info -->
+      <div class="info-card">
+        <h3 class="info-card-title">
+          <tui-icon icon="@tui.contact" />
+          Thông tin liên hệ
+        </h3>
+        <dl class="info-list">
+          <div class="info-row">
+            <dt>Email</dt>
+            <dd>{{ p.email || '—' }}</dd>
+          </div>
+          <div class="info-row">
+            <dt>Số điện thoại</dt>
+            <dd>{{ p.phone || '—' }}</dd>
+          </div>
+          <div class="info-row" *ngIf="isStudent()">
+            <dt>Mã sinh viên</dt>
+            <dd>{{ p.studentCode || '—' }}</dd>
+          </div>
+          <div class="info-row">
+            <dt>Đơn vị</dt>
+            <dd>{{ p.unit?.unitName || '—' }}</dd>
+          </div>
+        </dl>
+      </div>
+
+      <!-- Account info -->
+      <div class="info-card">
+        <h3 class="info-card-title">
+          <tui-icon icon="@tui.shield" />
+          Thông tin tài khoản
+        </h3>
+        <dl class="info-list">
+          <div class="info-row">
+            <dt>Tên đăng nhập</dt>
+            <dd>{{ p.username }}</dd>
+          </div>
+          <div class="info-row">
+            <dt>Vai trò</dt>
+            <dd>
+              <span class="role-pill" *ngFor="let r of p.roles">{{ r.roleName || r.roleCode }}</span>
+            </dd>
+          </div>
+          <div class="info-row">
+            <dt>Ngày tạo</dt>
+            <dd>{{ p.createdAt ? (p.createdAt | date:'dd/MM/yyyy HH:mm') : '—' }}</dd>
+          </div>
+          <div class="info-row">
+            <dt>Đăng nhập gần nhất</dt>
+            <dd>{{ p.lastLoginAt ? (p.lastLoginAt | date:'dd/MM/yyyy HH:mm') : 'Chưa có' }}</dd>
+          </div>
+          <div class="info-row" *ngIf="p.failedLoginAttempts && p.failedLoginAttempts > 0">
+            <dt>Số lần đăng nhập sai</dt>
+            <dd class="warn-text">{{ p.failedLoginAttempts }}</dd>
+          </div>
+        </dl>
+      </div>
+
+      <!-- Quick actions -->
+      <div class="info-card">
+        <h3 class="info-card-title">
+          <tui-icon icon="@tui.zap" />
+          Truy cập nhanh
+        </h3>
+        <div class="quick-actions">
+          <a class="quick-btn" routerLink="/my-bookings">
+            <tui-icon icon="@tui.calendar" />
+            <span>Đơn của tôi</span>
+          </a>
+          <a class="quick-btn" routerLink="/my-penalties">
+            <tui-icon icon="@tui.shield-alert" />
+            <span>Vi phạm của tôi</span>
+          </a>
+          <a class="quick-btn" routerLink="/cart" *ngIf="isStudent()">
+            <tui-icon icon="@tui.shopping-cart" />
+            <span>Giỏ hàng</span>
+          </a>
+          <a class="quick-btn" routerLink="/forgot-password">
+            <tui-icon icon="@tui.key" />
+            <span>Đổi mật khẩu (qua email)</span>
+          </a>
+        </div>
+      </div>
+    </section>
+  </div>
+</div>
+
+<ng-template #loadingTpl>
+  <div class="loading-container">
+    <div class="spinner"></div>
+    <p>Đang tải hồ sơ...</p>
+  </div>
+</ng-template>

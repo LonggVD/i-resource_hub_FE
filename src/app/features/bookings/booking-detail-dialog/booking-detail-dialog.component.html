@@ -29,7 +29,7 @@
 
     <tui-loader [showLoader]="isLoadingEvidences()">
       <div class="device-list">
-        <div class="device-item" *ngFor="let item of group.items">
+        <div class="device-item" *ngFor="let item of group.items; let idx = index">
           <div class="device-details">
             <div class="device-header">
               <span class="device-name">{{ item.deviceName }}</span>
@@ -38,7 +38,13 @@
             </div>
 
             <div class="device-meta">
-              <span class="serial">Serial: {{ item.serialNumber }}</span>
+              <!-- Serial chỉ có ý nghĩa sau khi giáo vụ quét QR thiết bị tại quầy. -->
+              <span class="serial" *ngIf="item.status === 'BORROWED' || item.status === 'RETURNED' || item.status === 'OVERDUE'; else pendingSlot">
+                Serial: {{ item.serialNumber }}
+              </span>
+              <ng-template #pendingSlot>
+                <span class="serial serial-pending">Thiết bị #{{ idx + 1 }} · sẽ gán khi giáo vụ quét QR</span>
+              </ng-template>
             </div>
 
             <div *ngIf="item.hasDamage" class="damage-alert">
@@ -70,93 +76,6 @@
         </div>
       </div>
     </tui-loader>
-  </div>
-
-  <!-- Bổ sung ảnh minh chứng -->
-  <div class="upload-section">
-    <h3 class="section-title"><tui-icon icon="@tui.image-plus" /> Bổ sung ảnh minh chứng</h3>
-
-    <form [formGroup]="uploadForm" (ngSubmit)="submitEvidence()" class="upload-form">
-      <div class="upload-meta-row">
-        <div class="form-item">
-          <label class="filter-label">Thiết bị *</label>
-          <app-irh-select
-            [options]="itemOptions()"
-            formControlName="bookingId"
-            placeholder="Chọn thiết bị..."
-          ></app-irh-select>
-        </div>
-
-        <div class="form-item">
-          <label class="filter-label">Loại minh chứng *</label>
-          <app-irh-select
-            [options]="typeOptions"
-            formControlName="evidenceType"
-            placeholder="Chọn loại..."
-          ></app-irh-select>
-        </div>
-      </div>
-
-      <div class="form-item">
-        <label class="filter-label">Mô tả (tuỳ chọn)</label>
-        <textarea
-          formControlName="description"
-          class="input-field"
-          rows="2"
-          placeholder="Ghi chú ngắn về ảnh minh chứng..."
-        ></textarea>
-      </div>
-
-      <label class="upload-zone" [class.has-files]="selectedFiles.length > 0">
-        <input
-          type="file"
-          accept="image/*"
-          multiple
-          hidden
-          (change)="onFilesChange($event)"
-        />
-        <tui-icon icon="@tui.image-plus" class="upload-icon"></tui-icon>
-        <span class="upload-title">
-          Kéo thả hoặc <span class="upload-link">chọn ảnh từ máy</span>
-        </span>
-        <span class="upload-hint">JPG, PNG, WEBP &middot; Tối đa 10 MB/ảnh</span>
-      </label>
-
-      <div *ngIf="previewUrls().length > 0" class="preview-grid">
-        <div
-          *ngFor="let url of previewUrls(); let i = index"
-          class="preview-item"
-        >
-          <img [src]="url" [alt]="'Ảnh ' + (i + 1)" class="preview-img" />
-          <button
-            type="button"
-            class="preview-remove"
-            (click)="removeFile(i)"
-            title="Xoá ảnh này"
-            aria-label="Xoá ảnh"
-          >
-            <tui-icon icon="@tui.x"></tui-icon>
-          </button>
-        </div>
-      </div>
-
-      <div *ngIf="isUploading()" class="uploading-row">
-        <tui-loader size="s"></tui-loader>
-        <span>Đang tải ảnh lên server...</span>
-      </div>
-
-      <div class="upload-actions">
-        <button
-          tuiButton
-          type="submit"
-          size="m"
-          appearance="primary"
-          [disabled]="uploadForm.invalid || selectedFiles.length === 0 || isUploading()"
-        >
-          {{ isUploading() ? 'Đang tải...' : 'Thêm ảnh minh chứng' }}
-        </button>
-      </div>
-    </form>
   </div>
 
   <div class="dialog-actions">

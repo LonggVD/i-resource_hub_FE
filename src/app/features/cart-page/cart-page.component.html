@@ -70,19 +70,23 @@
           <div class="item-config-section">
             <div class="config-field">
               <label>Ngày mượn</label>
-              <input type="date" class="config-date-input" 
+              <input type="date" class="config-date-input"
+                     [min]="todayIso"
                      [value]="formatTuiDayToISO(item.bookingDate)"
                      (change)="updateConfig(item, 'date', $any($event.target).value)">
             </div>
             <div class="config-field">
               <label>Khung giờ</label>
-              <app-irh-select 
-                [options]="getSlotOptions()" 
+              <app-irh-select
+                [options]="getSlotOptions(item)"
                 [selectedValue]="item.slot?.id || ''"
                 placeholder="Chọn ca mượn"
                 (selectionChange)="updateConfig(item, 'slotId', $event)"
                 class="config-select-ui"
               ></app-irh-select>
+              <small *ngIf="item.bookingDate && !hasAvailableSlots(item)" class="config-hint-warn">
+                Hôm nay đã hết ca khả dụng. Vui lòng chọn ngày khác.
+              </small>
             </div>
           </div>
           
