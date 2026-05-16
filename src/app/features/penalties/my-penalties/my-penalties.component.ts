@@ -1,4 +1,4 @@
-import { Component, OnInit, computed, inject, signal } from '@angular/core';
+import { Component, OnInit, computed, effect, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { PenaltyService, PenaltyResponse } from '../../../core/api/penalty.service';
 import { AuthService } from '../../../core/api/auth.service';
@@ -49,6 +49,27 @@ export class MyPenaltiesComponent implements OnInit {
     return list;
   });
 
+  // ── Phân trang ──
+  readonly pageSize = signal<number>(10);
+  readonly currentPage = signal<number>(1);
+  readonly totalPages = computed(() =>
+    Math.max(1, Math.ceil(this.filteredPenalties().length / this.pageSize())),
+  );
+  readonly pagedPenalties = computed(() => {
+    const list = this.filteredPenalties();
+    const start = (this.currentPage() - 1) * this.pageSize();
+    return list.slice(start, start + this.pageSize());
+  });
+
+  constructor() {
+    // Đổi filter / pageSize → reset về trang 1 để không hiển thị trang trống.
+    effect(() => {
+      this.filterStatus();
+      this.pageSize();
+      this.currentPage.set(1);
+    }, { allowSignalWrites: true });
+  }
+
   ngOnInit() {
     const user = this.authService.user();
     if (user) {
@@ -71,6 +92,16 @@ export class MyPenaltiesComponent implements OnInit {
 
   setFilter(status: FilterStatus) {
     this.filterStatus.set(status);
+  }
+
+  goToPage(page: number) {
+    const max = this.totalPages();
+    if (page < 1 || page > max) return;
+    this.currentPage.set(page);
+  }
+
+  setPageSize(size: number) {
+    this.pageSize.set(size);
   }
 
   viewDetail(penalty: PenaltyResponse) {

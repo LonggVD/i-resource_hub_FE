@@ -271,6 +271,23 @@
   gap: var(--space-2);
 }
 
+.overdue-pagination {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-3);
+  padding: var(--space-3) 0 var(--space-1);
+  margin-top: var(--space-2);
+  border-top: 1px solid var(--color-border, #e5e7eb);
+}
+
+.overdue-pagination .page-indicator {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-muted, #6b7280);
+  min-width: 90px;
+  text-align: center;
+}
+
 .overdue-item {
   border-left: 3px solid var(--color-danger);
   background: var(--color-danger-soft);

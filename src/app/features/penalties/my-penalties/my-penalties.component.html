@@ -62,7 +62,7 @@
     <!-- ═══════════════ COMPACT PENALTY LIST ═══════════════ -->
     <div class="penalties-list" *ngIf="filteredPenalties().length > 0; else emptyState">
       <article
-        *ngFor="let p of filteredPenalties()"
+        *ngFor="let p of pagedPenalties()"
         class="penalty-row"
         [class.revoked]="p.status === 'REVOKED'"
         [class.has-fine]="p.fineAmount && p.status === 'ACTIVE'"
@@ -141,6 +141,33 @@
           </div>
         </div>
       </article>
+
+      <!-- Pagination footer -->
+      <div class="penalties-pagination" *ngIf="filteredPenalties().length > pageSize()">
+        <div class="page-size-group">
+          <label>Hiển thị:</label>
+          <select [value]="pageSize()" (change)="setPageSize(+$any($event.target).value)">
+            <option [value]="5">5</option>
+            <option [value]="10">10</option>
+            <option [value]="20">20</option>
+            <option [value]="50">50</option>
+          </select>
+          <span class="page-size-suffix">/ {{ filteredPenalties().length }} vi phạm</span>
+        </div>
+        <div class="page-controls">
+          <button tuiButton type="button" size="xs" appearance="flat" iconLeft="@tui.chevron-left"
+            [disabled]="currentPage() === 1"
+            (click)="goToPage(currentPage() - 1)">
+            Trước
+          </button>
+          <span class="page-indicator">Trang {{ currentPage() }} / {{ totalPages() }}</span>
+          <button tuiButton type="button" size="xs" appearance="flat" iconLeft="@tui.chevron-right"
+            [disabled]="currentPage() === totalPages()"
+            (click)="goToPage(currentPage() + 1)">
+            Sau
+          </button>
+        </div>
+      </div>
     </div>
 
     <!-- ═══════════════ EMPTY STATE ═══════════════ -->

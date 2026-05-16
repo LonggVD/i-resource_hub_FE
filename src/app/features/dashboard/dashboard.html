@@ -120,7 +120,7 @@
 
       <div class="list-container overdue-list">
         <div class="list-item overdue-item"
-          *ngFor="let over of stats()?.overdueBookings"
+          *ngFor="let over of pagedOverdue()"
           [class.selected]="isSelected(over.bookingId)">
           <input type="checkbox"
             class="overdue-checkbox no-print"
@@ -146,6 +146,24 @@
           <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
           Tuyệt vời! Không có thiết bị nào quá hạn.
         </div>
+      </div>
+
+      <!-- Pagination footer -->
+      <div class="overdue-pagination no-print"
+        *ngIf="(stats()?.overdueBookings?.length || 0) > overduePageSize()">
+        <button tuiButton type="button" size="xs" appearance="flat" iconLeft="@tui.chevron-left"
+          [disabled]="overdueCurrentPage() === 1"
+          (click)="goToOverduePage(overdueCurrentPage() - 1)">
+          Trước
+        </button>
+        <span class="page-indicator">
+          Trang {{ overdueCurrentPage() }} / {{ overdueTotalPages() }}
+        </span>
+        <button tuiButton type="button" size="xs" appearance="flat" iconLeft="@tui.chevron-right"
+          [disabled]="overdueCurrentPage() === overdueTotalPages()"
+          (click)="goToOverduePage(overdueCurrentPage() + 1)">
+          Sau
+        </button>
       </div>
     </div>
   </div>

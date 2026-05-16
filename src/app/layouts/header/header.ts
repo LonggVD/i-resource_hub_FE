@@ -134,7 +134,9 @@ export class Header implements OnInit, OnDestroy {
 
   private routeForType(type: string, refId: string): string[] | null {
     if (type?.startsWith('BOOKING_')) {
-      return ['/my-bookings'];
+      // Admin/Manager đi vào bảng Kanban; sinh viên vào "Đơn của tôi".
+      const isManager = this.authService.hasAnyRole(['ROLE_ADMIN', 'ROLE_MANAGER']);
+      return isManager ? ['/admin/bookings'] : ['/my-bookings'];
     }
     if (type === 'PENALTY_CREATED') {
       return ['/my-penalties'];

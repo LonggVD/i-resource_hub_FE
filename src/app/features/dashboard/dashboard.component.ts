@@ -37,6 +37,19 @@ export class DashboardComponent implements OnInit, OnDestroy {
   isStudent = signal<boolean>(false);
   protected readonly liveConnected = this.dashboardLive.connected;
 
+  // ── Phân trang cảnh báo quá hạn ──
+  protected readonly overduePageSize = signal<number>(5);
+  protected readonly overdueCurrentPage = signal<number>(1);
+  protected readonly overdueTotalPages = computed(() => {
+    const total = this.stats()?.overdueBookings?.length ?? 0;
+    return Math.max(1, Math.ceil(total / this.overduePageSize()));
+  });
+  protected readonly pagedOverdue = computed(() => {
+    const list = this.stats()?.overdueBookings ?? [];
+    const start = (this.overdueCurrentPage() - 1) * this.overduePageSize();
+    return list.slice(start, start + this.overduePageSize());
+  });
+
   protected readonly selectedIds = signal<Set<string>>(new Set());
   protected readonly selectedCount = computed(() => this.selectedIds().size);
   protected readonly allSelected = computed(() => {
@@ -206,6 +219,16 @@ export class DashboardComponent implements OnInit, OnDestroy {
     if (pruned.size !== this.selectedIds().size) {
       this.selectedIds.set(pruned);
     }
+    // Đảm bảo trang hiện tại còn hợp lệ sau khi list đổi
+    if (this.overdueCurrentPage() > this.overdueTotalPages()) {
+      this.overdueCurrentPage.set(1);
+    }
+  }
+
+  protected goToOverduePage(page: number): void {
+    const max = this.overdueTotalPages();
+    if (page < 1 || page > max) return;
+    this.overdueCurrentPage.set(page);
   }
 
   private initCharts(data: DashboardResponse): void {

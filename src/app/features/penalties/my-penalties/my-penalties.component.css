@@ -21,6 +21,12 @@
 .tab-count-danger{background:var(--color-danger-soft);color:var(--color-danger)}
 .filter-tabs .tab.active .tab-count-danger{background:rgba(255,255,255,.25);color:#fff}
 .penalties-list{display:flex;flex-direction:column;gap:var(--space-3)}
+.penalties-pagination{display:flex;align-items:center;justify-content:space-between;gap:var(--space-4);padding:var(--space-4) var(--space-2) var(--space-1);margin-top:var(--space-2);border-top:1px solid var(--color-border);flex-wrap:wrap}
+.penalties-pagination .page-size-group{display:flex;align-items:center;gap:var(--space-2);font-size:var(--font-size-sm);color:var(--color-text-muted)}
+.penalties-pagination .page-size-group select{background:var(--color-surface);border:1px solid var(--color-border);border-radius:var(--radius-sm);padding:2px var(--space-2);font-size:var(--font-size-sm);color:var(--color-text);cursor:pointer}
+.penalties-pagination .page-size-suffix{color:var(--color-text-subtle)}
+.penalties-pagination .page-controls{display:flex;align-items:center;gap:var(--space-3)}
+.penalties-pagination .page-indicator{font-size:var(--font-size-sm);color:var(--color-text-muted);min-width:90px;text-align:center}
 .penalty-row{background:var(--color-surface);border:1px solid var(--color-border);border-left:4px solid var(--color-danger);border-radius:var(--radius-md);padding:var(--space-4);display:grid;grid-template-columns:auto 1fr auto;gap:var(--space-4);align-items:start;transition:box-shadow .15s,border-color .15s}
 .penalty-row:hover{box-shadow:var(--shadow-sm);border-color:var(--color-border-strong)}
 .penalty-row.revoked{border-left-color:var(--color-text-subtle);opacity:.78}
